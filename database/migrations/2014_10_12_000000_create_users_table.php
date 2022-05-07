@@ -20,6 +20,7 @@ return new class extends Migration
             // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             // $table->rememberToken();
+            // $table->integer('role_id')->default(2);
             $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
             $table->timestamps();
         });
