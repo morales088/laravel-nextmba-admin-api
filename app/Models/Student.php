@@ -33,13 +33,13 @@ class Student extends Model
             $query += ["phone" => "st.phone like '%".addslashes($filter["phone"])."%'"];
         }
         if(!empty($filter['company'])){
-            $query += ["company" => "st.company like '%".addslashes($$filter["company"])."%'"];
+            $query += ["company" => "st.company like '%".addslashes($filter["company"])."%'"];
         }
         if(!empty($filter['position'])){
-            $query += ["position" => "st.position like '%".addslashes($$filter["position"])."%'"];
+            $query += ["position" => "st.position like '%".addslashes($filter["position"])."%'"];
         }
         // if(!empty($filter['interest']!empty(){
-        //     $query += ["interest" => "st.interest like '%".addslashes($$filter["interest"])."%'"];
+        //     $query += ["interest" => "st.interest like '%".addslashes($filter["interest"])."%'"];
         // }
 
         if(!empty($filter['sort_column']) && !empty($filter['sort_type'])){
@@ -56,16 +56,25 @@ class Student extends Model
 
         // dd($queryText.$sort);
 
+        // $students = DB::SELECT("select * from 
+        //                         (select u.id as id, u.name, u.email, s.phone, s.location, s.company, s.position, s.field, IF(u.status = 1, 'active', 'deleted') as status, sc.courses
+        //                         from users as u 
+        //                         left join students as s ON s.userId = u.id
+        //                         left join (select sc.userId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
+        //                         from studentcourses as sc
+        //                         left join courses as c ON sc.courseId = c.id 
+        //                         WHERE c.status = 1
+        //                         GROUP BY sc.userId) as sc on u.id = sc.userId
+        //                         where u.role_id = 2 and u.status = 1) as st".$queryText.$sort);
+
         $students = DB::SELECT("select * from 
-                                (select u.id as id, u.name, u.email, s.phone, s.location, s.company, s.position, s.field, IF(u.status = 1, 'active', 'deleted') as status, sc.courses
-                                from users as u 
-                                left join students as s ON s.userId = u.id
-                                left join (select sc.userId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
+                                (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
+                                from students as s
+                                left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
                                 WHERE c.status = 1
-                                GROUP BY sc.userId) as sc on u.id = sc.userId
-                                where u.role_id = 2 and u.status = 1) as st".$queryText.$sort);
+                                GROUP BY sc.studentId) as sc on s.id = sc.studentId) as st".$queryText.$sort);
 
         return $students;
     }

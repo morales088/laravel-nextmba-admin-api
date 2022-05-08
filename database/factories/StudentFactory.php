@@ -18,6 +18,9 @@ class StudentFactory extends Factory
     public function definition()
     {
         return [
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'password' => '$2y$10$Fj5NVJvcqGvQxnmOF9Zx9u7EpOf73wXIY7xjmV2QPnXKzj/ibSXv6', // nextuniversityadmin
             // 'userId' => \App\Models\User::where('role_id', '=', 1)->get()->random()->id,
             'phone' => $this->faker->phoneNumber(),
             'location' => $this->faker->address(),

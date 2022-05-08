@@ -14,22 +14,20 @@ class StudentcourseSeeder extends Seeder
      */
     public function run()
     {
-        $user = \App\Models\User::where('role_id', '=', 2)->get();
+        $user = \App\Models\Student::get();
 
         foreach ($user as $key => $value) {
-
-            // dd($value->id);
             
             \App\Models\Studentcourse::create(
                 [
-                    'userId' => $value->id,
+                    'studentId' => $value->id,
                     'courseId' => \App\Models\Course::first()->id,
                 ]
             );
             
             \App\Models\Studentcourse::create(
                 [
-                    'userId' => $value->id,
+                    'studentId' => $value->id,
                     'courseId' => \App\Models\Course::skip(1)->first()->id,
                 ]
             );

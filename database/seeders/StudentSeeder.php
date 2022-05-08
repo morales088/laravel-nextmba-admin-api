@@ -15,10 +15,12 @@ class StudentSeeder extends Seeder
      */
     public function run()
     {
-        $user = \App\Models\User::where('role_id', '=', 2)->get();
+        // $user = \App\Models\User::where('role_id', '=', 2)->get();
 
-        foreach ($user as $key => $value) {
-            \App\Models\Student::factory(1)->create(['userId' => $value->id]);
-        }
+        // foreach ($user as $key => $value) {
+        //     \App\Models\Student::factory(1)->create(['userId' => $value->id]);
+        // }
+
+        \App\Models\Student::factory(20)->create();
     }
 }

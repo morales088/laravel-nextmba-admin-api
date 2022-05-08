@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('studentcourses', function (Blueprint $table) {
-            $table->id();
-            $table->integer('studentId');
-            $table->integer('courseId');
-            $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['role_id']);
+            $table->dropColumn(['role_id']);
         });
     }
 
@@ -29,6 +26,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('studentcourses');
+        Schema::table('users', function (Blueprint $table) {
+            $table->unsignedBigInteger('role_id');
+            $table->foreign('role_id')->references('id')->on('roles');
+        });
     }
 };

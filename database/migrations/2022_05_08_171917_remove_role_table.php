@@ -13,13 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('studentcourses', function (Blueprint $table) {
-            $table->id();
-            $table->integer('studentId');
-            $table->integer('courseId');
-            $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
-            $table->timestamps();
-        });
+        Schema::dropIfExists('roles');
     }
 
     /**
@@ -29,6 +23,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('studentcourses');
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            // $table->timestamps();
+        });
     }
 };

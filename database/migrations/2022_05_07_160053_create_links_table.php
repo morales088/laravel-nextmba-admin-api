@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->integer('userId');
+            // $table->integer('userId');
+            $table->integer('studentId');
             $table->string('name');
             $table->string('link');
             $table->string('icon')->nullable()->comment('icon path');
