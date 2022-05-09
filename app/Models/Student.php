@@ -14,13 +14,13 @@ class Student extends Model
 
     public static function getStudent($filter = []){
 
-        // $students = collect(\DB::SELECT("select u.id as studentId, u.name, u.email, s.phone, s.location, s.company, s.position, s.field, IF(u.status = 1, 'active', 'deleted') as status
-        //                         from users as u 
-        //                         left join students as s ON s.userId = u.id
-        //                         where u.role_id = 2 and u.status = 1"))->first();
         $query = [];
         $sort = " order by st.id asc";
         $queryText = "";
+
+        $rowPerPage = 10;
+        $pagination = " LIMIT ".$rowPerPage;
+        
         
         // check if filter column exist
         if(!empty($filter['course'])){
@@ -54,18 +54,18 @@ class Student extends Model
             }
         }
 
-        // dd($queryText.$sort);
+        if(!empty($filter['page'])){
+            $pagination .= " OFFSET ".(addslashes($filter["page"]) - 1);
+        }
 
-        // $students = DB::SELECT("select * from 
-        //                         (select u.id as id, u.name, u.email, s.phone, s.location, s.company, s.position, s.field, IF(u.status = 1, 'active', 'deleted') as status, sc.courses
-        //                         from users as u 
-        //                         left join students as s ON s.userId = u.id
-        //                         left join (select sc.userId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
-        //                         from studentcourses as sc
-        //                         left join courses as c ON sc.courseId = c.id 
-        //                         WHERE c.status = 1
-        //                         GROUP BY sc.userId) as sc on u.id = sc.userId
-        //                         where u.role_id = 2 and u.status = 1) as st".$queryText.$sort);
+        // dd("select * from 
+        // (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
+        // from students as s
+        // left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
+        // from studentcourses as sc
+        // left join courses as c ON sc.courseId = c.id 
+        // WHERE c.status = 1
+        // GROUP BY sc.studentId) as sc on s.id = sc.studentId) as st".$queryText.$sort.$pagination);
 
         $students = DB::SELECT("select * from 
                                 (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
@@ -74,18 +74,15 @@ class Student extends Model
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
                                 WHERE c.status = 1
-                                GROUP BY sc.studentId) as sc on s.id = sc.studentId) as st".$queryText.$sort);
+                                GROUP BY sc.studentId) as sc on s.id = sc.studentId) as st".$queryText.$sort.$pagination);
 
         return $students;
     }
 
-    public static function getStudentCourse(){
+    public static function getStudentLinks($stuendtId){
 
-        $studentCourse = DB::SELECT("select sc.userId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus
-                                    from studentcourses as sc
-                                    left join courses as c ON sc.courseId = c.id
-                                    where sc.userId = 3");
+        $studentLinks = DB::SELECT("select name, link, icon, IF(status = 1, 'active', 'deleted') as status from links where studentId = $stuendtId");
 
-        return $studentCourse;
+        return $studentLinks;
     }
 }

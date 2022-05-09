@@ -32,7 +32,7 @@ class loginController extends Controller
         $currentIp = request()->ip();
 
         $login = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|string|email',
             'password' => 'required|string'
         ]);
 
