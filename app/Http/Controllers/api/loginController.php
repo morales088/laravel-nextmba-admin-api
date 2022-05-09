@@ -16,17 +16,22 @@ class loginController extends Controller
         return User::all();
     }
 
-    // public function loginTest (Request $request){
-    //     if(Auth::attempt($request->only('email','password'))){
-    //         $user = Auth::user();
+    public function personalAccessLogin (Request $request){
 
-    //         $accessToken = Auth::user()->createToken('authToken')->accessToken;
+        $login = $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string'
+        ]);
 
-    //         return response(["token" => $accessToken], 200);
-    //     }
+        if(!Auth::attempt($login)){
+            return response(["message" => "Invalid login credentials"], 401);
+        }
 
-    //     return response(["message" => "Invalid login credentials"], 401);
-    // }
+        $accessToken = Auth::user()->createToken('authToken')->accessToken;
+
+        return response()->json(["user" => Auth::user(), "access_token" => $accessToken], 200);
+        
+    }
 
     public function login(Request $request){
         $currentIp = request()->ip();
