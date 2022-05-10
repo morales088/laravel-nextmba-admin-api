@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Links;
+use Validator;
 use DB;
 
 class studentController extends Controller
@@ -70,7 +71,8 @@ class studentController extends Controller
 
         foreach ($links as $key => $value) {
             // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();
-            $link = Links::find($id)->where('studentId', $id)->where('name', $key)->first();
+
+            $link = Links::where('id', $id)->where('studentId', $id)->where('name', $key)->first();
             
             if($link){
                 $link->update(
@@ -96,5 +98,21 @@ class studentController extends Controller
         // dd($newStudentInfos, $newStudentLinks);
 
         return response(["students" => $newStudentInfos, "links" => $newStudentLinks], 200);
+    }
+
+    public function studentById(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+
+        $studentId = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+        $student = Student::where('id', $id)->first();
+
+        $student['links'] = Links::where('studentId', $student->id)->get();
+
+        return response()->json(["student" => $student], 200);
+
     }
 }
