@@ -21,7 +21,23 @@ class Student extends Model
         $rowPerPage = 10;
         $pagination = " LIMIT ".$rowPerPage;
         
-        
+        // dd($filter);
+
+        $searchQuery = "";
+        // search
+        // dd(is_int($filter["search"]), is_numeric($filter["search"]));
+
+        if(!empty($filter['search'])){
+            if(is_numeric($filter["search"])){
+                $searchQuery = "WHERE s.id = ".$filter["search"];
+            }else{
+                $searchQuery = "WHERE s.email LIKE '%".$filter['search']."%' and s.name like '%".$filter['search']."%'";
+            }
+        }
+
+
+
+
         // check if filter column exist
         if(!empty($filter['course'])){
             $query += ["course" => "st.courses like '%".addslashes($filter["course"])."%'"];
@@ -58,14 +74,14 @@ class Student extends Model
             $pagination .= " OFFSET ".(addslashes($filter["page"]) - 1);
         }
 
-        // dd("select * from 
-        // (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
-        // from students as s
-        // left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
-        // from studentcourses as sc
-        // left join courses as c ON sc.courseId = c.id 
-        // WHERE c.status = 1
-        // GROUP BY sc.studentId) as sc on s.id = sc.studentId) as st".$queryText.$sort.$pagination);
+        dd("select * from 
+        (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
+        from students as s
+        left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
+        from studentcourses as sc
+        left join courses as c ON sc.courseId = c.id 
+        WHERE c.status = 1 
+        GROUP BY sc.studentId) as sc on s.id = sc.studentId $searchQuery) as st".$queryText.$sort.$pagination);
 
         $students = DB::SELECT("select * from 
                                 (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
@@ -73,8 +89,8 @@ class Student extends Model
                                 left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
-                                WHERE c.status = 1
-                                GROUP BY sc.studentId) as sc on s.id = sc.studentId) as st".$queryText.$sort.$pagination);
+                                WHERE c.status = 1 
+                                GROUP BY sc.studentId) as sc on s.id = sc.studentId $searchQuery) as st".$queryText.$sort.$pagination);
 
         return $students;
     }

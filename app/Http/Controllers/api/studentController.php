@@ -21,7 +21,6 @@ class studentController extends Controller
             'company' => 'string',
             'position' => 'string',
             'interest' => 'string',
-            
         ]);
 
         $query_filter = [];
@@ -32,6 +31,7 @@ class studentController extends Controller
         !empty($request->company)? $query_filter += ['company' => $request->company] : '';
         !empty($request->position)? $query_filter += ['position' => $request->position] : '';
         !empty($request->interest)? $query_filter += ['interest' => $request->interest] : '';
+        !empty($request->search)? $query_filter += ['search' => $request->search] : '';
 
         !empty($request->page)? $query_filter += ['page' => $request->page] : '';
         (!empty($request->sort_column) && !empty($request->sort_column) )? $query_filter += ['sort_column' => $request->sort_column, 'sort_type' => $request->sort_type] : '';
