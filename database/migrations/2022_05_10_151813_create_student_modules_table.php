@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('student_modules', function (Blueprint $table) {
             $table->id();
             $table->integer('studentId');
-            $table->integer('courseId');
+            $table->integer('moduleId');
+            $table->string('remarks')->nullable();
             $table->integer('status')->default(1)->comment('[0 - delete, 1 - active, 2 - pending, 3 - completed]');
             $table->timestamps();
         });

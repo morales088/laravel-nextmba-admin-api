@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('courseId');
             $table->string('name');
             $table->string('description')->nullable();
-            $table->string('remarks')->nullable();
+            // $table->string('remarks')->nullable();
             $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
             $table->timestamps();
         });

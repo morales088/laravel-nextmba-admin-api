@@ -14,9 +14,9 @@ class ModuleSeeder extends Seeder
      */
     public function run()
     {
-        $user = \App\Models\Course::get();
+        $course = \App\Models\Course::get();
 
-        foreach ($user as $key => $value) {
+        foreach ($course as $key => $value) {
             \App\Models\Module::factory(1)->create(['courseId' => $value->id]);
         }
     }
