@@ -70,12 +70,28 @@ class studentController extends Controller
             $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
                                     from student_modules sm
                                     left join modules m ON m.id = sm.moduleId
-                                    left join courses c ON c.id = c.id
-                                    where sm.status <> 0 and c.id = $value->courseId and sm.studentId = $id");
+                                    where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id");
 
             $value->modules = $modules;
         }
 
         return response(["coursesPerStudent" => $courses], 200);
+    }
+
+    public function modulePerCourses(Request $request, $id, $courseId){
+        $request->query->add(['id' => $id, 'id' => $courseId]);
+
+        $students = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+            'moduleId' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+        $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+                                from student_modules sm
+                                left join modules m ON m.id = sm.moduleId
+                                where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");
+
+
+        return response(["modulePerCourses" => $modules], 200);
     }
 }

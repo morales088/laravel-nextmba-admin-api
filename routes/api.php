@@ -34,5 +34,7 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->put("/{id}", "api\studentController@updateStudent");
     Route::middleware("auth:api")->get("/{id}", "api\studentController@studentById");    
     Route::middleware("auth:api")->get("/courses/{id}", "api\studentController@coursesByStudent"); //get all courses enrolled to student id
+    Route::middleware("auth:api")->get("/courses/{courseId}/{id}", "api\studentController@modulePerCourses"); //get all module per courses to student id
+
 
 });
