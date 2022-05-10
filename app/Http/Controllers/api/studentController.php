@@ -44,8 +44,8 @@ class studentController extends Controller
         // dd($students);
         
         foreach ($students as $key => $value) {
-            
-            $studentLinks = Student::getStudentLinks(1);
+
+            $studentLinks = Student::getStudentLinks($value->id);
             $value->links = $studentLinks;
         }
 
