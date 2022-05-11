@@ -4,6 +4,8 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Student;
 use DB;
 
@@ -49,5 +51,64 @@ class studentController extends Controller
         }
 
         return response(["students" => $students], 200);
+    }
+
+    public function activateDeactivate(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+
+        $studentId = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+            'status' => 'string',
+        ]);
+        $status = 1;
+
+        if($request->status == 'activate'){
+            $status = 1;
+        }elseif($request->status == 'deactivate'){
+            $status = 0;
+        }
+
+        $students = Student::find($id);
+        
+        $students->update(
+                    [ 
+                        'updated_by' => auth('api')->user()->id,
+                        'status' => $status,
+                        // 'updated_at' => now()
+                    ]
+                    );
+
+        return response(["message" => "successfully updated this student"], 200);
+
+    }
+
+    public function changePassword(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+
+        $studentId = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+        $textPassword = Str::random(10);
+        $hashPasword = Hash::make($textPassword);
+
+        
+
+        $students = Student::find($id);
+        
+        $students->update(
+                    [ 
+                        'password' => $hashPasword,
+                        'updated_by' => auth('api')->user()->id,
+                        // 'updated_at' => now()
+                    ]
+                    );
+
+        return response(["newPassword" => $textPassword, "message" => "successfully updated this student"], 200);
+
+        // dd($textPassword, $hashPasword);
+
     }
 }
