@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Student;
+use App\Models\Links;
+use Validator;
 use DB;
 
 class studentController extends Controller
@@ -45,22 +47,111 @@ class studentController extends Controller
         // dd($students);
         
         foreach ($students as $key => $value) {
-            
-            $studentLinks = Student::getStudentLinks(1);
+
+            $studentLinks = Student::getStudentLinks($value->id);
             $value->links = $studentLinks;
         }
 
         return response(["students" => $students], 200);
     }
 
-    public function activateDeactivate(Request $request, $id){
-
+    public function coursesByStudent(Request $request, $id){
+        
         $request->query->add(['id' => $id]);
 
         $studentId = $request->validate([
             'id' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.expirationDate
+                                from studentcourses sc
+                                left join student_modules sm ON sm.id = sc.studentId
+                                left join courses c ON c.id = sc.courseId
+                                where sc.studentId = $id");
+
+        foreach ($courses as $key => $value) {
+            
+            $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+                                    from student_modules sm
+                                    left join modules m ON m.id = sm.moduleId
+                                    where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id");
+
+            $value->modules = $modules;
+        }
+
+        return response(["coursesPerStudent" => $courses], 200);
+    }
+
+    public function modulePerCourses(Request $request, $courseId, $id){
+        $request->query->add(['id' => $id, 'id' => $courseId]);
+
+        $students = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+            'moduleId' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+        $modules = DB::SELECT("select sm.studentId, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+                                from student_modules sm
+                                left join modules m ON m.id = sm.moduleId
+                                where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");
+
+
+        return response(["modulePerCourses" => $modules], 200);
+    }
+
+    public function updateStudent(Request $request, $id){
+
+        $students = Student::find($id);
+        
+        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field') +
+                        [ 'updated_at' => now()]
+                        );
+
+        $links = [];
+
+        !empty($request->LI)? $links += ['li' => $request->LI] : '';
+        !empty($request->IG)? $links += ['ig' => $request->IG] : '';
+        !empty($request->FB)? $links += ['fb' => $request->FB] : '';
+        !empty($request->TG)? $links += ['tg' => $request->TG] : '';
+        !empty($request->WS)? $links += ['ws' => $request->WS] : '';
+
+        foreach ($links as $key => $value) {
+            // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();
+
+            $link = Links::where('id', $id)->where('studentId', $id)->where('name', $key)->first();
+            
+            if($link){
+                $link->update(
+                [ 
+                    'link' => $value,
+                    'updated_at' => now()
+                ]
+                );
+            }else{
+                Links::create($request->only('icon') + 
+                [
+                    'studentId' => $id,
+                    'name' => $key,
+                    'link' => $value
+                ]);
+            }
+
+        }
+        
+        $newStudentInfos =  Student::find($id);
+        $newStudentLinks =  Links::where('studentId', $id)->get();
+
+        // dd($newStudentInfos, $newStudentLinks);
+
+        return response(["students" => $newStudentInfos, "links" => $newStudentLinks], 200);
+    }
+
+    public function activateDeactivate(Request $request, $id){
+        
+        $request->validate([
             'status' => 'string',
         ]);
+        
         $status = 1;
 
         if($request->status == 'activate'){
@@ -83,32 +174,38 @@ class studentController extends Controller
 
     }
 
-    public function changePassword(Request $request, $id){
-
+    public function studentById(Request $request, $id){
+        
         $request->query->add(['id' => $id]);
 
         $studentId = $request->validate([
             'id' => 'numeric|min:1|exists:Students,id',
         ]);
+        
+        $student = Student::where('id', $id)->first();
+
+        $student['links'] = Links::where('studentId', $student->id)->get();
+
+        return response()->json(["student" => $student], 200);
+    }
+
+
+    public function changePassword(Request $request, $id){
 
         $textPassword = Str::random(10);
         $hashPasword = Hash::make($textPassword);
 
-        
-
         $students = Student::find($id);
         
         $students->update(
-                    [ 
-                        'password' => $hashPasword,
-                        'updated_by' => auth('api')->user()->id,
-                        // 'updated_at' => now()
-                    ]
+                        [ 
+                            'password' => $hashPasword,
+                            'updated_by' => auth('api')->user()->id,
+                            // 'updated_at' => now()
+                        ]
                     );
 
         return response(["newPassword" => $textPassword, "message" => "successfully updated this student"], 200);
-
-        // dd($textPassword, $hashPasword);
-
+        
     }
 }
