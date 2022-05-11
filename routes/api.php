@@ -24,7 +24,7 @@ Route::prefix("/user")->group( function (){
     Route::post("/login", "api\loginController@personalAccessLogin");
     // Route::middleware("auth:api")->get("/all", "api\studentController@index");
     // Route::middleware("auth:api")->put("/student/{id}", "api\studentController@updateStudent");
-    
+
 });
 
 
@@ -34,7 +34,7 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->put("/{id}", "api\studentController@updateStudent");
     Route::middleware("auth:api")->get("/{id}", "api\studentController@studentById");    
     Route::middleware("auth:api")->get("/courses/{id}", "api\studentController@coursesByStudent"); //get all courses enrolled to student id
-    Route::middleware("auth:api")->get("/courses/{courseId}/{id}", "api\studentController@modulePerCourses"); //get all module per courses to student id
+    Route::middleware("auth:api")->get("/modules/{courseId}/{id}", "api\studentController@modulePerCourses"); //get all module per courses to student id
 
 
 });
