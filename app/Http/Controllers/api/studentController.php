@@ -53,6 +53,51 @@ class studentController extends Controller
         return response(["students" => $students], 200);
     }
 
+
+    public function coursesByStudent(Request $request, $id){
+        $request->query->add(['id' => $id]);
+
+        $studentId = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.expirationDate
+                                from studentcourses sc
+                                left join student_modules sm ON sm.id = sc.studentId
+                                left join courses c ON c.id = sc.courseId
+                                where sc.studentId = $id");
+
+        foreach ($courses as $key => $value) {
+            
+            $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+                                    from student_modules sm
+                                    left join modules m ON m.id = sm.moduleId
+                                    where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id");
+
+            $value->modules = $modules;
+        }
+
+        return response(["coursesPerStudent" => $courses], 200);
+    }
+
+    public function modulePerCourses(Request $request, $courseId, $id){
+        $request->query->add(['id' => $id, 'id' => $courseId]);
+
+        $students = $request->validate([
+            'id' => 'numeric|min:1|exists:Students,id',
+            'moduleId' => 'numeric|min:1|exists:Students,id',
+        ]);
+
+        $modules = DB::SELECT("select sm.studentId, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+                                from student_modules sm
+                                left join modules m ON m.id = sm.moduleId
+                                where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");
+
+
+        return response(["modulePerCourses" => $modules], 200);
+    }
+
     public function updateStudent(Request $request, $id){
 
         $students = Student::find($id);
@@ -113,6 +158,5 @@ class studentController extends Controller
         $student['links'] = Links::where('studentId', $student->id)->get();
 
         return response()->json(["student" => $student], 200);
-
     }
 }
