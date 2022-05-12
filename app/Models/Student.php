@@ -31,10 +31,11 @@ class Student extends Model
             if(is_numeric($filter["search"])){
                 $searchQuery = "WHERE s.id = ".$filter["search"];
             }else{
-                $searchQuery = "WHERE s.email LIKE '%".$filter['search']."%' and s.name like '%".$filter['search']."%'";
+                $searchQuery = "WHERE s.email LIKE '%".$filter['search']."%' OR s.name like '%".$filter['search']."%'";
             }
         }
 
+        // dd($searchQuery);
 
 
 

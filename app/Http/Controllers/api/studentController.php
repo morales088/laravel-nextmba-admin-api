@@ -117,7 +117,7 @@ class studentController extends Controller
         foreach ($links as $key => $value) {
             // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();
 
-            $link = Links::where('id', $id)->where('studentId', $id)->where('name', $key)->first();
+            $link = Links::where('studentId', $id)->where('name', $key)->first();
             
             if($link){
                 $link->update(
@@ -138,11 +138,14 @@ class studentController extends Controller
         }
         
         $newStudentInfos =  Student::find($id);
+
         $newStudentLinks =  Links::where('studentId', $id)->get();
+        
+        $newStudentInfos->links = $newStudentLinks;
 
         // dd($newStudentInfos, $newStudentLinks);
 
-        return response(["students" => $newStudentInfos, "links" => $newStudentLinks], 200);
+        return response(["student" => $newStudentInfos], 200);
     }
 
     public function studentById(Request $request, $id){
