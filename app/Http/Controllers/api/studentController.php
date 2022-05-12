@@ -4,6 +4,8 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Student;
 use App\Models\Links;
 use Validator;
@@ -53,14 +55,13 @@ class studentController extends Controller
         return response(["students" => $students], 200);
     }
 
-
     public function coursesByStudent(Request $request, $id){
+        
         $request->query->add(['id' => $id]);
 
         $studentId = $request->validate([
             'id' => 'numeric|min:1|exists:Students,id',
         ]);
-
 
         $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.expirationDate
                                 from studentcourses sc
@@ -148,18 +149,66 @@ class studentController extends Controller
         return response(["student" => $newStudentInfos], 200);
     }
 
-    public function studentById(Request $request, $id){
+    public function activateDeactivate(Request $request, $id){
+        
+        $request->validate([
+            'status' => 'string',
+        ]);
+        
+        $status = 1;
 
+        if($request->status == 'activate'){
+            $status = 1;
+        }elseif($request->status == 'deactivate'){
+            $status = 0;
+        }
+
+        $students = Student::find($id);
+        
+        $students->update(
+                    [ 
+                        'updated_by' => auth('api')->user()->id,
+                        'status' => $status,
+                        // 'updated_at' => now()
+                    ]
+                    );
+
+        return response(["message" => "successfully updated this student"], 200);
+
+    }
+
+    public function studentById(Request $request, $id){
+        
         $request->query->add(['id' => $id]);
 
         $studentId = $request->validate([
             'id' => 'numeric|min:1|exists:Students,id',
         ]);
-
+        
         $student = Student::where('id', $id)->first();
 
         $student['links'] = Links::where('studentId', $student->id)->get();
 
         return response()->json(["student" => $student], 200);
+    }
+
+
+    public function changePassword(Request $request, $id){
+
+        $textPassword = Str::random(10);
+        $hashPasword = Hash::make($textPassword);
+
+        $students = Student::find($id);
+        
+        $students->update(
+                        [ 
+                            'password' => $hashPasword,
+                            'updated_by' => auth('api')->user()->id,
+                            // 'updated_at' => now()
+                        ]
+                    );
+
+        return response(["newPassword" => $textPassword, "message" => "successfully updated this student"], 200);
+        
     }
 }
