@@ -233,11 +233,11 @@ class studentController extends Controller
         
         foreach ($modules->modules as $key => $value) {
             
-            if($value->status == "DELETED"){
+            if($value->status == "deleted"){
                 $status = 0;
-            }elseif($value->status == "PENDING"){
+            }elseif($value->status == "pending"){
                 $status = 2;
-            }elseif($value->status == "COMPLETED"){
+            }elseif($value->status == "completed"){
                 $status = 3;
             }else{
                 $status = 1;
