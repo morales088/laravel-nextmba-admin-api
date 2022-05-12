@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Student;
 use App\Models\Links;
+use App\Models\Studentmodule;
 use Validator;
 use DB;
 
@@ -62,7 +63,8 @@ class studentController extends Controller
         $studentId = $request->validate([
             'id' => 'numeric|min:1|exists:Students,id',
         ]);
-
+        
+        $totalModules = 0;
         $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.expirationDate
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
@@ -70,12 +72,20 @@ class studentController extends Controller
                                 where sc.studentId = $id");
 
         foreach ($courses as $key => $value) {
-            
-            $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+            $value->totalModules = ++$totalModules;
+
+            $completedModules = 0;
+
+            $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, 
+                                    (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
                                     from student_modules sm
                                     left join modules m ON m.id = sm.moduleId
                                     where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id");
-
+            foreach ($modules as $key2 => $value2) {
+                if($value2->status == 3){ $completedModules++; }
+            }
+            
+            $value->completedModules = $completedModules;
             $value->modules = $modules;
         }
 
@@ -89,8 +99,9 @@ class studentController extends Controller
             'id' => 'numeric|min:1|exists:Students,id',
             'moduleId' => 'numeric|min:1|exists:Students,id',
         ]);
-
-        $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, (CASE WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending'  WHEN sm.status = 2 THEN 'complete' END) as status_code, sm.updated_at
+        
+        $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
+                                (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
                                 from student_modules sm
                                 left join modules m ON m.id = sm.moduleId
                                 where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");
@@ -210,5 +221,43 @@ class studentController extends Controller
 
         return response(["newPassword" => $textPassword, "message" => "successfully updated this student"], 200);
         
+    }
+
+    public function updateStudentModule(Request $request){
+
+        $request->validate([
+            'modules' => 'required|string',
+        ]);
+        
+        $modules = json_decode($request->modules);
+        
+        foreach ($modules->modules as $key => $value) {
+            
+            if($value->status == "DELETED"){
+                $status = 0;
+            }elseif($value->status == "PENDING"){
+                $status = 2;
+            }elseif($value->status == "COMPLETED"){
+                $status = 3;
+            }else{
+                $status = 1;
+            }
+        
+            $studentModule = StudentModule::where("studentId", $modules->student_id)->where("moduleId", $value->module_id)->first();
+            
+            if($value->remarks != $studentModule['remarks'] && $value->status != $studentModule['status']){
+                
+                $studentModule->update(
+                                [ 
+                                    'remarks' => $value->remarks,
+                                    'status' => $status,
+                                    'updated_at' => now()
+                                ]
+                                );
+            }
+                    
+        }
+        
+        return response(["message" => "successfully updated student's module"], 200);
     }
 }
