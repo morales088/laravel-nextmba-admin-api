@@ -38,3 +38,9 @@ Route::prefix("/student")->group( function (){
 
 });
 
+
+Route::prefix("/courses")->group( function (){
+
+    Route::middleware("auth:api")->get("/", "api\courseController@index");
+
+});
