@@ -99,8 +99,8 @@ class studentController extends Controller
             'id' => 'numeric|min:1|exists:Students,id',
             'moduleId' => 'numeric|min:1|exists:Students,id',
         ]);
-
-        $modules = DB::SELECT("select sm.studentId, m.name module_name, sm.remarks, sm.status, 
+        
+        $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
                                 (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
                                 from student_modules sm
                                 left join modules m ON m.id = sm.moduleId
