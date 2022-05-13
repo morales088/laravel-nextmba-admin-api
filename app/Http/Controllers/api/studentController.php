@@ -245,7 +245,7 @@ class studentController extends Controller
         
             $studentModule = StudentModule::where("studentId", $modules->student_id)->where("moduleId", $value->module_id)->first();
             
-            if($value->remarks != $studentModule['remarks'] && $value->status != $studentModule['status']){
+            if($value->remarks != $studentModule['remarks'] || $value->status != $studentModule['status']){
                 
                 $studentModule->update(
                                 [ 
