@@ -196,9 +196,11 @@ class studentController extends Controller
             'id' => 'numeric|min:1|exists:Students,id',
         ]);
         
-        $student = Student::where('id', $id)->first();
+        // $student = Student::where('id', $id)->first();
+        $student = COLLECT(\DB::SELECT("SELECT s.*, u.email update_by FROM students s LEFT JOIN users u ON s.updated_by = u.id WHERE s.id = $id"))->first();
+        // dd($student);
 
-        $student['links'] = Links::where('studentId', $student->id)->get();
+        $student->links = Links::where('studentId', $student->id)->get();
 
         return response()->json(["student" => $student], 200);
     }
