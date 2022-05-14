@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Student;
 use App\Models\Links;
 use App\Models\Studentmodule;
+use App\Models\Studentcourse;
+use App\Models\Course;
 use Validator;
 use DB;
 
@@ -65,7 +67,7 @@ class studentController extends Controller
         ]);
         
         $totalModules = 0;
-        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.expirationDate
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.starting, sc.expirationDate
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
                                 left join courses c ON c.id = sc.courseId
@@ -261,5 +263,28 @@ class studentController extends Controller
         }
         
         return response(["message" => "successfully updated student's module"], 200);
+    }
+
+    public function extendCourse(Request $request){
+        
+        $request->validate([
+            'student_id' => 'required|numeric|min:1|exists:Students,id',
+            'course_id' => 'required|numeric|min:1|exists:Courses,id',
+            'starting_date' => 'required|date_format:Y-m-d H:i:s',
+            'expiration_date' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
+                
+        $studentModule->update(
+                        [ 
+                            'starting' => $request->starting_date,
+                            'expirationDate' => $request->expiration_date,
+                            'updated_at' => now()
+                        ]
+                        );
+                        
+        return response(["message" => "successfully extend student's course"], 200);
+
     }
 }

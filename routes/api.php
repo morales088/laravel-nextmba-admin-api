@@ -38,5 +38,8 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->put("/account/{id}", "api\studentController@activateDeactivate");
     Route::middleware("auth:api")->put("/change_password/{id}", "api\studentController@changePassword");
 
+    Route::middleware("auth:api")->put("/course/extend", "api\studentController@extendCourse");
+    
+
 });
 

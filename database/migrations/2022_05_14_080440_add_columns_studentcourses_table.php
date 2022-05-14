@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->integer('updated_by')->default(1)->after('field');
-            $table->dateTime('last_login')->default(now())->after('field');
+        Schema::table('studentcourses', function (Blueprint $table) {
+            $table->dateTime('starting')->default(now())->after('updated_at');
         });
     }
 
@@ -26,9 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::create('students', function (Blueprint $table) {
-            $table->dropColumn('updated_by');
-            $table->dropColumn('last_login');
+        Schema::create('studentcourses', function (Blueprint $table) {
+            $table->dropColumn('starting');
         });
     }
 };
