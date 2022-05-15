@@ -67,7 +67,7 @@ class studentController extends Controller
         ]);
         
         $totalModules = 0;
-        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.created_at date_started, sc.starting, sc.expirationDate
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.date_started, sc.expirationDate
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
                                 left join courses c ON c.id = sc.courseId
