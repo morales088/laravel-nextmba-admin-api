@@ -112,5 +112,12 @@ class loginController extends Controller
 
     }
 
+    public function admin(Request $request){
+        $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
+                            from users");
+
+        return response()->json(["admin" => $admin], 200);
+    }
+
 
 }
