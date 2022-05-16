@@ -12,7 +12,7 @@ use DB;
 class courseController extends Controller
 {
     public function index(Request $request){
-        $courses = DB::SELECT("select c.id course_id, c.name, c.description, count(s.id) total_students, c.created_at, c.updated_at
+        $courses = DB::SELECT("select c.id course_id, c.name, c.description, count(s.id) total_students, s.status, (CASE WHEN s.status = 0 THEN 'deleted' WHEN s.status = 1 THEN 'active' END) as status_code, c.created_at, c.updated_at
                                 from students s
                                 left join studentcourses sc ON sc.studentId = s.id
                                 left join courses c ON c.id = sc.courseId

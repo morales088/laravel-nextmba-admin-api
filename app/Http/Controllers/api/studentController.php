@@ -122,12 +122,20 @@ class studentController extends Controller
 
         $links = [];
 
-        !empty($request->LI)? $links += ['li' => $request->LI] : '';
-        !empty($request->IG)? $links += ['ig' => $request->IG] : '';
-        !empty($request->FB)? $links += ['fb' => $request->FB] : '';
-        !empty($request->TG)? $links += ['tg' => $request->TG] : '';
-        !empty($request->WS)? $links += ['ws' => $request->WS] : '';
+        // !empty($request->LI)? $links += ['li' => $request->LI] : '';
+        // !empty($request->IG)? $links += ['ig' => $request->IG] : '';
+        // !empty($request->FB)? $links += ['fb' => $request->FB] : '';
+        // !empty($request->TG)? $links += ['tg' => $request->TG] : '';
+        // !empty($request->WS)? $links += ['ws' => $request->WS] : '';
 
+        ($request->LI)? $links += ['li' => addslashes($request->LI)] : '';
+        ($request->IG)? $links += ['ig' => addslashes($request->IG)] : '';
+        ($request->FB)? $links += ['fb' => addslashes($request->FB)] : '';
+        ($request->TG)? $links += ['tg' => addslashes($request->TG)] : '';
+        ($request->WS)? $links += ['ws' => addslashes($request->WS)] : '';
+
+                        // dd($links, $request->all());
+                        
         foreach ($links as $key => $value) {
             // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();
 
