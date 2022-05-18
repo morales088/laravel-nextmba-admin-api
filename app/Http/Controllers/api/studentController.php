@@ -344,7 +344,10 @@ class studentController extends Controller
 
         $checker = DB::SELECT("SELECT * FROM studentcourses where studentId = ".$request->studentId);
         
-        return response(["message" => "record already exist"], 409);
+        if(!empty($checker)){
+            return response(["message" => "record already exist"], 409);
+        }
+        
 
         DB::transaction(function() use ($request) {
 
