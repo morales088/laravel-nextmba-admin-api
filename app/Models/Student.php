@@ -102,4 +102,58 @@ class Student extends Model
 
         return $studentLinks;
     }
+
+    public static function createLinks($stuendtId, $links = []){
+        
+        if(!empty($links['LI'])){
+            Links::create([
+                            'studentId' => $stuendtId,
+                            'name' => 'li',
+                            'link' => $links['LI'],
+                        ]);
+        }
+
+        if(!empty($links['IG'])){
+            Links::create([
+                            'studentId' => $stuendtId,
+                            'name' => 'ig',
+                            'link' => $links['IG'],
+                        ]);
+        }
+
+        if(!empty($links['FB'])){
+            Links::create([
+                            'studentId' => $stuendtId,
+                            'name' => 'fb',
+                            'link' => $links['FB'],
+                        ]);
+        }
+
+        if(!empty($links['LI'])){
+            Links::create([
+                            'studentId' => $stuendtId,
+                            'name' => 'li',
+                            'link' => $links['LI'],
+                        ]);
+        }
+
+        if(!empty($links['TG'])){
+            Links::create([
+                            'studentId' => $stuendtId,
+                            'name' => 'tg',
+                            'link' => $links['TG'],
+                        ]);
+        }
+
+        if(!empty($links['WS'])){
+            Links::create([
+                            'studentId' => $stuendtId,
+                            'name' => 'ws',
+                            'link' => $links['WS'],
+                        ]);
+        }
+
+        return true;
+
+    }
 }

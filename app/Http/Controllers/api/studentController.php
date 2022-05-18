@@ -309,14 +309,23 @@ class studentController extends Controller
         ]);
 
         // $link = Links::where('studentId', $id)->where('name', $key)->first();
+        $student = DB::transaction(function() use ($request) {
 
-        $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
-                                    [
-                                        'name' => $request->name,
-                                        'email' => $request->email,
-                                        'password' => Hash::make($request->password),
-                                        'updated_by' => auth('api')->user()->id
-                                    ]);
+                        $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
+                                                    [
+                                                        'name' => $request->name,
+                                                        'email' => $request->email,
+                                                        'password' => Hash::make($request->password),
+                                                        'updated_by' => auth('api')->user()->id
+                                                    ]);
+                        
+                        Student::createLinks($student->id, $request->all());
+
+                        $student->links = Links::where('studentId', $student->id)->get();
+                        
+                        return $student;
+
+                    });
 
         // dd($request->all());
 
