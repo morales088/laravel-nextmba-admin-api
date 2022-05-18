@@ -40,6 +40,8 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->put("/change_password/{id}", "api\studentController@changePassword");
 
     Route::middleware("auth:api")->put("/course/extend", "api\studentController@extendCourse");
+
+    Route::middleware("auth:api")->post("/add", "api\studentController@addStudent");
     
 
 });

@@ -298,4 +298,28 @@ class studentController extends Controller
         return response(["message" => "successfully extend student's course"], 200);
 
     }
+
+    public function addStudent(Request $request){
+
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|unique:students',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        // $link = Links::where('studentId', $id)->where('name', $key)->first();
+
+        $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
+                                    [
+                                        'name' => $request->name,
+                                        'email' => $request->email,
+                                        'password' => Hash::make($request->password),
+                                        'updated_by' => auth('api')->user()->id
+                                    ]);
+
+        // dd($request->all());
+
+        return response(["Student" => $student], 200);
+
+    }
 }
