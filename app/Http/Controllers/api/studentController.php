@@ -55,7 +55,10 @@ class studentController extends Controller
             $value->links = $studentLinks;
         }
 
-        return response(["students" => $students], 200);
+        $total_students = Student::where('status', '<>', 0)->count();
+        // dd($total_students);
+
+        return response(["students" => $students, "total_students" => $total_students], 200);
     }
 
     public function coursesByStudent(Request $request, $id){

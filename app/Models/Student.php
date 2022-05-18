@@ -18,7 +18,7 @@ class Student extends Model
         $sort = " order by st.id asc";
         $queryText = "";
 
-        $rowPerPage = 10;
+        $rowPerPage = 20;
         $pagination = " LIMIT ".$rowPerPage;
         
         // dd($filter);
@@ -29,9 +29,9 @@ class Student extends Model
 
         if(!empty($filter['search'])){
             if(is_numeric($filter["search"])){
-                $searchQuery = "WHERE s.id = ".$filter["search"];
+                $searchQuery = "AND s.id = ".$filter["search"];
             }else{
-                $searchQuery = "WHERE s.email LIKE '%".$filter['search']."%' OR s.name like '%".$filter['search']."%'";
+                $searchQuery = "AND s.email LIKE '%".$filter['search']."%' OR s.name like '%".$filter['search']."%'";
             }
         }
 
@@ -82,7 +82,7 @@ class Student extends Model
         // from studentcourses as sc
         // left join courses as c ON sc.courseId = c.id 
         // WHERE c.status = 1 
-        // GROUP BY sc.studentId) as sc on s.id = sc.studentId $searchQuery) as st".$queryText.$sort.$pagination);
+        // GROUP BY sc.studentId) as sc on s.id = sc.studentId WHERE s.status <> 0 $searchQuery) as st".$queryText.$sort.$pagination);
 
         $students = DB::SELECT("select * from 
                                 (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
@@ -91,7 +91,7 @@ class Student extends Model
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
                                 WHERE c.status = 1 
-                                GROUP BY sc.studentId) as sc on s.id = sc.studentId $searchQuery) as st".$queryText.$sort.$pagination);
+                                GROUP BY sc.studentId) as sc on s.id = sc.studentId WHERE s.status <> 0 $searchQuery) as st".$queryText.$sort.$pagination);
 
         return $students;
     }
