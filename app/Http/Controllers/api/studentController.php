@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Student;
-use App\Models\Links;
 use App\Models\Studentmodule;
 use App\Models\Studentcourse;
+use App\Models\Student;
+use App\Models\Links;
 use App\Models\Course;
+use App\Models\Module;
 use Validator;
 use DB;
 
@@ -320,6 +321,51 @@ class studentController extends Controller
         // dd($request->all());
 
         return response(["Student" => $student], 200);
+
+    }
+
+    public function addStudentCourse(Request $request){
+    
+        $request->validate([
+            'studentId' => 'required|numeric|exists:Students,id',
+            'courseId' => 'required|numeric|exists:Courses,id',
+            'starting_date' => 'required|date_format:Y-m-d H:i:s',
+            'expiration_date' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        $checker = DB::SELECT("SELECT * FROM studentcourses where studentId = ".$request->studentId);
+        
+        return response(["message" => "record already exist"], 409);
+
+        DB::transaction(function() use ($request) {
+
+            
+            
+            $Studentcourse = Studentcourse::create(
+                                        [
+                                            'studentId' => $request->studentId,
+                                            'courseId' => $request->courseId,
+                                            'starting' => $request->starting_date,
+                                            'expirationDate' => $request->expiration_date,
+                                        ]);
+
+            $modules = Module::Where('courseId', $request->courseId)->get();
+
+            foreach ($modules as $key => $value) {
+                
+                Studentmodule::create(
+                    [
+                        'studentId' => $request->studentId,
+                        'moduleId' => $value->id,
+                    ]);
+            }
+
+            return true;
+
+        });
+
+        
+        return response(["message" => "successfully added student's course"], 200);
 
     }
 }
