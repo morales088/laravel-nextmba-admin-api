@@ -86,6 +86,22 @@ class courseController extends Controller
         
     }
 
+    public function getModule($id, Request $request){
+
+        $request->query->add(['id' => $id]);
+
+        $module = $request->validate([
+            'id' => 'required|numeric|min:1|exists:Modules,id'
+        ]);
+
+        $module = Module::find($request->id);
+
+        $module->speakers = DB::SELECT("select *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code from speakers where moduleId = $request->id and status <> 0");
+
+        return response(["module" => $module], 200);
+
+    }
+
     public function addSpeaker(Request $request){
         $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
         
