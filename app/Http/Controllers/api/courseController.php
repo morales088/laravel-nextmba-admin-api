@@ -71,7 +71,7 @@ class courseController extends Controller
 
         if($request->status == "delete"){
             $request['status'] = 0;
-        }elseif($request->status == "activate"){
+        }elseif($request->status == "active"){
             $request['status'] = 1;
         }
         
@@ -157,7 +157,7 @@ class courseController extends Controller
         
         if($request->status == "delete"){
             $request['status'] = 0;
-        }elseif($request->status == "activate"){
+        }elseif($request->status == "active"){
             $request['status'] = 1;
         }
         
