@@ -58,7 +58,7 @@ class courseController extends Controller
     public function updateModule($id, Request $request){
         $request->query->add(['id' => $id]);
 
-        $module = $request->validate([
+        $request->validate([
             'id' => 'required|numeric|min:1|exists:Modules,id',
             'courseId' => 'numeric|min:1|exists:Courses,id',
             'name' => 'string',
@@ -76,7 +76,7 @@ class courseController extends Controller
         
 
         $module = Module::find($id);
-
+        
         $module->update($request->only('courseId', 'name', 'description', 'date', 'starting_time', 'end_time', 'status') +
                         [ 'updated_at' => now()]
                         );
@@ -105,7 +105,7 @@ class courseController extends Controller
     public function addSpeaker(Request $request){
         $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
         
-        $module = $request->validate([
+        $speaker = $request->validate([
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'name' => 'required|string',
             'position' => 'string',
@@ -125,12 +125,14 @@ class courseController extends Controller
             return response(["message" => "main speaker already exist. please check the role"], 409);
         }
 
-        $speaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path') +
+        $addSpeaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path') +
                 [
                     'moduleId' => $request->moduleId,
                     'name' => $request->name,
                     'role' => $role,
                 ]);
+
+        $speaker = DB::SELECT("SELECT *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code FROM speakers where id = $addSpeaker->id");
 
         return response(["speaker" => $speaker], 200);
 
@@ -141,7 +143,7 @@ class courseController extends Controller
         $request->query->add(['id' => $id]);
         $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
 
-        $module = $request->validate([
+        $speaker = $request->validate([
             'id' => 'required|numeric|min:1|exists:Speakers,id',
             'moduleId' => 'numeric|min:1|exists:modules,id',
             'name' => 'string',
@@ -168,13 +170,15 @@ class courseController extends Controller
         if(!empty($checker) && $role == 1){
             return response(["message" => "main speaker already exist. please check the role"], 409);
         }
-
-        $speaker = Speaker::find($id);
-
-        $speaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'role', 'status') +
+        
+        $updateSpeaker = Speaker::find($id);
+        
+        $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'role', 'status') +
                         [ 'updated_at' => now()]
                         );
-                        
+
+        $speaker = DB::SELECT("SELECT *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code FROM speakers where id = $id");
+
         return response(["message" => "successfully updated this speaker", "speaker" => $speaker], 200);
     }
 
@@ -199,4 +203,20 @@ class courseController extends Controller
 
     }
     
+    public function liveModule(Request $request){
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:Modules,id',
+        ]);
+
+        $liveModule = Module::find($request->id);
+        
+        $liveModule->update(
+                        [ 
+                            'is_live' => 1,
+                            'updated_at' => now(),
+                        ]
+                        );
+
+        return response(["message" => "module id $request->id is now live",], 200);
+    }
 }
