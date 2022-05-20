@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Module;
@@ -205,10 +206,21 @@ class courseController extends Controller
     
     public function liveModule(Request $request){
         $request->validate([
-            'id' => 'required|numeric|min:1|exists:Modules,id',
+            'module_id' => 'required|numeric|min:1|exists:Modules,id',
+            // 'status' => 'required|string',
+            'status' => [
+                            'required',
+                            Rule::in(['live', 'not_live']),
+                        ],
         ]);
 
-        $liveModule = Module::find($request->id);
+        if($request->status == "live"){
+            $status = 1;
+        }elseif($request->status == "not_live"){
+            $status = 0;
+        }
+        
+        $liveModule = Module::find($request->module_id);
         
         $liveModule->update(
                         [ 
@@ -217,6 +229,6 @@ class courseController extends Controller
                         ]
                         );
 
-        return response(["message" => "module id $request->id is now live",], 200);
+        return response(["message" => "module id $request->module_id is now live",], 200);
     }
 }
