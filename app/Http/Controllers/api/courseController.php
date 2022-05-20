@@ -220,19 +220,21 @@ class courseController extends Controller
 
         if($request->status == "live"){
             $status = 1;
+            $message = "live";
         }elseif($request->status == "not_live"){
             $status = 0;
+            $message = "offline";
         }
         
         $liveModule = Module::find($request->module_id);
         
         $liveModule->update(
                         [ 
-                            'is_live' => 1,
+                            'is_live' => $status,
                             'updated_at' => now(),
                         ]
                         );
 
-        return response(["message" => "module id $request->module_id is now live",], 200);
+        return response(["message" => "module id $request->module_id is now $message",], 200);
     }
 }
