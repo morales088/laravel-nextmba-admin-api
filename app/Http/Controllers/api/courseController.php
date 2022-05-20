@@ -155,7 +155,10 @@ class courseController extends Controller
             'company' => 'string',
             'profile_path' => 'regex:'.$regex,
             'company_path' => 'regex:'.$regex,
-            'role' => 'string',
+            'role' => [
+                        'string',
+                        Rule::in(['main', 'guest']),
+                    ],
         ]);
         
         if($request->status == "delete"){
