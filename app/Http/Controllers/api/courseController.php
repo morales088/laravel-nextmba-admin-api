@@ -159,6 +159,10 @@ class courseController extends Controller
                         'string',
                         Rule::in(['main', 'guest']),
                     ],
+            'status' => [
+                        'string',
+                        Rule::in(['delete', 'active']),
+                    ],
         ]);
         
         if($request->status == "delete"){
@@ -166,10 +170,11 @@ class courseController extends Controller
         }elseif($request->status == "active"){
             $request['status'] = 1;
         }
-        
+
         $role = 0;
         
-        ($request->role == "main")? $role = 1 : $role = 2;
+        // ($request->role == "main")? $role = 1 : $role = 2;
+        ($request->role == "main")? $request['role'] = 1 : $request['role'] = 2;
         
         // check for duplicate main addSpeaker
         $checker = DB::SELECT("SELECT * FROM speakers where role = $role and status <> 0");
