@@ -95,9 +95,10 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:Modules,id'
         ]);
 
-        $module = Module::find($request->id);
+        // $module = Module::find($request->id);
+        $module = collect(\DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules where id = $request->id"))->first();
 
-        $module->speakers = DB::SELECT("select *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code from speakers where moduleId = $request->id and status <> 0");
+        $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $request->id and status <> 0");
 
         return response(["module" => $module], 200);
 
@@ -193,10 +194,13 @@ class courseController extends Controller
         
         $course = Course::where('id', $request->id)->where('status', '<>', 0)->first();
 
-        $modules = Module::where('courseId', $request->id)->where('status', '<>', 0)->get();
+        // $modules = Module::where('courseId', $request->id)->where('status', '<>', 0)->get();
+        $modules = DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules WHERE courseId = $request->id and status <> 0");
 
         foreach ($modules as $key => $value) {
-            $value['speakers'] = Speaker::where('moduleId', $value->id)->where('status', '<>', 0)->get();
+            
+            // $value->speakers = Speaker::where('moduleId', $value->id)->where('status', '<>', 0)->get();
+            $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         }
 
         
