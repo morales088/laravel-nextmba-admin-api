@@ -11,6 +11,7 @@ class Student extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+    protected $table = 'students';
 
     public static function getStudent($filter = []){
 

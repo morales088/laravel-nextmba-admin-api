@@ -10,5 +10,5 @@ class Studentmodule extends Model
     use HasFactory;
     
     protected $guarded = ['id'];
-    protected $table = 'Student_modules';
+    protected $table = 'student_modules';
 }
