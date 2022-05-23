@@ -96,7 +96,9 @@ class courseController extends Controller
         ]);
 
         // $module = Module::find($request->id);
-        $module = collect(\DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules where id = $request->id"))->first();
+        // $module = collect(\DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules where id = $request->id"))->first();
+        $module = Module::where('id', $request->id)->selectRaw("*, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code")->first();
+        // dd($module);
 
         $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
                                                 , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
@@ -123,8 +125,8 @@ class courseController extends Controller
         ($request->role == "main")? $role = 1 : $role = 2;
         
         // check for duplicate main addSpeaker
-        $checker = DB::SELECT("SELECT * FROM speakers where role = $role and status <> 0");
-
+        $checker = DB::SELECT("SELECT * FROM speakers where role = $role and moduleId = $request->moduleId and status <> 0");
+        
         if(!empty($checker) && $role == 1){
             return response(["message" => "main speaker already exist. please check the role"], 409);
         }
