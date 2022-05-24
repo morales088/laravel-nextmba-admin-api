@@ -214,7 +214,7 @@ class studentController extends Controller
         // $student = COLLECT(\DB::SELECT("SELECT s.*, u.email update_by FROM students s LEFT JOIN users u ON s.updated_by = u.id WHERE s.id = $id"))->first();
         $student = DB::TABLE("students as s")
                     ->leftJoin('users as u','s.updated_by','=','u.id')
-                    ->selectRaw("s.*, u.email")
+                    ->selectRaw("s.*, u.email update_by")
                     ->first();
 
         $student->links = Links::where('studentId', $student->id)->get();
