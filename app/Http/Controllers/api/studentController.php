@@ -67,7 +67,7 @@ class studentController extends Controller
         $request->query->add(['id' => $id]);
 
         $studentId = $request->validate([
-            'id' => 'numeric|min:1|exists:Students,id',
+            'id' => 'numeric|min:1|exists:students,id',
         ]);
         
         $totalModules = 0;
@@ -102,8 +102,8 @@ class studentController extends Controller
         $request->query->add(['id' => $id, 'id' => $courseId]);
 
         $students = $request->validate([
-            'id' => 'numeric|min:1|exists:Students,id',
-            'moduleId' => 'numeric|min:1|exists:Students,id',
+            'id' => 'numeric|min:1|exists:students,id',
+            'moduleId' => 'numeric|min:1|exists:students,id',
         ]);
         
         $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
@@ -207,7 +207,7 @@ class studentController extends Controller
         $request->query->add(['id' => $id]);
 
         $studentId = $request->validate([
-            'id' => 'numeric|min:1|exists:Students,id',
+            'id' => 'numeric|min:1|exists:students,id',
         ]);
         
         // $student = Student::where('id', $id)->first();
@@ -283,8 +283,8 @@ class studentController extends Controller
     public function extendCourse(Request $request){
         
         $request->validate([
-            'student_id' => 'required|numeric|min:1|exists:Students,id',
-            'course_id' => 'required|numeric|min:1|exists:Courses,id',
+            'student_id' => 'required|numeric|min:1|exists:students,id',
+            'course_id' => 'required|numeric|min:1|exists:courses,id',
             'starting_date' => 'required|date_format:Y-m-d H:i:s',
             'expiration_date' => 'required|date_format:Y-m-d H:i:s',
         ]);
@@ -339,8 +339,8 @@ class studentController extends Controller
     public function addStudentCourse(Request $request){
     
         $request->validate([
-            'studentId' => 'required|numeric|exists:Students,id',
-            'courseId' => 'required|numeric|exists:Courses,id',
+            'studentId' => 'required|numeric|exists:students,id',
+            'courseId' => 'required|numeric|exists:courses,id',
             'starting_date' => 'required|date_format:Y-m-d H:i:s',
             'expiration_date' => 'required|date_format:Y-m-d H:i:s',
         ]);

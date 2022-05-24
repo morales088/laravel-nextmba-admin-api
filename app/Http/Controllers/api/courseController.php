@@ -29,7 +29,7 @@ class courseController extends Controller
     public function addModule(Request $request){
         
         $module = $request->validate([
-            'courseId' => 'required|numeric|min:1|exists:Courses,id',
+            'courseId' => 'required|numeric|min:1|exists:courses,id',
             'name' => 'required|string',
             'description' => 'required|string',
             'date' => 'required|date_format:Y-m-d',
@@ -60,8 +60,8 @@ class courseController extends Controller
         $request->query->add(['id' => $id]);
 
         $request->validate([
-            'id' => 'required|numeric|min:1|exists:Modules,id',
-            'courseId' => 'numeric|min:1|exists:Courses,id',
+            'id' => 'required|numeric|min:1|exists:modules,id',
+            'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
             'description' => 'string',
             'date' => 'date_format:Y-m-d',
@@ -92,7 +92,7 @@ class courseController extends Controller
         $request->query->add(['id' => $id]);
 
         $module = $request->validate([
-            'id' => 'required|numeric|min:1|exists:Modules,id'
+            'id' => 'required|numeric|min:1|exists:modules,id'
         ]);
 
         // $module = Module::find($request->id);
@@ -150,7 +150,7 @@ class courseController extends Controller
         $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
 
         $speaker = $request->validate([
-            'id' => 'required|numeric|min:1|exists:Speakers,id',
+            'id' => 'required|numeric|min:1|exists:speakers,id',
             'moduleId' => 'numeric|min:1|exists:modules,id',
             'name' => 'string',
             'position' => 'string',
@@ -201,7 +201,7 @@ class courseController extends Controller
         $request->query->add(['id' => $id]);
 
         $course = $request->validate([
-            'id' => 'numeric|min:1|exists:Courses,id',
+            'id' => 'numeric|min:1|exists:courses,id',
         ]);
         
         $course = Course::where('id', $request->id)->where('status', '<>', 0)->first();
@@ -222,7 +222,7 @@ class courseController extends Controller
     
     public function liveModule(Request $request){
         $request->validate([
-            'module_id' => 'required|numeric|min:1|exists:Modules,id',
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
             // 'status' => 'required|string',
             'status' => [
                             'required',
