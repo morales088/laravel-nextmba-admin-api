@@ -14,7 +14,6 @@ return new class extends Migration
     public function up()
     {
         Schema::table('modules', function (Blueprint $table) {
-            $table->boolean('is_live')->default(false)->after('description');
             $table->time('end_time')->default(now()->addHours(4))->after('description');
             $table->time('starting_time')->default(now())->after('description');
             $table->date('date')->default(now())->after('description');

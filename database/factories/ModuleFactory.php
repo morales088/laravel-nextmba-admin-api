@@ -21,6 +21,7 @@ class ModuleFactory extends Factory
             // 'courseId' => $this->faker->name(),
             'name' => $this->faker->name(),
             'description' => Str::random(20),
+            'topic' => Str::random(10),
             // 'remarks' => Str::random(10),
             'status' => 1,
         ];

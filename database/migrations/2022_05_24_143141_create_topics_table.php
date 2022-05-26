@@ -13,17 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('speakers', function (Blueprint $table) {
+        Schema::create('topics', function (Blueprint $table) {
             $table->id();
+            $table->integer('moduleId');
+            $table->integer('speakerId');
             $table->string('name');
-            $table->string('position');
-            $table->string('company');
-            $table->string('profile_path');
-            $table->string('company_path');
+            $table->string('video_link');
+            $table->text('description');
             $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('speakers');
+        Schema::dropIfExists('topics');
     }
 };
