@@ -141,10 +141,10 @@ class courseController extends Controller
         // $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
         //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
         //                                 from speakers where moduleId = $request->id and status <> 0");
-        $module = DB::SELECT("select m.*, concat(m.date, '', m.starting_time) start_date, concat(m.date, '', m.end_time) end_date, 
+        $module = COLLECT(\DB::SELECT("select m.*, concat(m.date, ' ', m.starting_time) start_date, concat(m.date, ' ', m.end_time) end_date, 
         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
         (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status
-        from modules m where m.id = $request->id");
+        from modules m where m.id = $request->id"))->first();
 
         return response(["module" => $module], 200);
 
