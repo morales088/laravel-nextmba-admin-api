@@ -78,7 +78,7 @@ class courseController extends Controller
             'description' => 'string',
             'chat_url' => 'regex:'.$regex,
             'live_url' => 'regex:'.$regex,
-            'topic' => 'string',
+            'topicId' => 'numeric|min:1|exists:topics,id',
             'calendar_link' => 'regex:'.$regex,
             'date' => 'date_format:Y-m-d',
             'starting_time' => 'date_format:H:i:s',
@@ -118,7 +118,7 @@ class courseController extends Controller
         //                 [ 'updated_at' => now()]
         //                 );
         
-        $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topic', 
+        $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
                                         'calendar_link', 'date', 'starting_time', 'end_time', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
@@ -142,10 +142,19 @@ class courseController extends Controller
         //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
         //                                 from speakers where moduleId = $request->id and status <> 0");
         $module = COLLECT(\DB::SELECT("select m.*, concat(m.date, ' ', m.starting_time) start_date, concat(m.date, ' ', m.end_time) end_date, 
-        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
-        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status
-        from modules m where m.id = $request->id"))->first();
-
+                                        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
+                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status,
+                                        t.name topic_name
+                                        from modules m 
+                                        left join topics t ON t.id = m.topicId
+                                        where m.id = $id and m.status <> 0 or t.status <> 0"))->first();
+                                        
+        $topics = DB::SELECT("SELECT t.*, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path,
+                                    (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                                    FROM topics t
+                                    LEFT JOIN speakers s ON s.id = t.speakerId
+                                    where t.status <> 0 and s.status <> 0 and t.moduleID = $module->id");
+        // dd($module);
         return response(["module" => $module], 200);
 
     }
@@ -169,13 +178,23 @@ class courseController extends Controller
         //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         // }
 
-        $modules = DB::SELECT("select m.*, concat(m.date, '', m.starting_time) start_date, concat(m.date, '', m.end_time) end_date, 
+        $modules = DB::SELECT("select m.*, concat(m.date, ' ', m.starting_time) start_date, concat(m.date, ' ', m.end_time) end_date, 
                                 (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
-                                (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status
-                                from modules m
-                                where m.courseId = $id");
+                                (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status,
+                                t.name topic_name
+                                from modules m 
+                                left join topics t ON t.id = m.topicId
+                                where m.id = $id and m.status <> 0 or t.status <> 0");
 
-        
+        foreach ($modules as $key => $value) {
+            
+            $value->topics = DB::SELECT("SELECT t.*, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path,
+                                            (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                                            FROM topics t
+                                            LEFT JOIN speakers s ON s.id = t.speakerId
+                                            where t.status <> 0 and s.status <> 0 and t.moduleID = $value->id");
+        }
+        dd($modules);
         return response()->json(["course" => $course, "modules" => $modules], 200);
 
     }
