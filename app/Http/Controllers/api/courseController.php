@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Speaker;
+use App\Models\Topic;
+use App\Models\Speakerrole;
 use DB;
 
 class courseController extends Controller
@@ -22,20 +24,29 @@ class courseController extends Controller
                                 where s.status <> 0 and sc.status <> 0 and c.status <> 0
                                 group by c.id");
 
+        // $courses = DB::SELECT("select *, (CASE WHEN m.status = 0 THEN 'deleted' WHEN m.status = 1 THEN 'active' END) as status_code, concat(m.date, '', m.starting_time) start_date
+        // from modules m");
+
         return response()->json(["courses" => $courses], 200);
         
     }
 
     public function addModule(Request $request){
+        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
         
         $module = $request->validate([
-            'courseId' => 'required|numeric|min:1|exists:courses,id',
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'date' => 'required|date_format:Y-m-d',
-            'starting_time' => 'required|date_format:H:i:s',
-            'end_time' => 'required|date_format:H:i:s',
+            'courseId' => 'numeric|min:1|exists:courses,id',
+            'name' => 'string',
+            'description' => 'string',
+            'chat_url' => 'regex:'.$regex,
+            'live_url' => 'regex:'.$regex,
+            'topic' => 'string',
+            'calendar_link' => 'regex:'.$regex,
+            'date' => 'date_format:Y-m-d',
+            'starting_time' => 'date_format:H:i:s',
+            'end_time' => 'date_format:H:i:s'
         ]);
+        
 
         $checker = DB::SELECT("SELECT * FROM modules where courseId = $request->courseId and date = '$request->date' and status <> 0");
 
@@ -43,7 +54,7 @@ class courseController extends Controller
             return response(["message" => "record already exist. please double check the course id and date"], 409);
         }
 
-        $module = Module::create(
+        $module = Module::create($request->only('topic', 'chat_url', 'live_url', 'calendar_link') +
             [
                 'courseId' => $request->courseId,
                 'name' => $request->name,
@@ -57,6 +68,7 @@ class courseController extends Controller
         
     }
     public function updateModule($id, Request $request){
+        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
         $request->query->add(['id' => $id]);
 
         $request->validate([
@@ -64,21 +76,50 @@ class courseController extends Controller
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
             'description' => 'string',
+            'chat_url' => 'regex:'.$regex,
+            'live_url' => 'regex:'.$regex,
+            'topic' => 'string',
+            'calendar_link' => 'regex:'.$regex,
             'date' => 'date_format:Y-m-d',
             'starting_time' => 'date_format:H:i:s',
             'end_time' => 'date_format:H:i:s',
+            'broadcast_status' => [
+                        'string',
+                        Rule::in(['draft', 'published', 'archived']),
+                    ],
+            'status' => [
+                        'string',
+                        Rule::in(['upcoming', 'live', 'pending_live', 'replay']),
+                    ],
         ]);
+        
+        if($request->broadcast_status == "draft"){
+            $request['broadcast_status'] = 1;
+        }elseif($request->broadcast_status == "published"){
+            $request['broadcast_status'] = 2;
+        }elseif($request->broadcast_status == "archived"){
+            $request['broadcast_status'] = 3;
+        }
 
-        if($request->status == "delete"){
-            $request['status'] = 0;
-        }elseif($request->status == "active"){
+        if($request->status == "upcoming"){
             $request['status'] = 1;
+        }elseif($request->status == "live"){
+            $request['status'] = 2;
+        }elseif($request->status == "pending_live"){
+            $request['status'] = 3;
+        }elseif($request->status == "replay"){
+            $request['status'] = 4;
         }
         
 
         $module = Module::find($id);
         
-        $module->update($request->only('courseId', 'name', 'description', 'date', 'starting_time', 'end_time', 'status') +
+        // $module->update($request->only('courseId', 'name', 'description', 'date', 'starting_time', 'end_time', 'topic', 'broadcast_status', 'status') +
+        //                 [ 'updated_at' => now()]
+        //                 );
+        
+        $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topic', 
+                                        'calendar_link', 'date', 'starting_time', 'end_time', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
                         
@@ -95,105 +136,18 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:modules,id'
         ]);
 
-        // $module = Module::find($request->id);
-        // $module = collect(\DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules where id = $request->id"))->first();
-        $module = Module::where('id', $request->id)->selectRaw("*, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code")->first();
-        // dd($module);
+        // $module = Module::where('id', $request->id)->selectRaw("*, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code")->first();
 
-        $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
-                                                , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
-                                        from speakers where moduleId = $request->id and status <> 0");
+        // $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
+        //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
+        //                                 from speakers where moduleId = $request->id and status <> 0");
+        $module = DB::SELECT("select m.*, concat(m.date, '', m.starting_time) start_date, concat(m.date, '', m.end_time) end_date, 
+        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
+        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status
+        from modules m where m.id = $request->id");
 
         return response(["module" => $module], 200);
 
-    }
-
-    public function addSpeaker(Request $request){
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
-        
-        $speaker = $request->validate([
-            'moduleId' => 'required|numeric|min:1|exists:modules,id',
-            'name' => 'required|string',
-            'position' => 'string',
-            'company' => 'string',
-            'profile_path' => 'regex:'.$regex,
-            'company_path' => 'regex:'.$regex,
-            'role' => 'required|string',
-        ]);
-        $role = 0;
-        
-        ($request->role == "main")? $role = 1 : $role = 2;
-        
-        // check for duplicate main addSpeaker
-        $checker = DB::SELECT("SELECT * FROM speakers where role = $role and moduleId = $request->moduleId and status <> 0");
-        
-        if(!empty($checker) && $role == 1){
-            return response(["message" => "main speaker already exist. please check the role"], 409);
-        }
-
-        $addSpeaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path') +
-                [
-                    'moduleId' => $request->moduleId,
-                    'name' => $request->name,
-                    'role' => $role,
-                ]);
-
-        $speaker = DB::SELECT("SELECT *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code FROM speakers where id = $addSpeaker->id");
-
-        return response(["speaker" => $speaker], 200);
-
-    }
-
-    public function updateSpeaker($id, Request $request){
-        
-        $request->query->add(['id' => $id]);
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
-
-        $speaker = $request->validate([
-            'id' => 'required|numeric|min:1|exists:speakers,id',
-            'moduleId' => 'numeric|min:1|exists:modules,id',
-            'name' => 'string',
-            'position' => 'string',
-            'company' => 'string',
-            'profile_path' => 'regex:'.$regex,
-            'company_path' => 'regex:'.$regex,
-            'role' => [
-                        'string',
-                        Rule::in(['main', 'guest']),
-                    ],
-            'status' => [
-                        'string',
-                        Rule::in(['delete', 'active']),
-                    ],
-        ]);
-        
-        if($request->status == "delete"){
-            $request['status'] = 0;
-        }elseif($request->status == "active"){
-            $request['status'] = 1;
-        }
-
-        $role = 0;
-        
-        // ($request->role == "main")? $role = 1 : $role = 2;
-        ($request->role == "main")? $request['role'] = 1 : $request['role'] = 2;
-        
-        // check for duplicate main addSpeaker
-        $checker = DB::SELECT("SELECT * FROM speakers where role = $role and status <> 0");
-
-        if(!empty($checker) && $role == 1){
-            return response(["message" => "main speaker already exist. please check the role"], 409);
-        }
-        
-        $updateSpeaker = Speaker::find($id);
-        
-        $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'role', 'status') +
-                        [ 'updated_at' => now()]
-                        );
-
-        $speaker = DB::SELECT("SELECT *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code FROM speakers where id = $id");
-
-        return response(["message" => "successfully updated this speaker", "speaker" => $speaker], 200);
     }
 
     
@@ -205,48 +159,237 @@ class courseController extends Controller
         ]);
         
         $course = Course::where('id', $request->id)->where('status', '<>', 0)->first();
+        
+        // // $modules = Module::where('courseId', $request->id)->where('status', '<>', 0)->get();
+        // $modules = DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules WHERE courseId = $request->id and status <> 0");
 
-        // $modules = Module::where('courseId', $request->id)->where('status', '<>', 0)->get();
-        $modules = DB::SELECT("SELECT *, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code FROM modules WHERE courseId = $request->id and status <> 0");
-
-        foreach ($modules as $key => $value) {
+        // foreach ($modules as $key => $value) {
             
-            // $value->speakers = Speaker::where('moduleId', $value->id)->where('status', '<>', 0)->get();
-            $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
-        }
+        //     // $value->speakers = Speaker::where('moduleId', $value->id)->where('status', '<>', 0)->get();
+        //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
+        // }
+
+        $modules = DB::SELECT("select m.*, concat(m.date, '', m.starting_time) start_date, concat(m.date, '', m.end_time) end_date, 
+                                (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
+                                (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status
+                                from modules m
+                                where m.courseId = $id");
 
         
         return response()->json(["course" => $course, "modules" => $modules], 200);
 
     }
     
-    public function liveModule(Request $request){
-        $request->validate([
+    // public function liveModule(Request $request){
+    //     $request->validate([
+    //         'module_id' => 'required|numeric|min:1|exists:modules,id',
+    //         // 'status' => 'required|string',
+    //         'status' => [
+    //                         'required',
+    //                         Rule::in(['live', 'not_live']),
+    //                     ],
+    //     ]);
+
+    //     if($request->status == "live"){
+    //         $status = 1;
+    //         $message = "live";
+    //     }elseif($request->status == "not_live"){
+    //         $status = 0;
+    //         $message = "offline";
+    //     }
+        
+    //     $liveModule = Module::find($request->module_id);
+        
+    //     $liveModule->update(
+    //                     [ 
+    //                         'is_live' => $status,
+    //                         'updated_at' => now(),
+    //                     ]
+    //                     );
+
+    //     return response(["message" => "module id $request->module_id is now $message",], 200);
+    // }
+
+    public function addTopic(Request $request){
+        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        
+        $speaker = $request->validate([
             'module_id' => 'required|numeric|min:1|exists:modules,id',
-            // 'status' => 'required|string',
-            'status' => [
-                            'required',
-                            Rule::in(['live', 'not_live']),
-                        ],
+            'speaker_id' => 'required|numeric|min:1|exists:speakers,id',
+            'name' => 'required|string',
+            'video_link' => 'regex:'.$regex,
+            'description' => 'string',
+            'speaker_role' => [
+                        'required',
+                        Rule::in(['main', 'guest']),
+                    ],
         ]);
 
-        if($request->status == "live"){
-            $status = 1;
-            $message = "live";
-        }elseif($request->status == "not_live"){
-            $status = 0;
-            $message = "offline";
-        }
-        
-        $liveModule = Module::find($request->module_id);
-        
-        $liveModule->update(
-                        [ 
-                            'is_live' => $status,
-                            'updated_at' => now(),
-                        ]
-                        );
+        $role = 0;
+            
+        ($request->speaker_role == "main")? $role = 1 : $role = 2;
 
-        return response(["message" => "module id $request->module_id is now $message",], 200);
+        // check duplicate topic, speaker
+        $checker = DB::SELECT("select *
+                                from topics t
+                                left join speaker_roles sr on t.id = sr.topicId
+                                where t.moduleId = $request->module_id and t.speakerId = $request->speaker_id and t.speakerId = $request->speaker_id and t.status <> 0");
+                                
+        if(!empty($checker) || !empty($checker) && $role == 1){
+            return response(["message" => "main speaker / speaker already exists"], 409);
+        }
+
+        $DBtransaction = DB::transaction(function() use ($request, $role) {
+
+            // insert to topics table
+
+            $addTopic = Topic::create($request->only('video_link', 'description') +
+                [
+                    'moduleId' => $request->module_id,
+                    'speakerId' => $request->speaker_id,
+                    'name' => $request->name,
+                ]);
+
+
+            // insert to speakers_topic table
+            $addSpeakertopic = Speakerrole::create(
+                [
+                    'topicId' => $addTopic->id,
+                    'speakerId' => $request->speaker_id,
+                    'role' => $role,
+                ]);
+
+                $topic = collect(\DB::SELECT("select t.*, s.id speaker_id, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path, 
+                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
+                            from topics t
+                            left join speaker_roles sr on t.id = sr.topicId
+                            left join speakers s ON s.id = t.speakerId
+                            where t.moduleId = $request->module_id and t.speakerId = $request->speaker_id and sr.role = 1 and t.status <> 0 and s.status <> 0"))->first();
+
+                return $topic;
+            
+        });
+
+        return response(["topic" => $DBtransaction], 200);
+
+    }
+
+    public function updateTopic($id, Request $request){
+        
+        $request->query->add(['id' => $id]);
+        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        
+        $speaker = $request->validate([
+            'id' => 'required|numeric|min:1|exists:topics,id',
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'speaker_id' => 'required|numeric|min:1|exists:speakers,id',
+            'name' => 'string',
+            'video_link' => 'regex:'.$regex,
+            'description' => 'string',
+            'speaker_role' => [
+                        'string',
+                        Rule::in(['main', 'guest']),
+                    ],
+            'status' => [
+                        'string',
+                        Rule::in(['delete', 'active']),
+                    ],
+        ]);
+        
+        
+        if($request->status == "delete"){
+            $request['status'] = 0;
+        }elseif($request->status == "active"){
+            $request['status'] = 1;
+        }
+
+        $role = 0;
+            
+        ($request->speaker_role == "main")? $role = 1 : $role = 2;
+
+        // check duplicate main speaker
+        $checker = DB::SELECT("select *
+                                from topics t
+                                left join speaker_roles sr on t.id = sr.topicId
+                                where t.moduleId = $request->module_id and t.speakerId = $request->speaker_id and sr.role = 1 and t.status <> 0");
+
+        if(!empty($checker) && $role == 1){
+            return response(["message" => "speaker already exists"], 409);
+        }
+
+        // dd($request->all());
+
+        $DBtransaction = DB::transaction(function() use ($request, $role) {
+        
+            $updateTopic = Topic::find($request->id);
+            
+            // dd($updateTopic);
+        
+            $updateTopic->update($request->only('module_id', 'name', 'video_link', 'description', 'status') +
+                            [ 'updated_at' => now()]
+                            );
+                            
+
+            // update speker_role
+            if(!empty($request->speaker_role)){
+
+                DB::table('speaker_roles')
+                ->where('topicId', $request->id)
+                ->where('speakerId', $request->speaker_id)
+                ->update(['role' => $role]);
+                
+            }
+            $topic = collect(\DB::SELECT("select t.*, s.id speaker_id, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path, 
+                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
+                            from topics t
+                            left join speaker_roles sr on t.id = sr.topicId
+                            left join speakers s ON s.id = t.speakerId
+                            where t.moduleId = $request->module_id and t.speakerId = $request->speaker_id and sr.role = 1 and t.status <> 0 and s.status <> 0"))->first();
+
+            return $topic;
+        });
+
+        return response(["topic" => $DBtransaction], 200);
+
+    }
+
+    public function getTopic($module_id, $id = 0, Request $request){
+        
+        $request->query->add(['id' => $id]);
+        $request->query->add(['moduleId' => $module_id]);
+
+        $array = [
+                'moduleId' => 'required|exists:modules,id',
+                ];
+
+        
+        if($id > 0){
+            $array['id'] = 'exists:topics,id';
+            $request->validate($array);   
+            
+            $topic = COLLECT(\DB::SELECT("select t.*, s.id speaker_id, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path, s.company_path,
+                        (CASE WHEN sr.role = 1 THEN 'main' WHEN sr.role = 2 THEN 'guest' END) as role_code,
+                        (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                        from topics t
+                        left join speaker_roles sr ON t.id = sr.topicId
+                        left join speakers s ON s.id = t.speakerId
+                        where t.status <> 0 and sr.status <> 0 and s.status <> 0
+                        and t.id = $id"))->first();
+            
+        }else{
+            $request->validate($array);
+
+            $topic = DB::SELECT("select t.*, s.id speaker_id, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path, s.company_path,
+                                (CASE WHEN sr.role = 1 THEN 'main' WHEN sr.role = 2 THEN 'guest' END) as role_code,
+                                (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                                from topics t
+                                left join speaker_roles sr ON t.id = sr.topicId
+                                left join speakers s ON s.id = t.speakerId
+                                where t.status <> 0 and sr.status <> 0 and s.status <> 0");
+            
+        }
+
+        return response(["topic(s)" => $topic], 200);
+
     }
 }

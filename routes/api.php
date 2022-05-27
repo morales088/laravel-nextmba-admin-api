@@ -49,17 +49,30 @@ Route::prefix("/student")->group( function (){
 
 
 Route::prefix("/courses")->group( function (){
-
-    Route::middleware("auth:api")->get("/", "api\courseController@index");
-        
-    Route::middleware("auth:api")->put("/module/live", "api\courseController@liveModule");
-    Route::middleware("auth:api")->post("/module/add", "api\courseController@addModule");
-    Route::middleware("auth:api")->put("/module/{id}", "api\courseController@updateModule");
-    Route::middleware("auth:api")->get("/module/{id}", "api\courseController@getModule");
-
-    Route::middleware("auth:api")->post("/speaker/add", "api\courseController@addSpeaker");
-    Route::middleware("auth:api")->put("/speaker/{id}", "api\courseController@updateSpeaker");
     
-    Route::middleware("auth:api")->get("/modules/{id}", "api\courseController@getModules");
+    // get topic
+    Route::middleware("auth:api")->get("/topic/{module_id}/{id?}", "api\courseController@getTopic"); 
+    // add topic
+    Route::middleware("auth:api")->post("/topic/add", "api\courseController@addTopic"); //done
+    // update topic
+    Route::middleware("auth:api")->put("/topic/{id}", "api\courseController@updateTopic"); //done
+
+
+    Route::middleware("auth:api")->get("/", "api\courseController@index"); //done
+        
+    // Route::middleware("auth:api")->put("/module/live", "api\courseController@liveModule"); // change live status to update module
+    Route::middleware("auth:api")->post("/module/add", "api\courseController@addModule"); //done
+    Route::middleware("auth:api")->put("/module/{id}", "api\courseController@updateModule"); //done
+    Route::middleware("auth:api")->get("/module/{id}", "api\courseController@getModule"); //done
+    
+    Route::middleware("auth:api")->get("/{id}", "api\courseController@getModules"); //done
+
+});
+
+
+Route::prefix("/speaker")->group( function (){
+
+    Route::middleware("auth:api")->post("/add", "api\speakerController@addSpeaker"); //done
+    Route::middleware("auth:api")->put("/{id}", "api\speakerController@updateSpeaker"); //done
 
 });
