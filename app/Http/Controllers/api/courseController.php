@@ -352,4 +352,44 @@ class courseController extends Controller
         return response(["topic" => $DBtransaction], 200);
 
     }
+
+    public function getTopic($module_id, $id = 0, Request $request){
+        
+        $request->query->add(['id' => $id]);
+        $request->query->add(['moduleId' => $module_id]);
+
+        $array = [
+                'moduleId' => 'required|exists:modules,id',
+                ];
+
+        
+        if($id > 0){
+            $array['id'] = 'exists:topics,id';
+            $request->validate($array);   
+            
+            $topic = COLLECT(\DB::SELECT("select t.*, s.id speaker_id, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path, s.company_path,
+                        (CASE WHEN sr.role = 1 THEN 'main' WHEN sr.role = 2 THEN 'guest' END) as role_code,
+                        (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                        from topics t
+                        left join speaker_roles sr ON t.id = sr.topicId
+                        left join speakers s ON s.id = t.speakerId
+                        where t.status <> 0 and sr.status <> 0 and s.status <> 0
+                        and t.id = $id"))->first();
+            
+        }else{
+            $request->validate($array);
+
+            $topic = DB::SELECT("select t.*, s.id speaker_id, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path, s.company_path,
+                                (CASE WHEN sr.role = 1 THEN 'main' WHEN sr.role = 2 THEN 'guest' END) as role_code,
+                                (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                                from topics t
+                                left join speaker_roles sr ON t.id = sr.topicId
+                                left join speakers s ON s.id = t.speakerId
+                                where t.status <> 0 and sr.status <> 0 and s.status <> 0");
+            
+        }
+
+        return response(["topic(s)" => $topic], 200);
+
+    }
 }

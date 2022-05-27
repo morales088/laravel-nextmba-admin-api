@@ -49,6 +49,14 @@ Route::prefix("/student")->group( function (){
 
 
 Route::prefix("/courses")->group( function (){
+    
+    // get topic
+    Route::middleware("auth:api")->get("/topic/{module_id}/{id?}", "api\courseController@getTopic"); 
+    // add topic
+    Route::middleware("auth:api")->post("/topic/add", "api\courseController@addTopic"); //done
+    // update topic
+    Route::middleware("auth:api")->put("/topic/{id}", "api\courseController@updateTopic"); //done
+
 
     Route::middleware("auth:api")->get("/", "api\courseController@index"); //done
         
@@ -58,11 +66,6 @@ Route::prefix("/courses")->group( function (){
     Route::middleware("auth:api")->get("/module/{id}", "api\courseController@getModule"); //done
     
     Route::middleware("auth:api")->get("/{id}", "api\courseController@getModules"); //done
-
-    // add topic
-    Route::middleware("auth:api")->post("/topic/add", "api\courseController@addTopic"); //done
-    // update topic
-    Route::middleware("auth:api")->put("/topic/{id}", "api\courseController@updateTopic"); //done
 
 });
 
