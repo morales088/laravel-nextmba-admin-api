@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('calendar_link')->after('description');
             $table->integer('topic')->nullable()->after('description');
             $table->string('live_url')->after('description');
-            $table->string('chat_url')->after('description');
-            $table->boolean('broadcast_status')->default(true)->after('end_time')->comment('[1 - daft, 2 - published, 3 - published]');
+            $table->string('chat_url')->after('description');            
+            $table->integer('broadcast_status')->default(1)->after('end_time')->comment('[1 - upcoming, 2 - live, 3 - pending live, 4 - replay]');
         });
 
     }

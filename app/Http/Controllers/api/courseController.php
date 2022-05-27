@@ -83,32 +83,32 @@ class courseController extends Controller
             'date' => 'date_format:Y-m-d',
             'starting_time' => 'date_format:H:i:s',
             'end_time' => 'date_format:H:i:s',
-            'broadcast_status' => [
+            'status' => [
                         'string',
                         Rule::in(['draft', 'published', 'archived']),
                     ],
-            'status' => [
+            'broadcast_status' => [
                         'string',
                         Rule::in(['upcoming', 'live', 'pending_live', 'replay']),
                     ],
         ]);
         
-        if($request->broadcast_status == "draft"){
-            $request['broadcast_status'] = 1;
-        }elseif($request->broadcast_status == "published"){
-            $request['broadcast_status'] = 2;
-        }elseif($request->broadcast_status == "archived"){
-            $request['broadcast_status'] = 3;
+        if($request->status == "draft"){
+            $request['status'] = 1;
+        }elseif($request->status == "published"){
+            $request['status'] = 2;
+        }elseif($request->status == "archived"){
+            $request['status'] = 3;
         }
 
-        if($request->status == "upcoming"){
-            $request['status'] = 1;
-        }elseif($request->status == "live"){
-            $request['status'] = 2;
-        }elseif($request->status == "pending_live"){
-            $request['status'] = 3;
-        }elseif($request->status == "replay"){
-            $request['status'] = 4;
+        if($request->broadcast_status == "upcoming"){
+            $request['broadcast_status'] = 1;
+        }elseif($request->broadcast_status == "live"){
+            $request['broadcast_status'] = 2;
+        }elseif($request->broadcast_status == "pending_live"){
+            $request['broadcast_status'] = 3;
+        }elseif($request->broadcast_status == "replay"){
+            $request['broadcast_status'] = 4;
         }
         
 

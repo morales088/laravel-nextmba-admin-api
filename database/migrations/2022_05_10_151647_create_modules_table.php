@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             // $table->string('remarks')->nullable();
-            $table->integer('status')->default(1)->comment('[1 - upcoming, 2 - live, 3 - pending live, 4 - replay]');
+            $table->integer('status')->default(1)->comment('[1 - daft, 2 - published, 3 - archived]');
             $table->timestamps();
         });
     }
