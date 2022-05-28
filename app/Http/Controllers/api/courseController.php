@@ -68,7 +68,7 @@ class courseController extends Controller
         
     }
 
-    public function updateModule($id, Request $request){
+    public function updateModule(Request $request,$id){
         $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
         $request->query->add(['id' => $id]);
 
@@ -114,7 +114,7 @@ class courseController extends Controller
         
 
         $module = Module::find($id);
-        
+        // dd($request->all());
         // $module->update($request->only('courseId', 'name', 'description', 'date', 'starting_time', 'end_time', 'topic', 'broadcast_status', 'status') +
         //                 [ 'updated_at' => now()]
         //                 );
@@ -373,7 +373,7 @@ class courseController extends Controller
 
     }
 
-    public function getTopic($module_id, $id = 0, Request $request){
+    public function getTopic(Request $request,$module_id, $id = 0){
         
         $request->query->add(['id' => $id]);
         $request->query->add(['moduleId' => $module_id]);
