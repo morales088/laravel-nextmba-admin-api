@@ -42,9 +42,9 @@ class courseController extends Controller
             'live_url' => 'regex:'.$regex,
             'topic' => 'string',
             'calendar_link' => 'regex:'.$regex,
-            'date' => 'date_format:Y-m-d',
-            'starting_time' => 'date_format:H:i:s',
-            'end_time' => 'date_format:H:i:s'
+            // 'date' => 'date_format:Y-m-d',
+            'starting_date' => 'date_format:H:i:s',
+            'end_date' => 'date_format:H:i:s'
         ]);
         
 
@@ -60,13 +60,14 @@ class courseController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'date' => $request->date,
-                'starting_time' => $request->starting_time,
-                'end_time' => $request->end_time,
+                'starting_date' => $request->starting_date,
+                'end_date' => $request->end_date,
             ]);
         
         return response(["message" => "successfully added module's course", "module" => $module], 200);
         
     }
+
     public function updateModule($id, Request $request){
         $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
         $request->query->add(['id' => $id]);
@@ -81,8 +82,8 @@ class courseController extends Controller
             'topicId' => 'numeric|min:1|exists:topics,id',
             'calendar_link' => 'regex:'.$regex,
             'date' => 'date_format:Y-m-d',
-            'starting_time' => 'date_format:H:i:s',
-            'end_time' => 'date_format:H:i:s',
+            'starting_time' => 'date_format:Y-m-d H:i:s',
+            'end_time' => 'date_format:Y-m-d H:i:s',
             'status' => [
                         'string',
                         Rule::in(['draft', 'published', 'archived']),

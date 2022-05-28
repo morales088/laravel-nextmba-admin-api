@@ -14,15 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('modules', function (Blueprint $table) {
-            $table->time('end_time')->default(now()->addHours(4))->after('description');
-            $table->time('starting_time')->default(now())->after('description');
-            $table->date('date')->default(now())->after('description');
+            $table->dateTime('end_date')->default(now()->addHours(4))->after('description');
+            $table->dateTime('starting_date')->default(now())->after('description');
+            // $table->date('date')->default(now())->after('description');
 
             $table->string('calendar_link')->after('description');
             $table->integer('topicId')->after('description');
             $table->string('live_url')->after('description');
             $table->string('chat_url')->after('description');            
-            $table->integer('broadcast_status')->default(1)->after('end_time')->comment('[1 - upcoming, 2 - live, 3 - pending live, 4 - replay]');
+            $table->integer('broadcast_status')->default(1)->after('end_date')->comment('[1 - upcoming, 2 - live, 3 - pending live, 4 - replay]');
         });
 
     }
@@ -35,9 +35,9 @@ return new class extends Migration
     public function down()
     {
         Schema::create('modules', function (Blueprint $table) {
-            $table->dropColumn('end_time');
-            $table->dropColumn('starting_time');
-            $table->dropColumn('date');
+            $table->dropColumn('end_date');
+            $table->dropColumn('starting_date');
+            // $table->dropColumn('date');
 
             $table->dropColumn('calendar_link');
             $table->dropColumn('topic');
