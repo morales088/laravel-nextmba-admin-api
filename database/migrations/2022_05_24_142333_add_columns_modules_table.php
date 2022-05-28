@@ -14,6 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('modules', function (Blueprint $table) {
+            $table->time('end_time')->default(now()->addHours(4))->after('description');
+            $table->time('starting_time')->default(now())->after('description');
+            $table->date('date')->default(now())->after('description');
+
             $table->string('calendar_link')->after('description');
             $table->integer('topicId')->after('description');
             $table->string('live_url')->after('description');
@@ -31,6 +35,10 @@ return new class extends Migration
     public function down()
     {
         Schema::create('modules', function (Blueprint $table) {
+            $table->dropColumn('end_time');
+            $table->dropColumn('starting_time');
+            $table->dropColumn('date');
+
             $table->dropColumn('calendar_link');
             $table->dropColumn('topic');
             $table->dropColumn('live_url');
