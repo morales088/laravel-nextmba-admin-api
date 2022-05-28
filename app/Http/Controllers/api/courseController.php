@@ -48,7 +48,7 @@ class courseController extends Controller
         ]);
         
 
-        $checker = DB::SELECT("SELECT * FROM modules where courseId = $request->courseId and date = '$request->date' and status <> 0");
+        $checker = DB::SELECT("SELECT * FROM modules where courseId = $request->courseId and start_date = '$request->start_date' and status <> 0");
 
         if(!empty($checker)){
             return response(["message" => "record already exist. please double check the course id and date"], 409);
