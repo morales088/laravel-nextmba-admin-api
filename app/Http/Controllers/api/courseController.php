@@ -43,8 +43,8 @@ class courseController extends Controller
             'topic' => 'string',
             'calendar_link' => 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
-            'starting_date' => 'date_format:H:i:s',
-            'end_date' => 'date_format:H:i:s'
+            'starting_date' => 'date_format:Y-m-d H:i:s',
+            'end_date' => 'date_format:Y-m-d H:i:s'
         ]);
         
 
@@ -59,7 +59,7 @@ class courseController extends Controller
                 'courseId' => $request->courseId,
                 'name' => $request->name,
                 'description' => $request->description,
-                'date' => $request->date,
+                // 'date' => $request->date,
                 'starting_date' => $request->starting_date,
                 'end_date' => $request->end_date,
             ]);
@@ -81,9 +81,9 @@ class courseController extends Controller
             'live_url' => 'regex:'.$regex,
             'topicId' => 'numeric|min:1|exists:topics,id',
             'calendar_link' => 'regex:'.$regex,
-            'date' => 'date_format:Y-m-d',
-            'starting_time' => 'date_format:Y-m-d H:i:s',
-            'end_time' => 'date_format:Y-m-d H:i:s',
+            // 'date' => 'date_format:Y-m-d',
+            'starting_date' => 'date_format:Y-m-d H:i:s',
+            'end_date' => 'date_format:Y-m-d H:i:s',
             'status' => [
                         'string',
                         Rule::in(['draft', 'published', 'archived']),
@@ -120,7 +120,7 @@ class courseController extends Controller
         //                 );
         
         $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
-                                        'calendar_link', 'date', 'starting_time', 'end_time', 'broadcast_status', 'status') +
+                                        'calendar_link', 'starting_date', 'end_date', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
                         
@@ -142,7 +142,7 @@ class courseController extends Controller
         // $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
         //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
         //                                 from speakers where moduleId = $request->id and status <> 0");
-        $module = COLLECT(\DB::SELECT("select m.*, concat(m.date, ' ', m.starting_time) start_date, concat(m.date, ' ', m.end_time) end_date, 
+        $module = COLLECT(\DB::SELECT("select m.*, 
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
                                         (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status,
                                         t.name topic_name
@@ -179,7 +179,7 @@ class courseController extends Controller
         //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         // }
 
-        $modules = DB::SELECT("select m.*, concat(m.date, ' ', m.starting_time) start_date, concat(m.date, ' ', m.end_time) end_date, 
+        $modules = DB::SELECT("select m.*, 
                                 (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
                                 (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status,
                                 t.name topic_name
@@ -195,7 +195,7 @@ class courseController extends Controller
                                             LEFT JOIN speakers s ON s.id = t.speakerId
                                             where t.status <> 0 and s.status <> 0 and t.moduleID = $value->id");
         }
-        dd($modules);
+
         return response()->json(["course" => $course, "modules" => $modules], 200);
 
     }
