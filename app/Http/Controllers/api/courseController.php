@@ -185,7 +185,7 @@ class courseController extends Controller
                                 t.name topic_name
                                 from modules m 
                                 left join topics t ON t.id = m.topicId
-                                where m.id = $id and m.status <> 0 or t.status <> 0");
+                                where m.courseId = $id and m.status <> 0 or t.status <> 0");
 
         foreach ($modules as $key => $value) {
             
