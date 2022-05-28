@@ -97,8 +97,7 @@ class speakerController extends Controller
         return response(["message" => "successfully updated this speaker", "speaker" => $speaker], 200);
     }
 
-    public function getSpeaker($id = 0, Request $request){
-        
+    public function getSpeaker(Request $request, $id = 0){
         $request->query->add(['id' => $id]);
         $array = [];
     
