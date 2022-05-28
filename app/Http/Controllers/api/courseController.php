@@ -43,7 +43,7 @@ class courseController extends Controller
             'topic' => 'string',
             'calendar_link' => 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
-            'starting_date' => 'date_format:Y-m-d H:i:s',
+            'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s'
         ]);
         
@@ -60,7 +60,7 @@ class courseController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 // 'date' => $request->date,
-                'starting_date' => $request->starting_date,
+                'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
             ]);
         
@@ -82,7 +82,7 @@ class courseController extends Controller
             'topicId' => 'numeric|min:1|exists:topics,id',
             'calendar_link' => 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
-            'starting_date' => 'date_format:Y-m-d H:i:s',
+            'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
             'status' => [
                         'string',
@@ -120,7 +120,7 @@ class courseController extends Controller
         //                 );
         
         $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
-                                        'calendar_link', 'starting_date', 'end_date', 'broadcast_status', 'status') +
+                                        'calendar_link', 'start_date', 'end_date', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
                         

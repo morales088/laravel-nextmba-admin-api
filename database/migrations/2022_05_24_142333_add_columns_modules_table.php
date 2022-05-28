@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('modules', function (Blueprint $table) {
             $table->dateTime('end_date')->default(now()->addHours(4))->after('description');
-            $table->dateTime('starting_date')->default(now())->after('description');
+            $table->dateTime('start_date')->default(now())->after('description');
             // $table->date('date')->default(now())->after('description');
 
             $table->string('calendar_link')->after('description');
@@ -36,7 +36,7 @@ return new class extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->dropColumn('end_date');
-            $table->dropColumn('starting_date');
+            $table->dropColumn('start_date');
             // $table->dropColumn('date');
 
             $table->dropColumn('calendar_link');
