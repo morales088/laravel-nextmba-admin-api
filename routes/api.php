@@ -74,5 +74,6 @@ Route::prefix("/speaker")->group( function (){
 
     Route::middleware("auth:api")->post("/add", "api\speakerController@addSpeaker"); 
     Route::middleware("auth:api")->put("/{id}", "api\speakerController@updateSpeaker");
+    Route::middleware("auth:api")->get("/{id?}", "api\speakerController@getSpeaker");
 
 });

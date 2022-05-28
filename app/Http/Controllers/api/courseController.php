@@ -194,7 +194,7 @@ class courseController extends Controller
                                             LEFT JOIN speakers s ON s.id = t.speakerId
                                             where t.status <> 0 and s.status <> 0 and t.moduleID = $value->id");
         }
-        dd($modules);
+        // dd($modules);
         return response()->json(["course" => $course, "modules" => $modules], 200);
 
     }

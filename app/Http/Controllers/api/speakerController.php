@@ -96,4 +96,21 @@ class speakerController extends Controller
 
         return response(["message" => "successfully updated this speaker", "speaker" => $speaker], 200);
     }
+
+    public function getSpeaker($id = 0, Request $request){
+        
+        $request->query->add(['id' => $id]);
+        $array = [];
+    
+        if($id > 0){
+            $array['id'] = 'exists:speakers,id';
+            $request->validate($array);  
+            
+            $speaker = COLLECT(\DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 and s.id = $id"))->first();
+        }else{
+            $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0");
+        }
+        return response()->json(["speaker(s)" => $speaker], 200);
+
+    }
 }
