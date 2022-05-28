@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('modules', function (Blueprint $table) {
             $table->string('calendar_link')->after('description');
-            $table->integer('topicId')->nullable()->after('description');
+            $table->integer('topicId')->after('description');
             $table->string('live_url')->after('description');
             $table->string('chat_url')->after('description');            
             $table->integer('broadcast_status')->default(1)->after('end_time')->comment('[1 - upcoming, 2 - live, 3 - pending live, 4 - replay]');
