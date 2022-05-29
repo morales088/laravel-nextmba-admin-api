@@ -126,7 +126,7 @@ class courseController extends Controller
                         
         $getmodule = COLLECT(\DB::SELECT("select m.*, 
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
-                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
+                                        (CASE WHEN m.broadcast_status = 1 THEN 'upcoming' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
                                         from modules m 
                                         left join topics t ON t.id = m.topicId
@@ -152,7 +152,7 @@ class courseController extends Controller
         //                                 from speakers where moduleId = $request->id and status <> 0");
         $module = COLLECT(\DB::SELECT("select m.*, 
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
-                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
+                                        (CASE WHEN m.broadcast_status = 1 THEN 'upcoming' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
                                         from modules m 
                                         left join topics t ON t.id = m.topicId
@@ -189,8 +189,8 @@ class courseController extends Controller
         // }
 
         $modules = DB::SELECT("select m.*, 
-                                (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
-                                (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
+                                (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
+                                (CASE WHEN m.broadcast_status = 1 THEN 'upcoming' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                 t.name topic_name
                                 from modules m 
                                 left join topics t ON t.id = m.topicId
