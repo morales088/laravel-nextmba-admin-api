@@ -84,7 +84,7 @@ class courseController extends Controller
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
-            'status' => [
+            'module_status' => [
                         'string',
                         Rule::in(['draft', 'published', 'archived']),
                     ],
@@ -94,11 +94,11 @@ class courseController extends Controller
                     ],
         ]);
         
-        if($request->status == "draft"){
+        if($request->module_status == "draft"){
             $request['status'] = 1;
-        }elseif($request->status == "published"){
+        }elseif($request->module_status == "published"){
             $request['status'] = 2;
-        }elseif($request->status == "archived"){
+        }elseif($request->module_status == "archived"){
             $request['status'] = 3;
         }
 
@@ -124,7 +124,15 @@ class courseController extends Controller
                         [ 'updated_at' => now()]
                         );
                         
-        return response(["message" => "successfully updated this module", "module" => $module], 200);
+        $getmodule = COLLECT(\DB::SELECT("select m.*, 
+                                        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
+                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) broadcast_status,
+                                        t.name topic_name
+                                        from modules m 
+                                        left join topics t ON t.id = m.topicId
+                                        where m.id = $module->id and m.status <> 0 or t.status <> 0"))->first();
+                                        
+        return response(["message" => "successfully updated this module", "module" => $getmodule], 200);
 
         
     }
@@ -136,15 +144,15 @@ class courseController extends Controller
         $module = $request->validate([
             'id' => 'required|numeric|min:1|exists:modules,id'
         ]);
-
+        
         // $module = Module::where('id', $request->id)->selectRaw("*, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code")->first();
 
         // $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
         //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
         //                                 from speakers where moduleId = $request->id and status <> 0");
         $module = COLLECT(\DB::SELECT("select m.*, 
-                                        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
-                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status,
+                                        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
+                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
                                         from modules m 
                                         left join topics t ON t.id = m.topicId
@@ -155,6 +163,7 @@ class courseController extends Controller
                                     FROM topics t
                                     LEFT JOIN speakers s ON s.id = t.speakerId
                                     where t.status <> 0 and s.status <> 0 and t.moduleID = $module->id");
+        $module->topics = $topics;
         // dd($module);
         return response(["module" => $module], 200);
 
