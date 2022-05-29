@@ -90,7 +90,7 @@ class courseController extends Controller
                     ],
             'broadcast_status' => [
                         'string',
-                        Rule::in(['upcoming', 'live', 'pending_live', 'replay']),
+                        Rule::in(['upcoming', 'live', 'pending_replay', 'replay']),
                     ],
         ]);
         
@@ -106,13 +106,13 @@ class courseController extends Controller
             $request['broadcast_status'] = 1;
         }elseif($request->broadcast_status == "live"){
             $request['broadcast_status'] = 2;
-        }elseif($request->broadcast_status == "pending_live"){
+        }elseif($request->broadcast_status == "pending_replay"){
             $request['broadcast_status'] = 3;
         }elseif($request->broadcast_status == "replay"){
             $request['broadcast_status'] = 4;
         }
         
-
+        // dd($request->all());
         $module = Module::find($id);
         // dd($request->all());
         // $module->update($request->only('courseId', 'name', 'description', 'date', 'starting_time', 'end_time', 'topic', 'broadcast_status', 'status') +
@@ -126,12 +126,12 @@ class courseController extends Controller
                         
         $getmodule = COLLECT(\DB::SELECT("select m.*, 
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
-                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) broadcast_status,
+                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_replay' WHEN m.status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
                                         from modules m 
                                         left join topics t ON t.id = m.topicId
                                         where m.id = $module->id and m.status <> 0 or t.status <> 0"))->first();
-                                        
+
         return response(["message" => "successfully updated this module", "module" => $getmodule], 200);
 
         
@@ -152,7 +152,7 @@ class courseController extends Controller
         //                                 from speakers where moduleId = $request->id and status <> 0");
         $module = COLLECT(\DB::SELECT("select m.*, 
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
-                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) broadcast_status,
+                                        (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_replay' WHEN m.status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
                                         from modules m 
                                         left join topics t ON t.id = m.topicId
@@ -190,7 +190,7 @@ class courseController extends Controller
 
         $modules = DB::SELECT("select m.*, 
                                 (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) broadcast_status,
-                                (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_live' WHEN m.status = 4 THEN 'replay' END) module_status,
+                                (CASE WHEN m.status = 1 THEN 'upcoming' WHEN m.status = 2 THEN 'live' WHEN m.status = 3 THEN 'pending_replay' WHEN m.status = 4 THEN 'replay' END) module_status,
                                 t.name topic_name
                                 from modules m 
                                 left join topics t ON t.id = m.topicId

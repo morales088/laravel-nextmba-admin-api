@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('topicId')->after('description');
             $table->string('live_url')->after('description');
             $table->string('chat_url')->after('description');            
-            $table->integer('broadcast_status')->default(1)->after('end_date')->comment('[1 - upcoming, 2 - live, 3 - pending live, 4 - replay]');
+            $table->integer('broadcast_status')->default(1)->after('end_date')->comment('[1 - upcoming, 2 - live, 3 - pending replay, 4 - replay]');
         });
 
     }
