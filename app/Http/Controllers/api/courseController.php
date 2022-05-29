@@ -418,7 +418,7 @@ class courseController extends Controller
             
         }
 
-        return response(["topic(s)" => $topic], 200);
+        return response(["topics" => $topic], 200);
 
     }
 }

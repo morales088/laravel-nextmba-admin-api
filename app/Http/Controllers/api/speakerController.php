@@ -109,7 +109,7 @@ class speakerController extends Controller
         }else{
             $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0");
         }
-        return response()->json(["speaker(s)" => $speaker], 200);
+        return response()->json(["speakers" => $speaker], 200);
 
     }
 }
