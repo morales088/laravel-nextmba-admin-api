@@ -22,8 +22,8 @@ class speakerController extends Controller
             'name' => 'required|string',
             'position' => 'string',
             'company' => 'string',
-            'profile_path' => 'regex:'.$regex,
-            'company_path' => 'regex:'.$regex,
+            'profile_path' => 'string', // 'regex:'.$regex,
+            'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => 'required|string',
         ]);
         // $role = 0;
@@ -62,8 +62,8 @@ class speakerController extends Controller
             'name' => 'string',
             'position' => 'string',
             'company' => 'string',
-            'profile_path' => 'regex:'.$regex,
-            'company_path' => 'regex:'.$regex,
+            'profile_path' => 'string', // 'regex:'.$regex,
+            'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => [
             //             'string',
             //             Rule::in(['main', 'guest']),
