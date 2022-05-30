@@ -51,7 +51,7 @@ Route::prefix("/student")->group( function (){
 Route::prefix("/courses")->group( function (){
     
     // get topic
-    Route::middleware("auth:api")->get("/topic/{module_id}/{id?}", "api\courseController@getTopic"); 
+    Route::middleware("auth:api")->get("/topic/{moduleId}/{id?}", "api\courseController@getTopic"); 
     // add topic
     Route::middleware("auth:api")->post("/topic/add", "api\courseController@addTopic"); 
     // update topic
