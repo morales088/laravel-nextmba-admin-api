@@ -415,7 +415,7 @@ class courseController extends Controller
                                 from topics t
                                 left join speaker_roles sr ON t.id = sr.topicId
                                 left join speakers s ON s.id = t.speakerId
-                                where t.moduleId = $module_id t.status <> 0 and sr.status <> 0 and s.status <> 0");
+                                where t.moduleId = $module_id and t.status <> 0 and sr.status <> 0 and s.status <> 0");
             
         }
 
