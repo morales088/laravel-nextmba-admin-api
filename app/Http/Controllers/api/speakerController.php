@@ -15,7 +15,7 @@ class speakerController extends Controller
 {
 
     public function addSpeaker(Request $request){
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
         
         $speaker = $request->validate([
             // 'moduleId' => 'required|numeric|min:1|exists:modules,id',
@@ -54,7 +54,7 @@ class speakerController extends Controller
     public function updateSpeaker($id, Request $request){
         
         $request->query->add(['id' => $id]);
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
 
         $speaker = $request->validate([
             'id' => 'required|numeric|min:1|exists:speakers,id',

@@ -32,7 +32,7 @@ class courseController extends Controller
     }
 
     public function addModule(Request $request){
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
         
         $module = $request->validate([
             'courseId' => 'numeric|min:1|exists:courses,id',
@@ -69,7 +69,7 @@ class courseController extends Controller
     }
 
     public function updateModule(Request $request,$id){
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
         $request->query->add(['id' => $id]);
 
         $request->validate([
@@ -77,7 +77,7 @@ class courseController extends Controller
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
             'description' => 'string',
-            'chat_url' => 'regex:'.$regex,
+            'chat_url' => 'string', // url
             'live_url' => 'regex:'.$regex,
             'topicId' => 'numeric|min:1|exists:topics,id',
             'calendar_link' => 'regex:'.$regex,
@@ -240,7 +240,7 @@ class courseController extends Controller
     // }
 
     public function addTopic(Request $request){
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
         
         $speaker = $request->validate([
             'module_id' => 'required|numeric|min:1|exists:modules,id',
@@ -262,9 +262,10 @@ class courseController extends Controller
         $checker = DB::SELECT("select *
                                 from topics t
                                 left join speaker_roles sr on t.id = sr.topicId
-                                where t.moduleId = $request->module_id and t.speakerId = $request->speaker_id and t.speakerId = $request->speaker_id and t.status <> 0");
+                                where t.moduleId = $request->module_id and sr.role = 1 and t.status <> 0");
+        // dd($checker, $role, (!empty($checker) && $role == 1));
                                 
-        if(!empty($checker) || !empty($checker) && $role == 1){
+        if((!empty($checker) && $role == 1) ){
             return response(["message" => "main speaker / speaker already exists"], 409);
         }
 
@@ -306,7 +307,7 @@ class courseController extends Controller
     public function updateTopic($id, Request $request){
         
         $request->query->add(['id' => $id]);
-        $regex = "/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi";
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
         
         $speaker = $request->validate([
             'id' => 'required|numeric|min:1|exists:topics,id',
@@ -414,7 +415,7 @@ class courseController extends Controller
                                 from topics t
                                 left join speaker_roles sr ON t.id = sr.topicId
                                 left join speakers s ON s.id = t.speakerId
-                                where t.status <> 0 and sr.status <> 0 and s.status <> 0");
+                                where t.moduleId = $module_id t.status <> 0 and sr.status <> 0 and s.status <> 0");
             
         }
 
