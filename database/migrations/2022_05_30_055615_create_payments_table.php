@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id');
-            $table->integer('payment_id');
+            $table->string('payment_id');
             $table->double('price', 8, 2);
             $table->string('payment_method');
+            $table->string('product');
             $table->string('utm_source');
             $table->string('utm_medium');
             $table->string('utm_campaign');
