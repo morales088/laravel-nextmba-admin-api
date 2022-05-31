@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\Studentcourse;
 use DB;
 
 class paymentController extends Controller
@@ -82,12 +83,13 @@ class paymentController extends Controller
 
 
     public function completePayment(Request $request){
-
+        
         $payment = $request->validate([
             'reference_id' => 'required|string',
         ]);
 
-        $studentinfo = DB::transaction(function() use ($request) {
+        $payment = DB::transaction(function() use ($request) {
+
             // // create user/student 
             $studentChecker = DB::SELECT("select *
                                             from students s
@@ -95,7 +97,7 @@ class paymentController extends Controller
                                             where p.reference_id = '$request->reference_id' and s.status <> 0");
 
             $paymentInfo = COLLECT(\DB::SELECT("SELECT * FROM payments where reference_id = '$request->reference_id'"))->first();
-                                            
+                                  
             $password = Payment::generate_password();
             if(empty($studentChecker)){
                 // CREATE NEW ACCOUNT
@@ -117,38 +119,39 @@ class paymentController extends Controller
             }
 
             $productInfo = COLLECT(\DB::SELECT("SELECT * FROM courses c where name like '%$paymentInfo->product%'"))->first();
-            
+            // end
+
             // insert data to payment_items
-            DB::table('payment_items')->insert([
-                [
-                    'payment_id' => $paymentInfo->id, 
-                    'product_id' => $productInfo->id, 
-                    'quantity' => 1,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ],
-            ]);
+            $paymentItems = [];
+            if(str_contains($paymentInfo->product, "Bundle")) {
+                $course1 = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1];
+                array_push($paymentItems, $course1);
+                $course2 = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1];
+                array_push($paymentItems, $course2);
+            } else if(str_contains($paymentInfo->product, "Marketing")) {
+                $qty = 1;
+                if(str_contains($paymentInfo->product, "10")) $qty = 20;
+                else if(str_contains($paymentInfo->product, "5")) $qty = 10;
+                else if(str_contains($paymentInfo->product, "3")) $qty = 6;
+                $item = ['studentId' => $student->id, 'courseId' => 1, 'qty' => $qty];
+                array_push($paymentItems, $item);
+            } else if(str_contains($paymentInfo->product, "Executive")) {
+                $qty = 1;
+                if(str_contains($paymentInfo->product, "10")) $qty = 20;
+                else if(str_contains($paymentInfo->product, "5")) $qty = 10;
+                else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
+                $item = ['studentId' => $student->id, 'courseId' => 2, 'qty' => $qty];
+                array_push($paymentItems, $item);
+            }
 
-            // $Studentcourse = Studentcourse::create(
-            //     [
-            //         'studentId' => $request->studentId,
-            //         'courseId' => $request->courseId,
-            //         'starting' => $request->starting_date,
-            //         'expirationDate' => $request->expiration_date,
-            //     ]);
-
-            // $modules = Module::Where('courseId', $request->courseId)->get();
-
-            // foreach ($modules as $key => $value) {
-
-            //     Studentmodule::create(
-            //     [
-            //     'studentId' => $request->studentId,
-            //     'moduleId' => $value->id,
-            //     ]);
-            // }
-
-            // dd($productInfo, $paymentInfo, $payment);
+            $insertPaymentItems = Payment::insertPaymentItems($paymentInfo->id, $paymentItems);
+            //end
+            
+            // registrer student course
+            foreach ($paymentItems as $key => $value) {
+                Studentcourse::insertStudentCourse($value);
+            }
+            // end
 
             // UPDATE PAYMENT
             $payment = Payment::find($paymentInfo->id);
@@ -159,24 +162,13 @@ class paymentController extends Controller
                     'status' => "Paid",
                 ]
             );
-
+            //emd
+            return $paymentInfo;
         });
         
-
+        return response(["message" => "success", "payment" => $payment], 200);
       
     }
-
-    // function generate_password($length = 20){
-    //     $chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      
-    //     $str = '';
-    //     $max = strlen($chars) - 1;
-      
-    //     for ($i=0; $i < $length; $i++)
-    //       $str .= $chars[random_int(0, $max)];
-      
-    //     return $str;
-    //   }
 
 
     public function sendEmailAndPassword(Request $request, $email, $password)
