@@ -37,7 +37,7 @@ class courseController extends Controller
         $module = $request->validate([
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'description' => 'string',
+            // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
             'topic' => 'string',
@@ -76,7 +76,7 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:modules,id',
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'description' => 'string',
+            // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
             'topicId' => 'numeric|min:1|exists:topics,id',
@@ -247,7 +247,7 @@ class courseController extends Controller
             'speakerId' => 'required|numeric|min:1|exists:speakers,id',
             'name' => 'required|string',
             // 'video_link' => 'string', // 'regex:'.$regex,
-            'description' => 'string',
+            // 'description' => 'string',
             'speaker_role' => [
                         'required',
                         Rule::in(['main', 'guest']),
@@ -315,7 +315,7 @@ class courseController extends Controller
             'speakerId' => 'required|numeric|min:1|exists:speakers,id',
             'name' => 'string',
             // 'video_link' => 'string', // 'regex:'.$regex,
-            'description' => 'string',
+            // 'description' => 'string',
             'speaker_role' => [
                         'string',
                         Rule::in(['main', 'guest']),
