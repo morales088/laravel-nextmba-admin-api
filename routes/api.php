@@ -77,3 +77,8 @@ Route::prefix("/speaker")->group( function (){
     Route::middleware("auth:api")->get("/{id?}", "api\speakerController@getSpeaker");
 
 });
+
+Route::prefix("/payment")->group( function (){
+    Route::post("/create", "api\paymentController@createPayment"); 
+    Route::post("/complete", "api\paymentController@completePayment"); 
+});
