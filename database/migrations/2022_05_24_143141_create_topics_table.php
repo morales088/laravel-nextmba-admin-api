@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('moduleId');
             $table->integer('speakerId');
             $table->string('name');
-            $table->string('video_link');
-            $table->text('description');
+            $table->string('video_link')->nullable();
+            $table->text('description')->nullable();
             $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
             $table->timestamps();
         });

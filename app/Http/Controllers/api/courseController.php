@@ -37,11 +37,11 @@ class courseController extends Controller
         $module = $request->validate([
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'description' => 'string',
-            'chat_url' => 'string', // 'regex:'.$regex,
-            'live_url' => 'string', // 'regex:'.$regex,
+            // 'description' => 'string',
+            // 'chat_url' => 'string', // 'regex:'.$regex,
+            // 'live_url' => 'string', // 'regex:'.$regex,
             'topic' => 'string',
-            'calendar_link' => 'string', // 'regex:'.$regex,
+            // 'calendar_link' => 'string', // 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s'
@@ -76,11 +76,11 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:modules,id',
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'description' => 'string',
-            'chat_url' => 'string', // 'regex:'.$regex,
-            'live_url' => 'string', // 'regex:'.$regex,
+            // 'description' => 'string',
+            // 'chat_url' => 'string', // 'regex:'.$regex,
+            // 'live_url' => 'string', // 'regex:'.$regex,
             'topicId' => 'numeric|min:1|exists:topics,id',
-            'calendar_link' => 'string', // 'regex:'.$regex,
+            // 'calendar_link' => 'string', // 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
@@ -137,7 +137,7 @@ class courseController extends Controller
         
     }
 
-    public function getModule($id, Request $request){
+    public function getModule(Request $request, $id){
 
         $request->query->add(['id' => $id]);
 
@@ -150,13 +150,15 @@ class courseController extends Controller
         // $module->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code
         //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
         //                                 from speakers where moduleId = $request->id and status <> 0");
-        $module = COLLECT(\DB::SELECT("select m.*, 
+
+        $module = COLLECT(\DB::SELECT("select *from (select m.id, m.courseId, m.name, m.description, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                         (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
                                         from modules m 
-                                        left join topics t ON t.id = m.topicId
-                                        where m.id = $id and m.status <> 0 or t.status <> 0"))->first();
+                                        left join topics t ON m.id = t.moduleId and t.id = m.topicId
+                                        where m.status <> 0 or t.status <> 0
+                                        group by m.id) m where m.id = $id"))->first();
                                         
         $topics = DB::SELECT("SELECT t.*, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path,
                                     (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
@@ -170,7 +172,7 @@ class courseController extends Controller
     }
 
     
-    public function getModules($id, Request $request){
+    public function getModules(Request $request, $id){
         $request->query->add(['id' => $id]);
 
         $course = $request->validate([
@@ -188,13 +190,14 @@ class courseController extends Controller
         //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         // }
 
-        $modules = DB::SELECT("select m.*, 
+        $modules = DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
                                 (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                 (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                 t.name topic_name
                                 from modules m 
-                                left join topics t ON t.id = m.topicId
-                                where m.courseId = $id and m.status <> 0 or t.status <> 0");
+                                left join topics t ON m.id = t.moduleId and t.id = m.topicId
+                                where m.status <> 0 or t.status <> 0
+                                group by m.id) m where m.courseId = $id");
 
         foreach ($modules as $key => $value) {
             
@@ -246,8 +249,8 @@ class courseController extends Controller
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'speakerId' => 'required|numeric|min:1|exists:speakers,id',
             'name' => 'required|string',
-            'video_link' => 'string', // 'regex:'.$regex,
-            'description' => 'string',
+            // 'video_link' => 'string', // 'regex:'.$regex,
+            // 'description' => 'string',
             'speaker_role' => [
                         'required',
                         Rule::in(['main', 'guest']),
@@ -294,8 +297,8 @@ class courseController extends Controller
                             from topics t
                             left join speaker_roles sr on t.id = sr.topicId
                             left join speakers s ON s.id = t.speakerId
-                            where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and sr.role = 1 and t.status <> 0 and s.status <> 0"))->first();
-
+                            where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and t.status <> 0 and s.status <> 0"))->first();
+                            
                 return $topic;
             
         });
@@ -314,8 +317,8 @@ class courseController extends Controller
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'speakerId' => 'required|numeric|min:1|exists:speakers,id',
             'name' => 'string',
-            'video_link' => 'string', // 'regex:'.$regex,
-            'description' => 'string',
+            // 'video_link' => 'string', // 'regex:'.$regex,
+            // 'description' => 'string',
             'speaker_role' => [
                         'string',
                         Rule::in(['main', 'guest']),
