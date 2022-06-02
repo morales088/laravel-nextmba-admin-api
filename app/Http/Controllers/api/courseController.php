@@ -159,7 +159,7 @@ class courseController extends Controller
                                         left join topics t ON m.id = t.moduleId and t.id = m.topicId
                                         where m.status <> 0 or t.status <> 0
                                         group by m.id) m where m.id = $id"))->first();
-
+                                        
         $topics = DB::SELECT("SELECT t.*, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path,
                                     (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
                                     FROM topics t
@@ -172,7 +172,7 @@ class courseController extends Controller
     }
 
     
-    public function getModules($id, Request $request){
+    public function getModules(Request $request, $id){
         $request->query->add(['id' => $id]);
 
         $course = $request->validate([
@@ -190,14 +190,14 @@ class courseController extends Controller
         //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         // }
 
-        $modules = DB::SELECT("select *from (select m.id, m.courseId, m.name, m.description, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
-                                        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
-                                        (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
-                                        t.name topic_name
-                                        from modules m 
-                                        left join topics t ON m.id = t.moduleId and t.id = m.topicId
-                                        where m.status <> 0 or t.status <> 0
-                                        group by m.id) m where m.id = $id");
+        $modules = DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
+                                (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
+                                (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
+                                t.name topic_name
+                                from modules m 
+                                left join topics t ON m.id = t.moduleId and t.id = m.topicId
+                                where m.status <> 0 or t.status <> 0
+                                group by m.id) m where m.courseId = $id");
 
         foreach ($modules as $key => $value) {
             
