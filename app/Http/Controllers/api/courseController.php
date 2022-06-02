@@ -84,33 +84,33 @@ class courseController extends Controller
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
-            'module_status' => [
-                        'string',
-                        Rule::in(['draft', 'published', 'archived']),
-                    ],
-            'broadcast_status' => [
-                        'string',
-                        Rule::in(['offline', 'live', 'pending_replay', 'replay']),
-                    ],
+            // 'module_status' => [
+            //             'string',
+            //             Rule::in(['draft', 'published', 'archived']),
+            //         ],
+            // 'broadcast_status' => [
+            //             'string',
+            //             Rule::in(['offline', 'live', 'pending_replay', 'replay']),
+            //         ],
         ]);
         
-        if($request->module_status == "draft"){
-            $request['status'] = 1;
-        }elseif($request->module_status == "published"){
-            $request['status'] = 2;
-        }elseif($request->module_status == "archived"){
-            $request['status'] = 3;
-        }
+        // if($request->module_status == "draft"){
+        //     $request['status'] = 1;
+        // }elseif($request->module_status == "published"){
+        //     $request['status'] = 2;
+        // }elseif($request->module_status == "archived"){
+        //     $request['status'] = 3;
+        // }
 
-        if($request->broadcast_status == "offline"){
-            $request['broadcast_status'] = 1;
-        }elseif($request->broadcast_status == "live"){
-            $request['broadcast_status'] = 2;
-        }elseif($request->broadcast_status == "pending_replay"){
-            $request['broadcast_status'] = 3;
-        }elseif($request->broadcast_status == "replay"){
-            $request['broadcast_status'] = 4;
-        }
+        // if($request->broadcast_status == "offline"){
+        //     $request['broadcast_status'] = 1;
+        // }elseif($request->broadcast_status == "live"){
+        //     $request['broadcast_status'] = 2;
+        // }elseif($request->broadcast_status == "pending_replay"){
+        //     $request['broadcast_status'] = 3;
+        // }elseif($request->broadcast_status == "replay"){
+        //     $request['broadcast_status'] = 4;
+        // }
 
         $module = DB::transaction(function() use ($request, $id) {
         
@@ -140,7 +140,7 @@ class courseController extends Controller
             }
             
             $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
-                                            'calendar_link', 'start_date', 'end_date', 'broadcast_status', 'status') +
+                                            'calendar_link', 'start_date', 'end_date') +
                             [ 'updated_at' => now()]
                             );
                             
@@ -447,6 +447,69 @@ class courseController extends Controller
         }
 
         return response(["topics" => $topic], 200);
+
+    }
+
+    public function updateModuleStatus(Request $request,$id){
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
+        $request->query->add(['id' => $id]);
+
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:modules,id',
+            'module_status' => [
+                        'string',
+                        Rule::in(['draft', 'published', 'archived']),
+                    ],
+            'broadcast_status' => [
+                        'string',
+                        Rule::in(['offline', 'live', 'pending_replay', 'replay']),
+                    ],
+        ]);
+        
+        
+        if($request->module_status == "draft"){
+            $request['status'] = 1;
+        }elseif($request->module_status == "published"){
+            $request['status'] = 2;
+        }elseif($request->module_status == "archived"){
+            $request['status'] = 3;
+        }
+
+        if($request->broadcast_status == "offline"){
+            $request['broadcast_status'] = 1;
+        }elseif($request->broadcast_status == "live"){
+            $request['broadcast_status'] = 2;
+        }elseif($request->broadcast_status == "pending_replay"){
+            $request['broadcast_status'] = 3;
+        }elseif($request->broadcast_status == "replay"){
+            $request['broadcast_status'] = 4;
+        }
+        
+        if($request->status > 1){
+            // check if all speaker has picture
+            $check = DB::SELECT("select IF(s.profile_path IS NULL or s.profile_path = '', false, true) as profile_existence
+                                    from modules m
+                                    left join topics t on t.moduleId = m.id
+                                    left join speakers s on s.id = t.speakerId
+                                    where m.status <> 0 and t.status <> 0 and s.status <> 0 and 
+                                    m.id = $id");
+            if(empty($check)){
+                return response(["message" => "no topic(s) found in this module",], 422);
+            }
+
+            foreach ($check as $key => $value) {
+                if(!$value->profile_existence){
+                    return response(["message" => "cannot leave blank on speaker's picture",], 422);
+                }
+            }
+        }
+
+        $module->update($request->only('broadcast_status', 'status') +
+                            [ 'updated_at' => now()]
+                            );
+
+        // dd($request->all());
+        return response(["message" => "successfully updated this module", "module" => $module], 200);
 
     }
 }

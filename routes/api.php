@@ -68,6 +68,8 @@ Route::prefix("/courses")->group( function (){
     Route::middleware("auth:api")->put("/module/{id}", "api\courseController@updateModule"); 
     Route::middleware("auth:api")->get("/module/{id}", "api\courseController@getModule"); 
     
+    Route::middleware("auth:api")->put("/module/status/{id}", "api\courseController@updateModuleStatus"); 
+    
     Route::middleware("auth:api")->get("/modules/{id}", "api\courseController@getModules"); 
 
 });
