@@ -345,42 +345,15 @@ class studentController extends Controller
             'starting_date' => 'required|date_format:Y-m-d H:i:s',
             'expiration_date' => 'required|date_format:Y-m-d H:i:s',
         ]);
-
-        $checker = DB::SELECT("SELECT * FROM studentcourses where studentId = ".$request->studentId);
         
-        if(!empty($checker)){
+        $studentCourse = Studentcourse::insertStudentCourse($request->all());
+
+        // dd($request->all(), $studentCourse);
+       
+        if(!$studentCourse){
             return response(["message" => "record already exist"], 409);
         }
-        
-
-        DB::transaction(function() use ($request) {
-
-            
-            
-            $Studentcourse = Studentcourse::create(
-                                        [
-                                            'studentId' => $request->studentId,
-                                            'courseId' => $request->courseId,
-                                            'starting' => $request->starting_date,
-                                            'expirationDate' => $request->expiration_date,
-                                        ]);
-
-            $modules = Module::Where('courseId', $request->courseId)->get();
-
-            foreach ($modules as $key => $value) {
-                
-                Studentmodule::create(
-                    [
-                        'studentId' => $request->studentId,
-                        'moduleId' => $value->id,
-                    ]);
-            }
-
-            return true;
-
-        });
-
-        
+               
         return response(["message" => "successfully added student's course"], 200);
 
     }
