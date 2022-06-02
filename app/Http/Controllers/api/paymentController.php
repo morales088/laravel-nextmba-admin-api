@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
+use Mail;
+use App\Mail\AccountCredentialEmail;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
@@ -99,6 +101,8 @@ class paymentController extends Controller
             $paymentInfo = COLLECT(\DB::SELECT("SELECT * FROM payments where reference_id = '$request->reference_id'"))->first();
                                   
             $password = Payment::generate_password();
+            $email = "";
+            $name = "";
             if(empty($studentChecker)){
                 // CREATE NEW ACCOUNT
                     
@@ -110,14 +114,18 @@ class paymentController extends Controller
                             'updated_at' => now()
                         ]);
 
+                    $name = $student->name;
+                    $email = $student->email;
+
                     // return $student;
             }else{
                 $student = COLLECT(\DB::SELECT("select s.*
                                         from students s
                                         left join payments p ON p.email = s.email
                                         where p.reference_id = '$request->reference_id' and s.status <> 0"))->first();
-            }
 
+                $email = $student->email;
+            }
             $productInfo = COLLECT(\DB::SELECT("SELECT * FROM courses c where name like '%$paymentInfo->product%'"))->first();
             // end
 
@@ -162,21 +170,20 @@ class paymentController extends Controller
                     'status' => "Paid",
                 ]
             );
+
+            if(empty($studentChecker)){
+                $user = [
+                    'email' => $email,
+                    'password' => $password
+                ];
+                Mail::to($email)->send(new AccountCredentialEmail($user));
+            }
+
             //emd
             return $paymentInfo;
         });
         
         return response(["message" => "success", "payment" => $payment], 200);
       
-    }
-
-
-    public function sendEmailAndPassword(Request $request, $email, $password)
-    {
-        Mail::send('email.send-account', ['email' => $email, 'user' => $password], function ($m) use ($user) {
-            $m->from('service@next.university', 'NEXT University');
- 
-            $m->to($user->email, $user->name)->subject('NEXT University Account');
-        });
     }
 }

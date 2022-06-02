@@ -114,7 +114,7 @@ table, td { color: #000000; } a { color: #0000ee; text-decoration: underline; }
       <td style="overflow-wrap:break-word;word-break:break-word;padding:20px 20px 10px;font-family:arial,helvetica,sans-serif;" align="left">
         
   <div style="line-height: 140%; text-align: left; word-wrap: break-word;">
-    <p style="font-size: 14px; line-height: 140%;">Your NEXT University account on has been successfully created.</p>
+    <p style="font-size: 14px; line-height: 140%;">Your NEXT University account has been successfully created.</p>
   </div>
 
       </td>
@@ -170,8 +170,8 @@ table, td { color: #000000; } a { color: #0000ee; text-decoration: underline; }
         
   <div style="line-height: 140%; text-align: left; word-wrap: break-word;">
     <p style="font-size: 14px; line-height: 140%;">Sign in to see the content you have access to.</p>
-<p style="font-size: 14px; line-height: 140%;">Your login: <?php echo $user->email; ?><br />Password: <?php echo $user->password; ?></p>
-<p style="font-size: 14px; line-height: 140%;"><br />Login page: <a rel="noopener" href="https://member.next.university/members/login" target="_blank">https://member.next.university/members/login</a></p>
+<p style="font-size: 14px; line-height: 140%;">Your login: {{ $email }}<br />Password: {{ $password }}</p>
+<p style="font-size: 14px; line-height: 140%;"><br />Login page: <a rel="noopener" href="https://members.next.university" target="_blank">https://members.next.university</a></p>
   </div>
 
       </td>
