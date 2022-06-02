@@ -111,28 +111,52 @@ class courseController extends Controller
         }elseif($request->broadcast_status == "replay"){
             $request['broadcast_status'] = 4;
         }
-        
-        // dd($request->all());
-        $module = Module::find($id);
-        // dd($request->all());
-        // $module->update($request->only('courseId', 'name', 'description', 'date', 'starting_time', 'end_time', 'topic', 'broadcast_status', 'status') +
-        //                 [ 'updated_at' => now()]
-        //                 );
-        
-        $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
-                                        'calendar_link', 'start_date', 'end_date', 'broadcast_status', 'status') +
-                        [ 'updated_at' => now()]
-                        );
-                        
-        $getmodule = COLLECT(\DB::SELECT("select m.*, 
-                                        (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
-                                        (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
-                                        t.name topic_name
-                                        from modules m 
-                                        left join topics t ON t.id = m.topicId
-                                        where m.id = $module->id and m.status <> 0 or t.status <> 0"))->first();
 
-        return response(["message" => "successfully updated this module", "module" => $getmodule], 200);
+        $module = DB::transaction(function() use ($request, $id) {
+        
+            $module = Module::find($id);
+
+            // update speaker role
+            if($request->topicId){
+                $topic_roles = DB::SELECT("select sr.*
+                                            from modules m
+                                            left join topics t on t.moduleId = m.id
+                                            left join speaker_roles sr on sr.topicId = t.id
+                                            where m.status <> 0 and t.status <> 0 and sr.status <> 0 and 
+                                            m.id = $id");
+                foreach ($topic_roles as $key => $value) {
+                    
+                    if($value->id == $request->topicId){
+                        $role = ['role' => "1"];
+                    }else{
+                        $role = ['role' => "2"];
+                    }
+                    DB::table('speaker_roles')
+                        ->where('id', $value->id)
+                        ->update($role);
+
+
+                }
+            }
+            
+            $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
+                                            'calendar_link', 'start_date', 'end_date', 'broadcast_status', 'status') +
+                            [ 'updated_at' => now()]
+                            );
+                            
+            $getmodule = COLLECT(\DB::SELECT("select m.*, 
+                                            (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
+                                            (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
+                                            t.name topic_name
+                                            from modules m 
+                                            left join topics t ON t.id = m.topicId
+                                            where m.id = $module->id and m.status <> 0 or t.status <> 0"))->first();
+                                            
+            return $getmodule;
+        
+        });
+
+        return response(["message" => "successfully updated this module", "module" => $module], 200);
 
         
     }
