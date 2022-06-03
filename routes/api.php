@@ -47,9 +47,9 @@ Route::prefix("/student")->group( function (){
 
 });
 
-Route::prefix("/payment")->group( function (){
-    Route::middleware("auth:api")->get("/", "api\paymentController@index");
-});
+// Route::prefix("/payment")->group( function (){
+//     Route::middleware("auth:api")->get("/", "api\paymentController@index");
+// });
 
 Route::prefix("/courses")->group( function (){
     
@@ -84,6 +84,7 @@ Route::prefix("/speaker")->group( function (){
 });
 
 Route::prefix("/payment")->group( function (){
+    Route::middleware("auth:api")->get("/", "api\paymentController@index");
     Route::post("/create", "api\paymentController@createPayment"); 
     Route::post("/complete", "api\paymentController@completePayment"); 
 });

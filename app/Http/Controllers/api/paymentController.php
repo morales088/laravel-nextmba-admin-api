@@ -17,6 +17,22 @@ use DB;
 
 class paymentController extends Controller
 {
+    public function index(Request $request){
+
+        $request->validate([
+            'page' => 'numeric|min:1',
+        ]);
+
+        $query_filter = [];
+        
+        !empty($request->page)? $query_filter += ['page' => $request->page] : '';
+        
+        $payments = Payment::getPayment($query_filter);
+
+        return response(["payments" => $payments], 200);
+
+    }
+
     public function createPayment(Request $request){
         $payment = $request->validate([
             'reference_id' => 'required|string',

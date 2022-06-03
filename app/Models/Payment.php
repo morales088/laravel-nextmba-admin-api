@@ -48,4 +48,19 @@ class Payment extends Model
        
     }
 
+    public static function getPayment($filter=[]){
+
+      $rowPerPage = 20;
+      $pagination = " LIMIT ".$rowPerPage;
+
+      if(!empty($filter['page'])){
+        $pagination .= " OFFSET ".(addslashes($filter["page"]) - 1);
+      }
+
+      $payments = DB::SELECT("select *
+                            from payments p $pagination");
+
+      return $payments;
+    }
+
 }
