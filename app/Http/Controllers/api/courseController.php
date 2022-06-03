@@ -504,6 +504,7 @@ class courseController extends Controller
             }
         }
 
+        $module = Module::find($id);
         $module->update($request->only('broadcast_status', 'status') +
                             [ 'updated_at' => now()]
                             );
