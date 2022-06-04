@@ -132,11 +132,11 @@ class studentController extends Controller
         // !empty($request->TG)? $links += ['tg' => $request->TG] : '';
         // !empty($request->WS)? $links += ['ws' => $request->WS] : '';
 
-        ($request->LI)? $links += ['li' => addslashes($request->LI)] : '';
-        ($request->IG)? $links += ['ig' => addslashes($request->IG)] : '';
-        ($request->FB)? $links += ['fb' => addslashes($request->FB)] : '';
-        ($request->TG)? $links += ['tg' => addslashes($request->TG)] : '';
-        ($request->WS)? $links += ['ws' => addslashes($request->WS)] : '';
+        ($request->has('LI'))? $links += ['li' => addslashes($request->LI)] : '';
+        ($request->has('IG'))? $links += ['ig' => addslashes($request->IG)] : '';
+        ($request->has('FB'))? $links += ['fb' => addslashes($request->FB)] : '';
+        ($request->has('TG'))? $links += ['tg' => addslashes($request->TG)] : '';
+        ($request->has('WS'))? $links += ['ws' => addslashes($request->WS)] : '';
 
                         // dd($links, $request->all());
                         
