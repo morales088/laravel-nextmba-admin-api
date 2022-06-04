@@ -46,23 +46,16 @@ class courseController extends Controller
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s'
         ]);
-        
 
         $checker = DB::SELECT("SELECT * FROM modules where courseId = $request->courseId and start_date = '$request->start_date' and status <> 0");
 
         if(!empty($checker)){
             return response(["message" => "record already exist. please double check the course id and date"], 409);
         }
+        
+        $module = Course::createModule($request);
 
-        $module = Module::create($request->only('topic', 'chat_url', 'live_url', 'calendar_link') +
-            [
-                'courseId' => $request->courseId,
-                'name' => $request->name,
-                'description' => $request->description,
-                // 'date' => $request->date,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
-            ]);
+        
         
         return response(["message" => "successfully added module's course", "module" => $module], 200);
         
