@@ -36,6 +36,7 @@ class paymentController extends Controller
     public function createPayment(Request $request){
         $payment = $request->validate([
             'reference_id' => 'required|string',
+            'hitpay_id' => 'required|string',
             'email' => 'required|string',
             'phone' => 'required|string',
             'first_name' => 'required|string',
@@ -54,7 +55,7 @@ class paymentController extends Controller
         // $checker = DB::SELECT("SELECT * FROM students where email = " . $request->email);
 
         // CREATE PAYMENT
-        $payment = Payment::create($request->only('reference_id') +
+        $payment = Payment::create($request->only('reference_id', 'hitpay_id') +
         [
             // 'reference_id ' => $request->reference_id,
             'first_name' => $request->first_name,
