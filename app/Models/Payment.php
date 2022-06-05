@@ -54,7 +54,7 @@ class Payment extends Model
       $pagination = " LIMIT ".$rowPerPage;
 
       $query = [];
-      $sort = " order by P.id asc";
+      $sort = " order by p.id asc";
       $queryText = "";
 
       $searchQuery = "";
