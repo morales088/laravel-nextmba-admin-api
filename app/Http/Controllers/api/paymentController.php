@@ -21,11 +21,31 @@ class paymentController extends Controller
 
         $request->validate([
             'page' => 'numeric|min:1',
+            'date_created' => 'string',
+            'utm_source' => 'string',
+            'utm_medium' => 'string',
+            'utm_campaign' => 'string',
+            'utm_content' => 'string',
+            'name' => 'string',
+            'product_name' => 'string',
+            'status' => 'string',
         ]);
 
         $query_filter = [];
+
+        !empty($request->date_created)? $query_filter += ['date_created' => $request->date_created] : '';
+        !empty($request->utm_source)? $query_filter += ['utm_source' => $request->utm_source] : '';
+        !empty($request->utm_medium)? $query_filter += ['utm_medium' => $request->utm_medium] : '';
+        !empty($request->utm_campaign)? $query_filter += ['utm_campaign' => $request->utm_campaign] : '';
+        !empty($request->utm_content)? $query_filter += ['utm_content' => $request->utm_content] : '';
+        !empty($request->name)? $query_filter += ['name' => $request->name] : '';
+        !empty($request->product_name)? $query_filter += ['product_name' => $request->product_name] : '';
+        !empty($request->status)? $query_filter += ['status' => $request->status] : '';
+        !empty($request->search)? $query_filter += ['search' => $request->search] : '';
         
         !empty($request->page)? $query_filter += ['page' => $request->page] : '';
+        (!empty($request->sort_column) && !empty($request->sort_column) )? $query_filter += ['sort_column' => $request->sort_column, 'git' => $request->sort_type] : '';
+        // dd($query_filter);
         
         $payments = Payment::getPayment($query_filter);
 
