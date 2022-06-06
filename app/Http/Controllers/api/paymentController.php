@@ -44,7 +44,7 @@ class paymentController extends Controller
         !empty($request->search)? $query_filter += ['search' => $request->search] : '';
         
         !empty($request->page)? $query_filter += ['page' => $request->page] : '';
-        (!empty($request->sort_column) && !empty($request->sort_column) )? $query_filter += ['sort_column' => $request->sort_column, 'git' => $request->sort_type] : '';
+        (!empty($request->sort_column) && !empty($request->sort_type) )? $query_filter += ['sort_column' => $request->sort_column, 'sort_type' => $request->sort_type] : '';
         // dd($query_filter);
         
         $payments = Payment::getPayment($query_filter);
