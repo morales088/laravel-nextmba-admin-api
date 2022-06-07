@@ -87,4 +87,9 @@ Route::prefix("/payment")->group( function (){
     Route::middleware("auth:api")->get("/", "api\paymentController@index");
     Route::post("/create", "api\paymentController@createPayment"); 
     Route::post("/complete", "api\paymentController@completePayment"); 
+
+
+    
+    Route::middleware("auth:api")->get("/payment/{id}", "api\paymentController@getPayment");
+    Route::middleware("auth:api")->post("/refund", "api\paymentController@refund");
 });
