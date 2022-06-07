@@ -72,6 +72,11 @@ Route::prefix("/courses")->group( function (){
     
     Route::middleware("auth:api")->get("/modules/{id}", "api\courseController@getModules"); 
 
+    
+    Route::middleware("auth:api")->get("/zoom/{module_id}/{id?}", "api\courseController@getZoom");
+    Route::middleware("auth:api")->post("/zoom/add", "api\courseController@addZoom"); 
+    Route::middleware("auth:api")->put("/zoom/{id}", "api\courseController@updateZoom");
+
 });
 
 

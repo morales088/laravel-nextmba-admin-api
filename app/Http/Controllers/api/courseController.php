@@ -12,6 +12,7 @@ use App\Models\Module;
 use App\Models\Speaker;
 use App\Models\Topic;
 use App\Models\Speakerrole;
+use App\Models\Extravideo;
 use DB;
 
 class courseController extends Controller
@@ -329,7 +330,7 @@ class courseController extends Controller
         $request->query->add(['id' => $id]);
         $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
         
-        $speaker = $request->validate([
+        $request->validate([
             'id' => 'required|numeric|min:1|exists:topics,id',
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'speakerId' => 'required|numeric|min:1|exists:speakers,id',
@@ -505,5 +506,77 @@ class courseController extends Controller
         // dd($request->all());
         return response(["message" => "successfully updated this module", "module" => $module], 200);
 
+    }
+
+    public function addZoom(Request $request){
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
+        
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'title' => 'required|string',
+            'image_url' => 'string', // 'regex:'.$regex,
+            'replay_url' => 'string', // 'regex:'.$regex,
+            'description' => 'string', // 'regex:'.$regex,
+        ]);
+
+        $request->query->add(['moduleId' => $request->module_id]);
+
+        $video = Extravideo::create($request->only('moduleId', 'image_url', 'replay_url', 'description') +
+                [
+                    // 'module_id' => $request->module_id,
+                    'title' => $request->title,
+                ]);
+
+        return response(["video" => $video], 200);
+    }
+
+    public function updateZoom(Request $request, $id){
+        $request->query->add(['id' => $id]);
+        $regex = "/^((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)$/";
+        
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:extra_videos,id',
+            'title' => 'string',
+            'status' => [
+                        'string',
+                        Rule::in(['delete', 'active']),
+                    ],
+        ]);
+
+        if($request->status == "delete"){
+            $request['status'] = 0;
+        }elseif($request->status == "active"){
+            $request['status'] = 1;
+        }
+
+        $updateVideo = Extravideo::find($request->id);
+            
+        // dd($updateVideo);
+    
+        $updateVideo->update($request->only('title', 'image_url', 'replay_url', 'description', 'status') +
+                        [ 'updated_at' => now()]
+                        );
+
+        return response(["video" => $updateVideo], 200);
+
+    }
+
+    public function getZoom(Request $request, $module_id, $id = 0){
+        $request->query->add(['module_id' => $module_id]);
+        $request->query->add(['id' => $id]);
+
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            // 'id' => 'min:1|exists:extra_videos,id',
+        ]);
+
+        if($id > 0){
+            $video = COLLECT(\DB::SELECT("SELECT * FROM extra_videos where id = $id and status <> 0"))->first();
+        }else{
+            $video = DB::SELECT("SELECT * FROM extra_videos where moduleId = $request->module_id and status <> 0");
+        }
+
+
+        return response(["videos" => $video], 200);
     }
 }
