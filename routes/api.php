@@ -90,6 +90,6 @@ Route::prefix("/payment")->group( function (){
 
 
     
-    Route::middleware("auth:api")->get("/payment/{id}", "api\paymentController@getPayment");
+    Route::middleware("auth:api")->get("/{id}", "api\paymentController@getPayment");
     Route::middleware("auth:api")->post("/refund", "api\paymentController@refund");
 });

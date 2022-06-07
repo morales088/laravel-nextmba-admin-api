@@ -238,7 +238,7 @@ class paymentController extends Controller
     }
 
     public function refund(Request $request){
-        $userId = auth('api')->user()->id;
+        // $userId = auth('api')->user()->id;
         $api_key = env('HITPAY_API_TOKEN');
         $api_link = env('HITPAY_API_LINK');
 
