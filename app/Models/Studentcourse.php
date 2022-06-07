@@ -13,7 +13,6 @@ class Studentcourse extends Model
     protected $guarded = ['id'];
 
     public static function insertStudentCourse($data){
-        dd($data);
         
         $student_id = $data['studentId'];
         $course_id = $data['courseId'];
