@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('gifter_courses', function (Blueprint $table) {
+        Schema::create('course_invitations', function (Blueprint $table) {
             $table->id();
             $table->integer('from_student_id');
+            $table->integer('from_payment_id');
             $table->integer('course_id');
-            $table->string('unique_id');
             $table->string('email');
-            $table->dateTime('date')->default(now());
-            $table->integer('status')->default(1)->comment('[1 - pending, 2 - canceled, 3 - active]');
+            $table->text('code');
+            $table->integer('status')->default(1)->comment('[1 - pending, 2 - active]');
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('gifter_courses');
+        Schema::dropIfExists('course_invitations');
     }
 };
