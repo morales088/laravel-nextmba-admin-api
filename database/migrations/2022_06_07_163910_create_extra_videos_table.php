@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->integer('moduleId');
             $table->string('title');
-            $table->string('image_url');
-            $table->string('replay_url');
-            $table->text('description');
+            $table->string('image_url')->nullable();
+            $table->string('replay_url')->nullable();
+            $table->text('description')->nullable();
             $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
             $table->timestamps();
         });
