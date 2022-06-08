@@ -514,9 +514,9 @@ class courseController extends Controller
         $request->validate([
             'module_id' => 'required|numeric|min:1|exists:modules,id',
             'title' => 'required|string',
-            'image_url' => 'string', // 'regex:'.$regex,
-            'replay_url' => 'string', // 'regex:'.$regex,
-            'description' => 'string', // 'regex:'.$regex,
+            // 'image_url' => 'string', // 'regex:'.$regex,
+            // 'replay_url' => 'string', // 'regex:'.$regex,
+            // 'description' => 'string', // 'regex:'.$regex,
         ]);
 
         $request->query->add(['moduleId' => $request->module_id]);
