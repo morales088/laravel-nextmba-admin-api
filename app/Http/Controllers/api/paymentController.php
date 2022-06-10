@@ -294,16 +294,16 @@ class paymentController extends Controller
         $request->validate([
             'id' => 'required|numeric|min:1|exists:payments,id',
             'status' => [
-                        'required|string',
+                        'string',
                         Rule::in(['unpaid', 'paid', 'refund']),
                     ],
         ]);
 
         $payment = Payment::find($id);
         
-        $payment->update($request->only('remarks') + 
+        $payment->update($request->only('remarks', 'status') + 
                     [ 
-                        'status' => $request->status,
+                        // 'status' => $request->status,
                         'updated_at' => now()
                     ]
                     );
