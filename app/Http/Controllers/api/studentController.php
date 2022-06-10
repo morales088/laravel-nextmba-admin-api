@@ -365,12 +365,15 @@ class studentController extends Controller
             'id' => 'required|numeric|min:1|exists:students,id',
         ]);
 
-        $payment = COLLECT(\DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where student_id = $id"))->first();
+        $payment = DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where student_id = $id");
 
-        $payment->courses = DB::SELECT("select c.id course_id, c.name course_name, pi.quantity course_quantity
-                                from payment_items pi
-                                left join courses c ON c.id = pi.product_id
-                                where pi.payment_id = $payment->id");
+        foreach ($payment as $key => $value) {
+            $value->courses = DB::SELECT("select c.id course_id, c.name course_name, pi.quantity course_quantity
+                                    from payment_items pi
+                                    left join courses c ON c.id = pi.product_id
+                                    where pi.payment_id = $value->id");
+        }
+
 
         // dd($request->all(), $id, $payment);
         return response(["payment" => $payment], 200);
