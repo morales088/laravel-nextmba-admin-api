@@ -286,4 +286,28 @@ class paymentController extends Controller
         return response()->json(["message" => "transaction failed"], 422);
 
     }
+
+    public function updatePayment(Request $request, $id){
+        $request->query->add(['id' => $id]);
+        
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:payments,id',
+            'status' => [
+                        'required|string',
+                        Rule::in(['unpaid', 'paid', 'refund']),
+                    ],
+        ]);
+
+        $payment = Payment::find($id);
+        
+        $payment->update($request->only('remarks') + 
+                    [ 
+                        'status' => $request->status,
+                        'updated_at' => now()
+                    ]
+                    );
+
+        return response(["payment" => $payment], 200);
+        
+    }
 }
