@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\AccountCredentialEmail;
 use App\Models\Studentmodule;
 use App\Models\Studentcourse;
 use App\Models\Student;
 use App\Models\Links;
 use App\Models\Course;
 use App\Models\Module;
+use App\Models\Payment;
 use Validator;
 use DB;
+use Mail;
 
 class studentController extends Controller
 {
@@ -309,27 +312,39 @@ class studentController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|unique:students',
-            'password' => 'required|confirmed|min:8',
+            // 'password' => 'required|confirmed|min:8',
         ]);
 
         // $link = Links::where('studentId', $id)->where('name', $key)->first();
         $student = DB::transaction(function() use ($request) {
 
-                        $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
-                                                    [
-                                                        'name' => $request->name,
-                                                        'email' => $request->email,
-                                                        'password' => Hash::make($request->password),
-                                                        'updated_by' => auth('api')->user()->id
-                                                    ]);
-                        
-                        Student::createLinks($student->id, $request->all());
+            // generate random password
+            $textPassword = Payment::generate_password();
+            // dd($textPassword);
 
-                        $student->links = Links::where('studentId', $student->id)->get();
-                        
-                        return $student;
+            $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
+                                        [
+                                            'name' => $request->name,
+                                            'email' => $request->email,
+                                            'password' => Hash::make($textPassword),
+                                            'updated_by' => auth('api')->user()->id
+                                        ]);
+            
+            Student::createLinks($student->id, $request->all());
+            
+            // send user accout to email
+            $user = [
+                'email' => $request->email,
+                'password' => $textPassword
+            ];
 
-                    });
+            Mail::to($request->email)->send(new AccountCredentialEmail($user));
+
+            $student->links = Links::where('studentId', $student->id)->get();
+            
+            return $student;
+
+        });
 
         // dd($request->all());
 
