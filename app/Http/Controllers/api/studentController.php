@@ -357,4 +357,22 @@ class studentController extends Controller
         return response(["message" => "successfully added student's course"], 200);
 
     }
+
+    public function getPayment(Request $request, $id){
+
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:students,id',
+        ]);
+
+        $payment = COLLECT(\DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where student_id = $id"))->first();
+
+        $payment->courses = DB::SELECT("select c.id course_id, c.name course_name, pi.quantity course_quantity
+                                from payment_items pi
+                                left join courses c ON c.id = pi.product_id
+                                where pi.payment_id = $payment->id");
+
+        // dd($request->all(), $id, $payment);
+        return response(["payment" => $payment], 200);
+
+    }
 }

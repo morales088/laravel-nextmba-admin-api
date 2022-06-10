@@ -226,6 +226,10 @@ class paymentController extends Controller
 
     public function getPayment(Request $request, $id){
 
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:payments,id',
+        ]);
+
         $payment = COLLECT(\DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where id = $id"))->first();
 
         $payment->courses = DB::SELECT("select c.id course_id, c.name course_name, pi.quantity course_quantity

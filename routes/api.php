@@ -43,6 +43,8 @@ Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->post("/add", "api\studentController@addStudent");
     Route::middleware("auth:api")->post("course/add", "api\studentController@addStudentCourse");
+
+    Route::middleware("auth:api")->get("/payment/{id}", "api\studentController@getPayment");
     
 
 });
