@@ -333,14 +333,14 @@ class courseController extends Controller
         $request->validate([
             'id' => 'required|numeric|min:1|exists:topics,id',
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
-            'speakerId' => 'required|numeric|min:1|exists:speakers,id',
+            // 'speakerId' => 'required|numeric|min:1|exists:speakers,id',
             'name' => 'string',
             // 'video_link' => 'string', // 'regex:'.$regex,
             // 'description' => 'string',
-            'speaker_role' => [
-                        'string',
-                        Rule::in(['main', 'guest']),
-                    ],
+            // 'speaker_role' => [
+            //             'string',
+            //             Rule::in(['main', 'guest']),
+            //         ],
             'status' => [
                         'string',
                         Rule::in(['delete', 'active']),
@@ -354,19 +354,19 @@ class courseController extends Controller
             $request['status'] = 1;
         }
 
-        $role = 0;
+        // $role = 0;
             
-        ($request->speaker_role == "main")? $role = 1 : $role = 2;
+        // ($request->speaker_role == "main")? $role = 1 : $role = 2;
 
-        // check duplicate main speaker
-        $checker = DB::SELECT("select *
-                                from topics t
-                                left join speaker_roles sr on t.id = sr.topicId
-                                where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and sr.role = 1 and t.status <> 0");
+        // // check duplicate main speaker
+        // $checker = DB::SELECT("select *
+        //                         from topics t
+        //                         left join speaker_roles sr on t.id = sr.topicId
+        //                         where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and sr.role = 1 and t.status <> 0");
 
-        if(!empty($checker) && $role == 1){
-            return response(["message" => "speaker already exists"], 409);
-        }
+        // if(!empty($checker) && $role == 1){
+        //     return response(["message" => "speaker already exists"], 409);
+        // }
 
         // dd($request->all());
 
@@ -376,26 +376,34 @@ class courseController extends Controller
             
             // dd($updateTopic);
         
-            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'description', 'status') +
+            $updateTopic->update($request->only('moduleId', 'name', 'video_link', 'description', 'status') +
                             [ 'updated_at' => now()]
                             );
                             
 
-            // update speker_role
-            if(!empty($request->speaker_role)){
+            // // update speker_role
+            // if(!empty($request->speaker_role)){
 
-                DB::table('speaker_roles')
-                ->where('topicId', $request->id)
-                ->where('speakerId', $request->speakerId)
-                ->update(['role' => $role]);
+            //     DB::table('speaker_roles')
+            //     ->where('topicId', $request->id)
+            //     ->where('speakerId', $request->speakerId)
+            //     ->update(['role' => $role]);
                 
-            }
+            // }
+
+            // $topic = collect(\DB::SELECT("select t.*, s.id speakerId, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path, 
+            //                 (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
+            //                 from topics t
+            //                 left join speaker_roles sr on t.id = sr.topicId
+            //                 left join speakers s ON s.id = t.speakerId
+            //                 where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and sr.role = 1 and t.status <> 0 and s.status <> 0"))->first();
+
             $topic = collect(\DB::SELECT("select t.*, s.id speakerId, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path, 
-                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
-                            from topics t
-                            left join speaker_roles sr on t.id = sr.topicId
-                            left join speakers s ON s.id = t.speakerId
-                            where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and sr.role = 1 and t.status <> 0 and s.status <> 0"))->first();
+                                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
+                                            from topics t
+                                            left join speaker_roles sr on t.id = sr.topicId
+                                            left join speakers s ON s.id = t.speakerId
+                                            where t.id = $id and s.status <> 0"))->first();
 
             return $topic;
         });
