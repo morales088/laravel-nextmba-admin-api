@@ -333,7 +333,7 @@ class courseController extends Controller
         $request->validate([
             'id' => 'required|numeric|min:1|exists:topics,id',
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
-            // 'speakerId' => 'required|numeric|min:1|exists:speakers,id',
+            'speakerId' => 'numeric|min:1|exists:speakers,id',
             'name' => 'string',
             // 'video_link' => 'string', // 'regex:'.$regex,
             // 'description' => 'string',
@@ -376,7 +376,7 @@ class courseController extends Controller
             
             // dd($updateTopic);
         
-            $updateTopic->update($request->only('moduleId', 'name', 'video_link', 'description', 'status') +
+            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'description', 'status') +
                             [ 'updated_at' => now()]
                             );
                             
