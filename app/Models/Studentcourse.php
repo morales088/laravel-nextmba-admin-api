@@ -16,7 +16,7 @@ class Studentcourse extends Model
         
         $student_id = $data['studentId'];
         $course_id = $data['courseId'];
-        $qty = $data['qty'];
+        $qty = (isset($data['qty'])? $data['qty'] : 1);
         $starting_date = isset($data['starting_date'])? $data['starting_date'] : now();
         $expiration_date = isset($data['expiration_date'])? $data['expiration_date'] : now()->addMonths(12);
         
