@@ -370,7 +370,7 @@ class courseController extends Controller
 
         // dd($request->all());
 
-        $DBtransaction = DB::transaction(function() use ($request, $role) {
+        $DBtransaction = DB::transaction(function() use ($request) {
         
             $updateTopic = Topic::find($request->id);
             
