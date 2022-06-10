@@ -403,7 +403,7 @@ class courseController extends Controller
                                             from topics t
                                             left join speaker_roles sr on t.id = sr.topicId
                                             left join speakers s ON s.id = t.speakerId
-                                            where t.id = $id and s.status <> 0"))->first();
+                                            where t.id = $request->id and s.status <> 0"))->first();
 
             return $topic;
         });
