@@ -225,6 +225,7 @@ class paymentController extends Controller
     }
 
     public function getPayment(Request $request, $id){
+        $request->query->add(['id' => $id]);
 
         $request->validate([
             'id' => 'required|numeric|min:1|exists:payments,id',
