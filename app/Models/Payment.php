@@ -89,15 +89,18 @@ class Payment extends Model
       if(!empty($filter['name'])){
         $query += ["name" => "p.name like '%".addslashes($filter["name"])."%'"];
       }
+      if(!empty($filter['country'])){
+        $query += ["country" => "p.country like '%".addslashes($filter["country"])."%'"];
+      }
       if(!empty($filter['product_name'])){
         $query += ["product_name" => "p.product like '%".addslashes($filter["product_name"])."%'"];
       }
       if(!empty($filter['status'])){
-        $query += ["status" => "p.status like '%".addslashes($filter["status"])."%'"];
+        $query += ["status" => "p.status like '%".addslashes(strtolower($filter["status"]))."%'"];
       }
 
       foreach ($query as $key => $value) {
-          if($key === array_key_first($query)){ //check if this is this the first row
+          if($key === array_key_first($query) && empty($searchQuery)){ //check if this is this the first row
               $queryText .= " WHERE ".$value;
           }else{
               $queryText .= " AND ".$value;

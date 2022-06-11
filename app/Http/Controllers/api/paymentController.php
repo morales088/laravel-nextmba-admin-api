@@ -28,6 +28,7 @@ class paymentController extends Controller
             'utm_campaign' => 'string',
             'utm_content' => 'string',
             'name' => 'string',
+            'country' => 'string',
             'product_name' => 'string',
             'status' => 'string',
         ]);
@@ -40,6 +41,7 @@ class paymentController extends Controller
         !empty($request->utm_campaign)? $query_filter += ['utm_campaign' => $request->utm_campaign] : '';
         !empty($request->utm_content)? $query_filter += ['utm_content' => $request->utm_content] : '';
         !empty($request->name)? $query_filter += ['name' => $request->name] : '';
+        !empty($request->country)? $query_filter += ['country' => $request->country] : '';
         !empty($request->product_name)? $query_filter += ['product_name' => $request->product_name] : '';
         !empty($request->status)? $query_filter += ['status' => $request->status] : '';
         !empty($request->search)? $query_filter += ['search' => $request->search] : '';
