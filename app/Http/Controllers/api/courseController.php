@@ -617,7 +617,7 @@ class courseController extends Controller
             'name' => 'string',
         ]);
 
-        $files = Modulefile::create($request->only('links') + 
+        $files = Modulefile::create($request->only('link') + 
                 [
                     'moduleId' => $request->module_id,
                     'name' => $request->name,
