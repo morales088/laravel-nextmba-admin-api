@@ -96,7 +96,7 @@ class Payment extends Model
         $query += ["product_name" => "p.product like '%".addslashes($filter["product_name"])."%'"];
       }
       if(!empty($filter['status'])){
-        $query += ["status" => "p.status like '%".addslashes(strtolower($filter["status"]))."%'"];
+        $query += ["status" => "p.status = '%".addslashes(strtolower($filter["status"]))."%'"];
       }
 
       foreach ($query as $key => $value) {
@@ -110,9 +110,9 @@ class Payment extends Model
       if(!empty($filter['sort_column']) && !empty($filter['sort_type'])){
         $sort =" order by p.".$filter["sort_column"]." ".$filter["sort_type"];
       }
-      // dd("select *
-      // from (select *, concat(p.first_name, ' ', p.last_name) as name
-      //       from payments p) as p $searchQuery$queryText$sort$pagination");
+      dd("select *
+      from (select *, concat(p.first_name, ' ', p.last_name) as name
+      from payments p) as p $searchQuery$queryText $sort $pagination");
 
       $payments = DB::SELECT("select *
                               from (select *, concat(p.first_name, ' ', p.last_name) as name
