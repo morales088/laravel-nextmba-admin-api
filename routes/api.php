@@ -46,9 +46,6 @@ Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->get("/payment/{id}", "api\studentController@getPayment");
 
-
-    Route::middleware("auth:api")->get("/settings/{id}", "api\studentController@getStudentSettings");
-    Route::middleware("auth:api")->post("/settings/{id}", "api\studentController@updateStudentSettings");
     
 
 });

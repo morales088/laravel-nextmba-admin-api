@@ -396,48 +396,5 @@ class studentController extends Controller
 
     }
 
-    public function getStudentSettings(Request $request, $id){
-        
-        $request->query->add(['id' => $id]);
-
-        $request->validate([
-            'id' => 'required|numeric|min:1|exists:students,id',
-        ]);
-
-        $settings = COLLECT(\DB::SELECT("SELECT * FROM student_settings WHERE studentId = $id"))->frst();
-
-        
-        return response(["settings" => $settings], 200);
-
-    }
-
-    public function updateStudentSettings(Request $request, $id){
-        
-        
-        $request->query->add(['id' => $id]);
-
-        $request->validate([
-            'id' => 'required|numeric|min:1|exists:students,id',
-        ]);
-
-        $check = COLLECT(\DB::SELECT("SELECT * FROM student_settings WHERE studentId = $id"))->frst();
-        
-        if($check){
-
-            $student_setting = Studentsetting::find($check->id);
-            $student_setting->update(
-                            [ 
-                                'timezone' => $request->timezone,
-                                'updated_at' => now(),
-                            ]
-                            );
-
-        }else{
-            Studentsetting::create(
-                        [
-                            'timezone' => $request->timezone,
-                        ]);
-        }
-    }
 
 }
