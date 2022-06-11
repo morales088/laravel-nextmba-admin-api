@@ -594,7 +594,7 @@ class courseController extends Controller
         $request->query->add(['module_id' => $module_id]);
         
         $request->validate([
-            'moduleId' => 'required|exists:modules,id',
+            'module_id' => 'required|exists:modules,id',
         ]);
 
         
