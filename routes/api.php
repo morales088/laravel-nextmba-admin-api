@@ -70,6 +70,10 @@ Route::prefix("/courses")->group( function (){
     Route::middleware("auth:api")->post("/module/add", "api\courseController@addModule"); 
     Route::middleware("auth:api")->put("/module/{id}", "api\courseController@updateModule"); 
     Route::middleware("auth:api")->get("/module/{id}", "api\courseController@getModule"); 
+
+    Route::middleware("auth:api")->get("/module/files/{module_id?}", "api\courseController@getFiles"); 
+    Route::middleware("auth:api")->post("/module/files", "api\courseController@addFiles"); 
+    Route::middleware("auth:api")->put("/module/files/{id}", "api\courseController@updateFiles"); 
     
     Route::middleware("auth:api")->put("/module/status/{id}", "api\courseController@updateModuleStatus"); 
     

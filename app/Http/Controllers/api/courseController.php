@@ -13,6 +13,7 @@ use App\Models\Speaker;
 use App\Models\Topic;
 use App\Models\Speakerrole;
 use App\Models\Extravideo;
+use App\Models\Modulefile;
 use DB;
 
 class courseController extends Controller
@@ -586,5 +587,65 @@ class courseController extends Controller
 
 
         return response(["videos" => $video], 200);
+    }
+
+    public function getFiles(Request $request, $module_id = 0){
+                
+        $request->query->add(['module_id' => $module_id]);
+        
+        $request->validate([
+            'moduleId' => 'required|exists:modules,id',
+        ]);
+
+        
+        if($module_id > 0){
+            
+            $files = COLLECT(\DB::SELECT("select * from module_files where moduleId = $module_id"))->first();
+            
+        }else{
+
+            $files = DB::SELECT("select * from module_files");
+
+        }
+        return response(["files" => $files], 200);
+    }
+
+    public function addFiles(Request $request){
+
+        $request->validate([
+            'moduleId' => 'required|exists:modules,id',
+            'name' => 'string',
+        ]);
+
+        $files = Modulefile::create($request->only('links') + 
+                [
+                    'moduleId' => $request->moduleId,
+                    'name' => $request->name,
+                ]);
+
+        return response(["files" => $files], 200);
+        
+    }
+
+    public function updateFiles(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+        
+        $request->validate([
+            'id' => 'required|exists:module_files,id',
+            'status' => [
+                        'string',
+                        Rule::in(['delete', 'active']),
+                    ],
+        ]);
+
+        $file = Modulefile::find($request->id);
+    
+        $file->update($request->only('name', 'link', 'status') +
+                        [ 'updated_at' => now()]
+                        );
+
+        return response(["files" => $files], 200);
+        
     }
 }
