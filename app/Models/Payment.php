@@ -62,7 +62,7 @@ class Payment extends Model
           if(is_numeric($filter["search"])){
               $searchQuery = "where P.id = ".$filter["search"];
           }else{
-              $searchQuery = "where p.reference_id LIKE '%".$filter['search']."%' OR p.name like '%".$filter['search']."%' OR p.email like '%".$filter['search']."%'";
+              $searchQuery = "where p.id like '".$filter['search']."' OR p.reference_id LIKE '%".$filter['search']."%' OR p.name like '%".$filter['search']."%' OR p.email like '%".$filter['search']."%'";
           }
       }
 
