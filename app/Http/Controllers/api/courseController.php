@@ -639,6 +639,12 @@ class courseController extends Controller
                     ],
         ]);
 
+        if($request->status == "delete"){
+            $request['status'] = 0;
+        }elseif($request->status == "active"){
+            $request['status'] = 1;
+        }
+
         $file = Modulefile::find($request->id);
     
         $file->update($request->only('name', 'link', 'status') +
