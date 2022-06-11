@@ -613,13 +613,13 @@ class courseController extends Controller
     public function addFiles(Request $request){
 
         $request->validate([
-            'moduleId' => 'required|exists:modules,id',
+            'module_id' => 'required|exists:modules,id',
             'name' => 'string',
         ]);
 
         $files = Modulefile::create($request->only('links') + 
                 [
-                    'moduleId' => $request->moduleId,
+                    'moduleId' => $request->module_id,
                     'name' => $request->name,
                 ]);
 
