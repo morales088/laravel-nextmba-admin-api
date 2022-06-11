@@ -600,7 +600,7 @@ class courseController extends Controller
         
         if($module_id > 0){
             
-            $files = DB::SELECT("select * from module_files where moduleId = $module_id where status <> 0");
+            $files = DB::SELECT("select * from module_files where moduleId = $module_id and status <> 0");
             
         }else{
 
