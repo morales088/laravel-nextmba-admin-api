@@ -645,7 +645,7 @@ class courseController extends Controller
                         [ 'updated_at' => now()]
                         );
 
-        return response(["files" => $files], 200);
+        return response(["file" => $file], 200);
         
     }
 }
