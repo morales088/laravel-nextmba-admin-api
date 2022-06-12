@@ -110,9 +110,9 @@ class Payment extends Model
       if(!empty($filter['sort_column']) && !empty($filter['sort_type'])){
         $sort =" order by p.".$filter["sort_column"]." ".$filter["sort_type"];
       }
-      dd("select *
-      from (select *, concat(p.first_name, ' ', p.last_name) as name
-      from payments p) as p $searchQuery$queryText $sort $pagination");
+      // dd("select *
+      // from (select *, concat(p.first_name, ' ', p.last_name) as name
+      // from payments p) as p $searchQuery$queryText $sort $pagination");
 
       $payments = DB::SELECT("select *
                               from (select *, concat(p.first_name, ' ', p.last_name) as name
