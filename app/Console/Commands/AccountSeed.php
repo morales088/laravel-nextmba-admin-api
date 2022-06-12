@@ -41,8 +41,7 @@ class AccountSeed extends Command
             $account = DB::transaction(function() use ($file) {
                 
                 foreach ($file as $key => $value) {
-                    
-                    if($key == 11){
+                                      
                     list($email, $name, $status, $date_created, $last_login, $courses) = $value;
                     
                     $date_created = date('Y-m-d H:i:s', strtotime($date_created));
@@ -90,7 +89,7 @@ class AccountSeed extends Command
                             }
                         }
                             
-                    }}
+                    }
 
                 }
             });
