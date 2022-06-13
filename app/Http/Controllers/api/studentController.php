@@ -103,11 +103,11 @@ class studentController extends Controller
     }
 
     public function modulePerCourses(Request $request, $courseId, $id){
-        $request->query->add(['id' => $id, 'id' => $courseId]);
+        $request->query->add(['id' => $id, 'courseId' => $courseId]);
 
         $students = $request->validate([
             'id' => 'numeric|min:1|exists:students,id',
-            'moduleId' => 'numeric|min:1|exists:students,id',
+            'courseId' => 'numeric|min:1|exists:courses,id',
         ]);
         
         $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
