@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use App\Models\Student;
 use App\Models\Payment;
 use App\Models\Studentcourse;
+use Mail;
+use App\Mail\AccountCredentialEmail;
 use DB;
 
 class AccountSeed extends Command
@@ -66,6 +68,15 @@ class AccountSeed extends Command
                             'password' => $password,
                             'created_at' => $date_created,
                         ]);
+                        
+
+                        // send account credentials to email
+                        $user = [
+                            'email' => $email,
+                            'password' => $password
+                        ];
+                        Mail::to($email)->send(new AccountCredentialEmail($user));
+
                         
                         // if $courses has "Course" word str_contains($courses, "Course")
                         if(str_contains($courses, "Course")){
