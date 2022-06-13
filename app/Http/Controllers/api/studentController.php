@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use App\Mail\AccountCredentialEmail;
+use App\Mail\UpdateAccountEmail;
 use App\Models\Studentmodule;
 use App\Models\Studentcourse;
 use App\Models\Student;
@@ -414,7 +414,7 @@ class studentController extends Controller
             'password' => $request->password
         ];
 
-        Mail::to($student->email)->send(new AccountCredentialEmail($user));
+        Mail::to($student->email)->send(new UpdateAccountEmail($user));
 
         return response(["message" => "new password successfully sent to email"], 200);
 
