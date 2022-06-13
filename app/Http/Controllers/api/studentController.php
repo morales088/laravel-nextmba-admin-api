@@ -396,5 +396,29 @@ class studentController extends Controller
 
     }
 
+    public function emailPassword(Request $request, $id){
+        $request->query->add(['id' => $id]);
+
+        $request->validate([
+            'id' => 'required|numeric|min:1|exists:students,id',
+            'password' => 'required|string'
+        ]);
+
+        $student = Student::find($id);
+
+        // dd($student);
+
+        // send user accout to email
+        $user = [
+            'email' => $student->email,
+            'password' => $request->password
+        ];
+
+        Mail::to($student->email)->send(new AccountCredentialEmail($user));
+
+        return response(["message" => "new password successfully sent to email"], 200);
+
+    }
+
 
 }

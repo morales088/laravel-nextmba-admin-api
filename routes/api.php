@@ -38,6 +38,7 @@ Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->put("/account/{id}", "api\studentController@activateDeactivate");
     Route::middleware("auth:api")->put("/change_password/{id}", "api\studentController@changePassword");
+    Route::middleware("auth:api")->post("/email_password/{id}", "api\studentController@emailPassword");
 
     Route::middleware("auth:api")->put("/course/extend", "api\studentController@extendCourse");
 
@@ -45,6 +46,7 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->post("course/add", "api\studentController@addStudentCourse");
 
     Route::middleware("auth:api")->get("/payment/{id}", "api\studentController@getPayment");
+
 
     
 
