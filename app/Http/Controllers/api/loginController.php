@@ -169,7 +169,11 @@ class loginController extends Controller
         
         if(!empty($request->password)){
             $password = Hash::make($request->password);
-            $request->query->add(['password' => $password]);
+            // $request->query->add(['password' => $password]);
+            $request->merge([
+                'password' => $password,
+            ]);
+
         }
         
         $user = User::find($id);
