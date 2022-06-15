@@ -22,9 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix("/user")->group( function (){
 
     Route::post("/login", "api\loginController@personalAccessLogin");
-    Route::get("/admin", "api\loginController@admin");
+    Route::middleware("auth:api")->get("/admin/{id?}", "api\loginController@admin");
     // Route::middleware("auth:api")->get("/all", "api\studentController@index");
     Route::middleware("auth:api")->post("/register", "api\loginController@register");
+    Route::middleware("auth:api")->put("/{id}", "api\loginController@updateAdmin");
 });
 
 

@@ -130,12 +130,54 @@ class loginController extends Controller
 
     }
 
-    public function admin(Request $request){
-        $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
-                            from users");
+    public function admin(Request $request, $id = 0){
+                
+        $request->query->add(['id' => $id]);
+
+        // $array = [
+        //         'name' => 'string',
+        //         'email' => 'exists:users,email',
+        //         'password' => 'string',
+        //         ];
+        
+        if($id > 0){
+
+            $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
+                            from users where id = $id");
+
+        }else{
+
+            $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
+            from users");
+
+        }
+
 
         return response()->json(["admin" => $admin], 200);
     }
 
+    public function updateAdmin(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            // 'name' => 'string',
+            'email' => 'exists:users,email',
+            // 'password' => 'string',
+            ]);
+
+        $password = Hash::make($request->password);
+        $request->query->add(['password' => $password]);
+        
+        $user = User::find($id);
+
+        $user->update($request->only('name', 'email', 'password') +
+                        [ 'updated_at' => now()]
+                        );
+
+        return response()->json(["admin" => $user], 200);               
+
+    }
 
 }
