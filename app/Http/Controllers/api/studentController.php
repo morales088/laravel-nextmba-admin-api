@@ -97,6 +97,7 @@ class studentController extends Controller
             }
             
             $value->completedModules = $completedModules;
+            $value->score_percentage = round(($completedModules / 12) * 100, 2);
             $value->modules = $modules;
         }
 
