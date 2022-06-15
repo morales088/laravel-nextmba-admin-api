@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use DB;
 
@@ -109,6 +110,23 @@ class loginController extends Controller
         // $oauth_client->revoked=0;
         // $oauth_client->save();
 
+        
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|unique:users',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $password = Hash::make($request->password);
+
+        $user = User::create(
+                [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => $password,
+                ]);
+        
+        return response(["admin" => $user], 200);
 
     }
 
