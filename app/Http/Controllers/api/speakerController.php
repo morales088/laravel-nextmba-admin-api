@@ -107,6 +107,10 @@ class speakerController extends Controller
             
             $speaker = COLLECT(\DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 and s.id = $id"))->first();
         }else{
+            $search_query = '';
+
+            !empty($request->search)? $search_query = "and s.email like '%".addslashes($request->search)."%' and s.name like '%".addslashes($request->search)."%'" : '';
+
             $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0");
         }
         return response()->json(["speakers" => $speaker], 200);
