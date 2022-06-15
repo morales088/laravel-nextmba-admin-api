@@ -163,12 +163,14 @@ class loginController extends Controller
         $request->validate([
             'id' => 'required|exists:users,id',
             // 'name' => 'string',
-            'email' => 'exists:users,email',
+            'email' => 'unique:users',
             // 'password' => 'string',
             ]);
-
-        $password = Hash::make($request->password);
-        $request->query->add(['password' => $password]);
+        
+        if(!empty($request->password)){
+            $password = Hash::make($request->password);
+            $request->query->add(['password' => $password]);
+        }
         
         $user = User::find($id);
 
