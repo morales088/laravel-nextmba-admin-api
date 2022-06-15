@@ -109,7 +109,7 @@ class speakerController extends Controller
         }else{
             $search_query = '';
 
-            !empty($request->search)? $search_query = "and s.email like '%".addslashes($request->search)."%' and s.name like '%".addslashes($request->search)."%'" : '';
+            !empty($request->search)? $search_query = "and s.company like '%".addslashes($request->search)."%' and s.name like '%".addslashes($request->search)."%'" : '';
 
             $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 $search_query");
         }
