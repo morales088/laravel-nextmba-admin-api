@@ -37,7 +37,7 @@ class speakerController extends Controller
             return response(["message" => "speaker already exists"], 409);
         }
 
-        $addSpeaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path') +
+        $addSpeaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path', 'description') +
                 [
                     // 'moduleId' => $request->moduleId,
                     'name' => $request->name,
@@ -88,7 +88,7 @@ class speakerController extends Controller
         
         $updateSpeaker = Speaker::find($id);
         
-        $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'status') +
+        $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'description', 'status') +
                         [ 'updated_at' => now()]
                         );
 
