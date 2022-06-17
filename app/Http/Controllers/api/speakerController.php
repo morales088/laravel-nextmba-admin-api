@@ -30,6 +30,9 @@ class speakerController extends Controller
         
         // ($request->role == "main")? $role = 1 : $role = 2;
         
+        
+        // dd($request->all(), $description);
+        
         // check for duplicate Speaker
         $checker = DB::SELECT("SELECT * FROM speakers where name = '$request->name' and status <> 0");
         
@@ -37,7 +40,15 @@ class speakerController extends Controller
             return response(["message" => "speaker already exists"], 409);
         }
 
-        $addSpeaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path', 'description') +
+        if(!empty($request->description)){
+            $description = urlencode($request->description);
+            $request->merge([
+                'description' => $description,
+            ]);
+
+        }
+
+        $speaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path', 'description') +
                 [
                     // 'moduleId' => $request->moduleId,
                     'name' => $request->name,
@@ -45,8 +56,10 @@ class speakerController extends Controller
                 ]);
 
         // $speaker = DB::SELECT("SELECT *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code FROM speakers where id = $addSpeaker->id");
-        $speaker = DB::SELECT("SELECT * FROM speakers where id = $addSpeaker->id");
-
+        // $speaker = DB::SELECT("SELECT * FROM speakers where id = $addSpeaker->id");
+        
+        $speaker["description"] = urldecode($speaker["description"]);
+        // // dd($speaker);
         return response(["speaker" => $speaker], 200);
 
     }
@@ -86,6 +99,14 @@ class speakerController extends Controller
             return response(["message" => "speaker already exists"], 409);
         }
         
+        if(!empty($request->description)){
+            $description = urlencode($request->description);
+            $request->merge([
+                'description' => $description,
+            ]);
+
+        }
+        
         $updateSpeaker = Speaker::find($id);
         
         $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'description', 'status') +
@@ -93,6 +114,7 @@ class speakerController extends Controller
                         );
 
         $speaker = DB::SELECT("SELECT * FROM speakers where id = $id");
+        $speaker["description"] = urldecode($speaker["description"]);
 
         return response(["message" => "successfully updated this speaker", "speaker" => $speaker], 200);
     }
@@ -106,12 +128,18 @@ class speakerController extends Controller
             $request->validate($array);  
             
             $speaker = COLLECT(\DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 and s.id = $id"))->first();
+            
+            $speaker->description = urldecode($speaker->description);
         }else{
             $search_query = '';
 
             !empty($request->search)? $search_query = "and s.company like '%".addslashes($request->search)."%' or s.name like '%".addslashes($request->search)."%'" : '';
 
             $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 $search_query");
+            foreach ($speaker as $key => $value) {
+                // dd($value->description);
+                $value->description = urldecode($value->description);
+            }
         }
         return response()->json(["speakers" => $speaker], 200);
 
