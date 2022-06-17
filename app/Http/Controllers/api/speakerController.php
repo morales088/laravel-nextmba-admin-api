@@ -113,8 +113,9 @@ class speakerController extends Controller
                         [ 'updated_at' => now()]
                         );
 
-        $speaker = DB::SELECT("SELECT * FROM speakers where id = $id");
-        $speaker["description"] = urldecode($speaker["description"]);
+        $speaker = collect(\DB::SELECT("SELECT * FROM speakers where id = $id"))->first();
+        // dd($speaker);
+        $speaker->description = urldecode($speaker->description);
 
         return response(["message" => "successfully updated this speaker", "speaker" => $speaker], 200);
     }

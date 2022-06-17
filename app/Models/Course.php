@@ -27,6 +27,8 @@ class Course extends Model
                     'end_date' => $request->end_date,
                 ]);
 
+            $module["description"] = urldecode($module["description"]);
+
             $enrolled_student = DB::SELECT("select s.id student_id
                                             from students s
                                             left join studentcourses sc ON s.id = sc.studentId

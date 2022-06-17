@@ -54,6 +54,14 @@ class courseController extends Controller
         if(!empty($checker)){
             return response(["message" => "record already exist. please double check the course id and date"], 409);
         }
+
+        if(!empty($request->description)){
+            $description = urlencode($request->description);
+            $request->merge([
+                'description' => $description,
+            ]);
+
+        }
         
         $module = Course::createModule($request);
 
@@ -109,6 +117,15 @@ class courseController extends Controller
 
         $module = DB::transaction(function() use ($request, $id) {
         
+            
+            if(!empty($request->description)){
+                $description = urlencode($request->description);
+                $request->merge([
+                    'description' => $description,
+                ]);
+
+            }
+
             $module = Module::find($id);
 
             // update speaker role
@@ -146,7 +163,9 @@ class courseController extends Controller
                                             from modules m 
                                             left join topics t ON t.id = m.topicId
                                             where m.id = $module->id and m.status <> 0 or t.status <> 0"))->first();
-                                            
+
+            $getmodule->description = urldecode($getmodule->description);                     
+
             return $getmodule;
         
         });
@@ -184,6 +203,8 @@ class courseController extends Controller
                                     FROM topics t
                                     LEFT JOIN speakers s ON s.id = t.speakerId
                                     where t.status <> 0 and s.status <> 0 and t.moduleID = $module->id");
+
+        $module->description = urldecode($module->description);
         $module->topics = $topics;
         // dd($module);
         return response(["module" => $module], 200);
@@ -292,6 +313,14 @@ class courseController extends Controller
         }
 
         $DBtransaction = DB::transaction(function() use ($request, $role) {
+            
+            if(!empty($request->description)){
+                $description = urlencode($request->description);
+                $request->merge([
+                    'description' => $description,
+                ]);
+
+            }
 
             // insert to topics table
 
@@ -318,6 +347,8 @@ class courseController extends Controller
                             left join speakers s ON s.id = t.speakerId
                             where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and t.status <> 0 and s.status <> 0"))->first();
                             
+                $topic->description = urldecode($topic->description);
+                
                 return $topic;
             
         });
@@ -372,6 +403,15 @@ class courseController extends Controller
         // dd($request->all());
 
         $DBtransaction = DB::transaction(function() use ($request) {
+
+            
+            if(!empty($request->description)){
+                $description = urlencode($request->description);
+                $request->merge([
+                    'description' => $description,
+                ]);
+
+            }
         
             $updateTopic = Topic::find($request->id);
             
@@ -405,6 +445,8 @@ class courseController extends Controller
                                             left join speaker_roles sr on t.id = sr.topicId
                                             left join speakers s ON s.id = t.speakerId
                                             where t.id = $request->id and s.status <> 0"))->first();
+            
+            $topic->description = urldecode($topic->description);
 
             return $topic;
         });
@@ -435,6 +477,8 @@ class courseController extends Controller
                         left join speakers s ON s.id = t.speakerId
                         where t.status <> 0 and sr.status <> 0 and s.status <> 0
                         and t.id = $id"))->first();
+
+            $topic->description = urldecode($topic->description);
             
         }else{
             $request->validate($array);
@@ -446,6 +490,12 @@ class courseController extends Controller
                                 left join speaker_roles sr ON t.id = sr.topicId
                                 left join speakers s ON s.id = t.speakerId
                                 where t.moduleId = $moduleId and t.status <> 0 and sr.status <> 0 and s.status <> 0");
+            
+            
+            foreach ($topic as $key => $value) {
+                // dd($value->description);
+                $value->description = urldecode($value->description);
+            }
             
         }
 
