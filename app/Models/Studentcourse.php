@@ -40,12 +40,16 @@ class Studentcourse extends Model
             $modules = Module::Where('courseId', $course_id)->Where('status', '<>', 3)->get();
 
             foreach ($modules as $key => $value) {
+                $array = [
+                    'studentId' => $student_id,
+                    'moduleId' => $value->id,
+                ];
+
+                if($value->start_date < now()){
+                    $array['status'] = 3;
+                }
                 
-                Studentmodule::create(
-                    [
-                        'studentId' => $student_id,
-                        'moduleId' => $value->id,
-                    ]);
+                Studentmodule::create($array);
             }
 
             return true;
