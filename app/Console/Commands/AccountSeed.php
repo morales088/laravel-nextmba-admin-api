@@ -49,11 +49,18 @@ class AccountSeed extends Command
                     if(!empty($value[0])){
                         list($email, $name, $status, $date_created, $last_login, $courses) = $value;
 
-                        
+                        $date_created = str_replace('/', '-', $date_created);
+
                         $date_created = date('Y-m-d H:i:s', strtotime($date_created));
                         $expiration_date = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($date_created)));
                         // dd($email, $name, $status, $date_created, $last_login, $courses, explode(",", $courses));
-                        dd($date_created, $expiration_date);
+                        
+                        // dd($date_created, $expiration_date);
+                        // if($key == 1){
+                            
+                        //     dd($email, $date_created, $expiration_date);
+                        // }
+
                         // check duplicate on db
                         $check = DB::SELECT("SELECT * FROM students where email = '$email'");
 
@@ -76,11 +83,11 @@ class AccountSeed extends Command
                             
 
                             // send account credentials to email
-                            // $user = [
-                            //     'email' => $email,
-                            //     'password' => $password
-                            // ];
-                            // Mail::to($email)->send(new AccountCredentialEmail($user));
+                            $user = [
+                                'email' => $email,
+                                'password' => $password
+                            ];
+                            Mail::to($email)->send(new AccountCredentialEmail($user));
 
                             // if $courses has "Course" word str_contains($courses, "Course")
                             if(str_contains($courses, "Course")){
