@@ -101,8 +101,8 @@ Route::prefix("/speaker")->group( function (){
 
 Route::prefix("/payment")->group( function (){
     Route::middleware("auth:api")->get("/", "api\paymentController@index");
-    Route::middleware("api_token")->post("/create", "api\paymentController@createPayment"); 
-    Route::middleware("api_token")->post("/complete", "api\paymentController@completePayment"); 
+    Route::post("/create", "api\paymentController@createPayment"); 
+    Route::post("/complete", "api\paymentController@completePayment"); 
 
 
     
@@ -112,6 +112,6 @@ Route::prefix("/payment")->group( function (){
 });
 
 Route::prefix("/utility")->group( function (){
-    Route::middleware("api_token")->get("/", "api\utilityController@index");
+    Route::middleware("api_token")->get("/missing/student_modules", "api\utilityController@studentModules");
     
 });
