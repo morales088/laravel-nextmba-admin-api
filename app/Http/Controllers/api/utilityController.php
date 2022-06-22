@@ -21,7 +21,7 @@ class utilityController extends Controller
 
             $student_courses = DB::SELECT("select sc.*
                                             from students s
-                                            left join studentcourses sc ON s.id = sc.studentId
+                                            right join studentcourses sc ON s.id = sc.studentId
                                             where s.status <> 0");
                                             
             foreach ($modules as $key => $value) {
