@@ -101,12 +101,17 @@ Route::prefix("/speaker")->group( function (){
 
 Route::prefix("/payment")->group( function (){
     Route::middleware("auth:api")->get("/", "api\paymentController@index");
-    Route::post("/create", "api\paymentController@createPayment"); 
-    Route::post("/complete", "api\paymentController@completePayment"); 
+    Route::middleware("api_token")->post("/create", "api\paymentController@createPayment"); 
+    Route::middleware("api_token")->post("/complete", "api\paymentController@completePayment"); 
 
 
     
     Route::middleware("auth:api")->get("/{id}", "api\paymentController@getPayment");
     // Route::middleware("auth:api")->post("/refund", "api\paymentController@refund");
     Route::middleware("auth:api")->put("/status/{id}", "api\paymentController@updatePayment");
+});
+
+Route::prefix("/utility")->group( function (){
+    Route::middleware("api_token")->get("/", "api\utilityController@index");
+    
 });
