@@ -37,7 +37,7 @@ class Studentcourse extends Model
                                             'quantity' => --$qty,
                                         ]);
 
-            $modules = Module::Where('courseId', $course_id)->Where('status', '<>', 3)->get();
+            $modules = Module::Where('courseId', $course_id)->Where('status', '<>', 0)->get();
 
             foreach ($modules as $key => $value) {
                 $array = [
