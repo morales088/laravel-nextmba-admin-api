@@ -91,7 +91,8 @@ class studentController extends Controller
                                     (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
                                     from student_modules sm
                                     left join modules m ON m.id = sm.moduleId
-                                    where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id");
+                                    where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id and m.start_date >= '$value->date_started'");
+                                    
             foreach ($modules as $key2 => $value2) {
                 if($value2->status == 3){ $completedModules++; }
             }
