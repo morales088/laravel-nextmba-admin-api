@@ -76,7 +76,7 @@ class studentController extends Controller
         ]);
         
         $totalModules = 0;
-        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, sc.starting date_started, sc.expirationDate
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, c.price course_price, sc.starting date_started, sc.expirationDate
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
                                 left join courses c ON c.id = sc.courseId
@@ -113,7 +113,7 @@ class studentController extends Controller
             'courseId' => 'numeric|min:1|exists:courses,id',
         ]);
 
-        $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate,
+        $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate, c.price course_price,
                                 SUM(CASE WHEN sm.status = 1 THEN 1 ELSE 0 END) AS `incomple_modules`,
                                 SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
                                 count(sm.id) total_st_modules,
@@ -405,7 +405,7 @@ class studentController extends Controller
         $payment = DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where student_id = $id");
 
         foreach ($payment as $key => $value) {
-            $value->courses = DB::SELECT("select c.id course_id, c.name course_name, pi.quantity course_quantity
+            $value->courses = DB::SELECT("select c.id course_id, c.name course_name, c.price course_price, pi.quantity course_quantity
                                     from payment_items pi
                                     left join courses c ON c.id = pi.product_id
                                     where pi.payment_id = $value->id");

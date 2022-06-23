@@ -19,7 +19,7 @@ use DB;
 class courseController extends Controller
 {
     public function index(Request $request){
-        $courses = DB::SELECT("select c.id course_id, c.name, c.description, count(s.id) total_students, s.status, (CASE WHEN s.status = 0 THEN 'deleted' WHEN s.status = 1 THEN 'active' END) as status_code, c.created_at, c.updated_at
+        $courses = DB::SELECT("select c.id course_id, c.name, c.price course_price, c.description, count(s.id) total_students, s.status, (CASE WHEN s.status = 0 THEN 'deleted' WHEN s.status = 1 THEN 'active' END) as status_code, c.created_at, c.updated_at
                                 from students s
                                 left join studentcourses sc ON sc.studentId = s.id
                                 left join courses c ON c.id = sc.courseId
@@ -189,7 +189,7 @@ class courseController extends Controller
         //                                         , (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) status_code
         //                                 from speakers where moduleId = $request->id and status <> 0");
 
-        $module = COLLECT(\DB::SELECT("select *from (select m.id, m.courseId, m.name, m.description, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
+        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                         (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name
