@@ -151,7 +151,7 @@ class courseController extends Controller
                 }
             }
             
-            $module->update($request->only('courseId', 'name', 'description', 'chat_url', 'live_url', 'topicId', 
+            $module->update($request->only('courseId', 'name', 'description', 'cover_photo', 'chat_url', 'live_url', 'topicId', 
                                             'calendar_link', 'start_date', 'end_date') +
                             [ 'updated_at' => now()]
                             );
