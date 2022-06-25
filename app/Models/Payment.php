@@ -13,7 +13,7 @@ class Payment extends Model
     protected $guarded = ['id'];
     protected $table = 'payments';
 
-    public static function generate_password($length = 20){
+    public static function generate_password($length = 8){
         $chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       
         $str = '';

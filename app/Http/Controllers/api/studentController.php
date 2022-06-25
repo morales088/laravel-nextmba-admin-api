@@ -251,7 +251,7 @@ class studentController extends Controller
 
     public function changePassword(Request $request, $id){
 
-        $textPassword = Str::random(10);
+        $textPassword = Str::random(8);
         $hashPasword = Hash::make($textPassword);
 
         $students = Student::find($id);
