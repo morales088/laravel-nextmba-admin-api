@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use App\Mail\UpdateAccountEmail;
 use App\Mail\AccountCredentialEmail;
 use App\Models\Studentmodule;
@@ -34,6 +35,9 @@ class studentController extends Controller
             'company' => 'string',
             'position' => 'string',
             'interest' => 'string',
+            'status' => [
+                            Rule::in(['active', 'deactivated']),
+                        ],
         ]);
 
         $query_filter = [];
@@ -44,6 +48,7 @@ class studentController extends Controller
         !empty($request->company)? $query_filter += ['company' => $request->company] : '';
         !empty($request->position)? $query_filter += ['position' => $request->position] : '';
         !empty($request->interest)? $query_filter += ['interest' => $request->interest] : '';
+        !empty($request->status)? $query_filter += ['status' => $request->status] : '';
         !empty($request->search)? $query_filter += ['search' => $request->search] : '';
 
         !empty($request->page)? $query_filter += ['page' => $request->page] : '';

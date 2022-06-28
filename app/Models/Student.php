@@ -76,6 +76,19 @@ class Student extends Model
             $pagination .= " OFFSET ".(addslashes($filter["page"]) - 1);
         }
 
+        $status = " WHERE s.status = 1 ";
+        if(!empty($filter['status'])){
+
+            if($filter['status'] == "active"){
+                $status = " WHERE s.status = 1 ";
+            }else{             
+                $status = " WHERE s.status in (0,1) ";
+            }
+
+        }
+// dd($status, $filter);
+
+
         // dd("select * from 
         // (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
         // from students as s
@@ -92,7 +105,7 @@ class Student extends Model
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
                                 WHERE c.status = 1 
-                                GROUP BY sc.studentId) as sc on s.id = sc.studentId WHERE s.status <> 0 $searchQuery) as st".$queryText.$sort.$pagination);
+                                GROUP BY sc.studentId) as sc on s.id = sc.studentId $status $searchQuery) as st".$queryText.$sort.$pagination);
 
         return $students;
     }
