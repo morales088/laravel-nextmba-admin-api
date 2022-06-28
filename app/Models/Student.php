@@ -82,7 +82,7 @@ class Student extends Model
             if($filter['status'] == "active"){
                 $status = " WHERE s.status = 1 ";
             }else{             
-                $status = " WHERE s.status in (0,1) ";
+                $status = " WHERE s.status = 0 ";
             }
 
         }
