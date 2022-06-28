@@ -20,7 +20,7 @@ class loginController extends Controller
     public function personalAccessLogin (Request $request){
 
         $login = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|string|exists:users,email,status,1',
             'password' => 'required|string'
         ]);
 
