@@ -79,10 +79,12 @@ class Student extends Model
         $status = " WHERE s.status = 1 ";
         if(!empty($filter['status'])){
 
-            if($filter['status'] == "active"){
-                $status = " WHERE s.status = 1 ";
-            }else{             
+            if($filter['status'] == "all"){
+                $status = " WHERE s.status in (0,1) ";
+            }elseif($filter['status'] == "deactivated"){             
                 $status = " WHERE s.status = 0 ";
+            }else{             
+                $status = " WHERE s.status = 1";
             }
 
         }

@@ -36,7 +36,7 @@ class studentController extends Controller
             'position' => 'string',
             'interest' => 'string',
             'status' => [
-                            Rule::in(['active', 'deactivated']),
+                            Rule::in(['all', 'active', 'deactivated']),
                         ],
         ]);
 
