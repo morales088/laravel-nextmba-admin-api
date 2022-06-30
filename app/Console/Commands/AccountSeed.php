@@ -41,7 +41,7 @@ class AccountSeed extends Command
             $file = new \SplfileObject($path);
             $file->setFlags(\SplfileObject::READ_CSV);
 
-            $account = DB::transaction(function() use ($file) {
+            // $account = DB::transaction(function() use ($file) {
                 
                 foreach ($file as $key => $value) {
                     
@@ -115,7 +115,7 @@ class AccountSeed extends Command
                         }
                     }
                 }
-            });
+            // });
         }
 
     }
