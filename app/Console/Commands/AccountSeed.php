@@ -77,7 +77,7 @@ class AccountSeed extends Command
                             [
                                 'name' => $name,
                                 'email' => $email,
-                                'password' => $password,
+                                'password' => Hash::make($password),
                                 'created_at' => $date_created,
                             ]);
                             
