@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Student;
 use App\Models\Payment;
 use App\Models\Studentcourse;
+use Illuminate\Support\Facades\Hash;
 use Mail;
 use App\Mail\AccountCredentialEmail;
 use DB;
