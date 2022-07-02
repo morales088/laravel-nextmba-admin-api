@@ -20,7 +20,7 @@ class Studentcourse extends Model
         $starting_date = isset($data['starting_date'])? $data['starting_date'] : now();
         $expiration_date = isset($data['expiration_date'])? $data['expiration_date'] : now()->addMonths(12);
         
-        $checker = DB::SELECT("SELECT * FROM studentcourses where studentId = $student_id and courseId = $course_id");
+        $checker = DB::SELECT("SELECT * FROM studentcourses where studentId = $student_id and courseId = $course_id and status <> 0");
         
         if(!empty($checker)){
             return false;
