@@ -85,7 +85,7 @@ class studentController extends Controller
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
                                 left join courses c ON c.id = sc.courseId
-                                where sc.studentId = $id");
+                                where sc.studentId = $id and sc.status <> 0");
 
         foreach ($courses as $key => $value) {
             $value->totalModules = ++$totalModules;

@@ -31,7 +31,6 @@ Route::prefix("/user")->group( function (){
 
 Route::prefix("/student")->group( function (){
 
-    Route::middleware("auth:api")->post("/course/remove", "api\studentController@removeStudentCourse");
     Route::middleware("auth:api")->get("/all", "api\studentController@index");
     Route::middleware("auth:api")->put("/{id}", "api\studentController@updateStudent");
     Route::middleware("auth:api")->get("/{id}", "api\studentController@studentById");    
@@ -47,6 +46,7 @@ Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->post("/add", "api\studentController@addStudent");
     Route::middleware("auth:api")->post("course/add", "api\studentController@addStudentCourse");
+    Route::middleware("auth:api")->post("course/remove", "api\studentController@removeStudentCourse");
 
     Route::middleware("auth:api")->get("/payment/{id}", "api\studentController@getPayment");
 

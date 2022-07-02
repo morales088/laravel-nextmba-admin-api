@@ -106,7 +106,7 @@ class Student extends Model
                                 left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
-                                WHERE c.status = 1 
+                                WHERE c.status = 1 and sc.status <> 0
                                 GROUP BY sc.studentId) as sc on s.id = sc.studentId $status $searchQuery) as st".$queryText.$sort.$pagination);
 
         return $students;
