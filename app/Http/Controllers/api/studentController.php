@@ -445,6 +445,28 @@ class studentController extends Controller
         return response(["message" => "new password successfully sent to email"], 200);
 
     }
+    public function removeStudentCourse(Request $request){
+        
+        $request->validate([
+            'student_id' => 'required|numeric|min:1|exists:students,id',
+            'course_id' => 'required|numeric|min:1|exists:courses,id',
+        ]);
 
+        $check = DB::SELECT("SELECT * FROM studentcourses where studentId = $request->student_id and courseId = $request->course_id");
+        // dd($check[0]->id);
+        if(empty($check)){
+            return response(["message" => "No course found for this student.",], 422);
+        }
+
+        
+        $student_course = Studentcourse::find($check[0]->id);
+        $student_course->update(
+                            [ 
+                                'status' => 0,
+                                'updated_at' => now()
+                                ]
+                            );
+        return response(["message" => "course successfully removed to student"], 200);
+    }
 
 }
