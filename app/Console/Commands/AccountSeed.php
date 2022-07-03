@@ -34,6 +34,8 @@ class AccountSeed extends Command
      */
     public function handle()
     {
+        // $check = filter_var('johnneilmorales @gmail.com', FILTER_VALIDATE_EMAIL);
+        // dd($check, now());
         // return 0;
         $path = base_path().'/public/csv/account.csv';
         // dd(true);
@@ -41,8 +43,8 @@ class AccountSeed extends Command
             $file = new \SplfileObject($path);
             $file->setFlags(\SplfileObject::READ_CSV);
 
-            // $account = DB::transaction(function() use ($file) {
-                
+            $account = DB::transaction(function() use ($file) {
+                $error_email = "";
                 foreach ($file as $key => $value) {
                     
                     // check if value i null
@@ -50,72 +52,78 @@ class AccountSeed extends Command
                     if(!empty($value[0])){
                         list($email, $name, $status, $date_created, $last_login, $courses) = $value;
 
-                        $date_created = str_replace('/', '-', $date_created);
+                        $check = filter_var($email, FILTER_VALIDATE_EMAIL);
+                        if($check){
 
-                        $date_created = date('Y-m-d H:i:s', strtotime($date_created));
-                        $expiration_date = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($date_created)));
-                        // dd($email, $name, $status, $date_created, $last_login, $courses, explode(",", $courses));
-                        
-                        // dd($date_created, $expiration_date);
-                        // if($key == 1){
+                            $date_created = str_replace('/', '-', $date_created);
+                            $date_created = date('Y-m-d H:i:s', strtotime($date_created));
+                            $expiration_date = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($date_created)));
                             
-                        //     dd($email, $date_created, $expiration_date);
-                        // }
-
-                        // check duplicate on db
-                        $check = DB::SELECT("SELECT * FROM students where email = '$email'");
-
-                        // dd($check, $status, empty($check), $status == "Active", empty($check) && $status == "Active");
-                        
-                        // dd(empty($check) && $status == "Active", empty($check), $status == "Active");
-                        // check if active
-                        if(empty($check) && $status == "Active"){
-                            
-                            // create student
-                            $password = Payment::generate_password();
-                            
-                            $student = Student::create(
-                            [
-                                'name' => $name,
-                                'email' => $email,
-                                'password' => Hash::make($password),
-                                'created_at' => $date_created,
-                            ]);
-                            
-
-                            // send account credentials to email
-                            $user = [
-                                'email' => $email,
-                                'password' => $password
-                            ];
-                            Mail::to($email)->send(new AccountCredentialEmail($user));
-
-                            // if $courses has "Course" word str_contains($courses, "Course")
-                            if(str_contains($courses, "Course")){
-                                $student_courses = explode(",", $courses);
+                            // check duplicate on db
+                            $check = DB::SELECT("SELECT * FROM students where email = '$email'");
+    
+                            // check if active
+                            if(empty($check) && $status == "Active"){
                                 
-                                // dd($student_courses, $date_created, $expiration_date);
-
-                                foreach ($student_courses as $key1 => $value1) {
+                                // create student
+                                $password = Payment::generate_password();
+                                
+                                $student = Student::create(
+                                [
+                                    'name' => $name,
+                                    'email' => $email,
+                                    'password' => Hash::make($password),
+                                    'created_at' => $date_created,
+                                ]);
+                                
+    
+                                // send account credentials to email
+                                $user = [
+                                    'email' => $email,
+                                    'password' => $password
+                                ];
+                                Mail::to($email)->send(new AccountCredentialEmail($user));
+    
+                                // if $courses has "Course" word str_contains($courses, "Course")
+                                if(str_contains($courses, "Course")){
+                                    $student_courses = explode(",", $courses);
                                     
-                                    if(str_contains($value1, "Marketing")){
-                                        //insert marketing course to student
-                                        $info = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
-                                        Studentcourse::insertStudentCourse($info);
-                                    }
-
-                                    if(str_contains($value1, "Executive")){
-                                        //insert Executive course to student
-                                        $info = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
-                                        Studentcourse::insertStudentCourse($info);
+                                    // dd($student_courses, $date_created, $expiration_date);
+    
+                                    foreach ($student_courses as $key1 => $value1) {
+                                        
+                                        if(str_contains($value1, "Marketing")){
+                                            //insert marketing course to student
+                                            $info = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
+                                            Studentcourse::insertStudentCourse($info);
+                                        }
+    
+                                        if(str_contains($value1, "Executive")){
+                                            //insert Executive course to student
+                                            $info = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
+                                            Studentcourse::insertStudentCourse($info);
+                                        }
                                     }
                                 }
+                                    
                             }
-                                
+
+                        }else{
+                            $error_email .= $email."\n";
+
                         }
                     }
                 }
-            // });
+
+                if($error_email){
+
+                    $txt_file = fopen("account_seed.txt", "a");
+                    fwrite($txt_file, now()."\n");
+                    fwrite($txt_file, $error_email);
+                    fclose($txt_file);
+                }
+                // dd($error_email);
+            });
         }
 
     }
