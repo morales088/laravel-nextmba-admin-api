@@ -276,7 +276,10 @@ class studentController extends Controller
     public function updateStudentModule(Request $request){
 
         $request->validate([
+            'student_id' => 'required|numeric|min:1|exists:students,id',
+            'course_id' => 'required|numeric|min:1|exists:courses,id',
             'modules' => 'required|string',
+            'completed_modules' => 'min:1',
         ]);
         
         $modules = json_decode($request->modules);
@@ -308,6 +311,16 @@ class studentController extends Controller
                     
         }
         
+        if($request->completed_modules){
+            $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
+                
+            $studentModule->update($request->only('completed_modules') +
+                            [ 
+                                'updated_at' => now()
+                            ]
+                            );
+        }
+
         return response(["message" => "successfully updated student's module"], 200);
     }
 
@@ -320,12 +333,15 @@ class studentController extends Controller
             'expiration_date' => 'required|date_format:Y-m-d H:i:s',
         ]);
 
+        $request->query->add(['starting' => $request->starting_date]);
+        $request->query->add(['expirationDate' => $request->expiration_date]);            
+
+        // dd($request->all());
+
         $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
                 
-        $studentModule->update(
+        $studentModule->update($request->only('starting', 'expirationDate') +
                         [ 
-                            'starting' => $request->starting_date,
-                            'expirationDate' => $request->expiration_date,
                             'updated_at' => now()
                         ]
                         );
