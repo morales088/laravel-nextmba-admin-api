@@ -55,10 +55,10 @@ class AccountSeed extends Command
                         $check = filter_var($email, FILTER_VALIDATE_EMAIL);
                         if($check){
 
-                            $date_created = str_replace('/', '-', $date_created);
+                            // dd($date_created);
+                            // $date_created = str_replace('/', '-', $date_created);
                             $date_created = date('Y-m-d H:i:s', strtotime($date_created));
                             $expiration_date = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($date_created)));
-                            
                             // check duplicate on db
                             $check = DB::SELECT("SELECT * FROM students where email = '$email'");
     
