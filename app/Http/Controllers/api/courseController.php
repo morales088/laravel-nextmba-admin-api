@@ -735,7 +735,7 @@ class courseController extends Controller
             'name' => 'required|string',
         ]);
 
-        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link') + 
+        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link') + 
                                         [
                                             'name' => $request->name,
                                         ]);
@@ -751,7 +751,7 @@ class courseController extends Controller
 
         $course = Course::find($request->course_id);
 
-        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link') + 
+        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link') + 
                         [ 
                             'updated_at' => now()
                         ]
