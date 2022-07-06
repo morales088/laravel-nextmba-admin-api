@@ -70,6 +70,8 @@ Route::prefix("/courses")->group( function (){
 
 
     Route::middleware("auth:api")->get("/", "api\courseController@index"); 
+    Route::middleware("auth:api")->post("/add", "api\courseController@addCourse"); 
+    Route::middleware("auth:api")->put("/update", "api\courseController@updateCourse"); 
         
     // Route::middleware("auth:api")->put("/module/live", "api\courseController@liveModule"); // change live status to update module
     Route::middleware("auth:api")->post("/module/add", "api\courseController@addModule"); 

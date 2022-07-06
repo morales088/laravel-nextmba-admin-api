@@ -59,7 +59,7 @@ class paymentController extends Controller
     public function createPayment(Request $request){
         $payment = $request->validate([
             'reference_id' => 'required|string',
-            'hitpay_id' => 'required|string',
+            // 'hitpay_id' => 'required|string',
             'email' => 'required|string',
             'phone' => 'required|string',
             'first_name' => 'required|string',
@@ -189,6 +189,13 @@ class paymentController extends Controller
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
                 else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
                 $item = ['studentId' => $student->id, 'courseId' => 2, 'qty' => $qty];
+                array_push($paymentItems, $item);
+            } else if(str_contains($paymentInfo->product, "Technology")) {
+                $qty = 1;
+                // if(str_contains($paymentInfo->product, "10")) $qty = 20;
+                // else if(str_contains($paymentInfo->product, "5")) $qty = 10;
+                // else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
+                $item = ['studentId' => $student->id, 'courseId' => 3, 'qty' => $qty];
                 array_push($paymentItems, $item);
             }
 

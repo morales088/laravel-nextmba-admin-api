@@ -19,12 +19,36 @@ use DB;
 class courseController extends Controller
 {
     public function index(Request $request){
-        $courses = DB::SELECT("select c.id course_id, c.name, c.price course_price, c.description, count(s.id) total_students, s.status, (CASE WHEN s.status = 0 THEN 'deleted' WHEN s.status = 1 THEN 'active' END) as status_code, c.created_at, c.updated_at
+
+        // $courses = DB::SELECT("select c.id course_id, c.name, c.price course_price, c.description, count(s.id) total_students, s.status, (CASE WHEN s.status = 0 THEN 'deleted' WHEN s.status = 1 THEN 'active' END) as status_code, c.created_at, c.updated_at
+        //                         from students s
+        //                         left join studentcourses sc ON sc.studentId = s.id
+        //                         left join courses c ON c.id = sc.courseId
+        //                         where s.status <> 0 and sc.status <> 0 and c.status <> 0
+        //                         group by c.id");
+
+        $courses = DB::SELECT("select c.id course_id, c.name, c.price course_price, c.description,  c.created_at, c.updated_at
+                            from courses c 
+                            where c.status <> 0");
+                            
+        foreach ($courses as $key => $value) {
+
+            $count = DB::SELECT("select count(s.id) total_students, s.status, (CASE WHEN s.status = 0 THEN 'deleted' WHEN s.status = 1 THEN 'active' END) as status_code
                                 from students s
                                 left join studentcourses sc ON sc.studentId = s.id
-                                left join courses c ON c.id = sc.courseId
-                                where s.status <> 0 and sc.status <> 0 and c.status <> 0
-                                group by c.id");
+                                where s.status <> 0 and sc.status <> 0 and sc.courseId = $value->course_id");
+            // dd($count);
+            if(!empty($count)){
+                $value->total_students = $count[0]->total_students;
+                $value->status = $count[0]->status;
+                $value->status = $count[0]->status_code;
+            }else{
+                $value->total_students = 0;
+                $value->status = 0;
+                $value->status = 'deleted';
+            }
+
+        }
 
         // $courses = DB::SELECT("select *, (CASE WHEN m.status = 0 THEN 'deleted' WHEN m.status = 1 THEN 'active' END) as status_code, concat(m.date, '', m.starting_time) start_date
         // from modules m");
@@ -703,5 +727,37 @@ class courseController extends Controller
 
         return response(["file" => $file], 200);
         
+    }
+    
+    public function addCourse(Request $request){
+        
+        $request->validate([
+            'name' => 'required|string',
+        ]);
+
+        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link') + 
+                                        [
+                                            'name' => $request->name,
+                                        ]);
+
+        return response(["course" => $course], 200);
+    }
+
+    public function updateCourse(Request $request){
+        
+        $request->validate([
+            'course_id' => 'required|numeric|min:1|exists:courses,id',
+        ]);
+
+        $course = Course::find($request->course_id);
+
+        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link') + 
+                        [ 
+                            'updated_at' => now()
+                        ]
+                        );
+                        
+        return response(["course" => $course], 200);
+
     }
 }
