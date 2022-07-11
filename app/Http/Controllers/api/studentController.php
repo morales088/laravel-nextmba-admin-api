@@ -81,7 +81,7 @@ class studentController extends Controller
         ]);
         
         $totalModules = 0;
-        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, c.price course_price, sc.starting date_started, sc.expirationDate
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, c.price course_price, sc.starting date_started, sc.expirationDate, sc.completed_modules, sc.completed_modules
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
                                 left join courses c ON c.id = sc.courseId
@@ -90,7 +90,7 @@ class studentController extends Controller
         foreach ($courses as $key => $value) {
             $value->totalModules = ++$totalModules;
 
-            $completedModules = 0;
+            $completedModules = $value->completed_modules;
 
             $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, 
                                     (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
@@ -103,7 +103,7 @@ class studentController extends Controller
             }
             
             $value->completedModules = $completedModules;
-            $value->score_percentage = round(($completedModules / 12) * 100, 2);
+            $value->score_percentage = ($completedModules >= 12) ? 100 : round(($completedModules / 12) * 100, 2);
             $value->modules = $modules;
         }
 
@@ -123,7 +123,7 @@ class studentController extends Controller
                                 SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
                                 count(sm.id) total_st_modules,
                                 -- ROUND( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) / count(sm.id)) * 100 ), 0 ) score_percentage
-                                IF(SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) > 11, 100.00, ROUND( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) / 12) * 100 ), 0 )) score_percentage
+                                IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  > 11, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / 12) * 100 ), 0 )) score_percentage
                                 from courses c
                                 left join modules m ON m.courseId = c.id
                                 left join student_modules sm ON m.id = sm.moduleId
@@ -276,7 +276,10 @@ class studentController extends Controller
     public function updateStudentModule(Request $request){
 
         $request->validate([
+            'student_id' => 'required|numeric|min:1|exists:students,id',
+            'course_id' => 'required|numeric|min:1|exists:courses,id',
             'modules' => 'required|string',
+            'completed_modules' => 'min:1',
         ]);
         
         $modules = json_decode($request->modules);
@@ -308,6 +311,16 @@ class studentController extends Controller
                     
         }
         
+        if($request->completed_modules){
+            $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
+                
+            $studentModule->update($request->only('completed_modules') +
+                            [ 
+                                'updated_at' => now()
+                            ]
+                            );
+        }
+
         return response(["message" => "successfully updated student's module"], 200);
     }
 
@@ -320,12 +333,15 @@ class studentController extends Controller
             'expiration_date' => 'required|date_format:Y-m-d H:i:s',
         ]);
 
+        $request->query->add(['starting' => $request->starting_date]);
+        $request->query->add(['expirationDate' => $request->expiration_date]);            
+
+        // dd($request->all());
+
         $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
                 
-        $studentModule->update(
+        $studentModule->update($request->only('starting', 'expirationDate') +
                         [ 
-                            'starting' => $request->starting_date,
-                            'expirationDate' => $request->expiration_date,
                             'updated_at' => now()
                         ]
                         );
