@@ -70,9 +70,10 @@ class courseController extends Controller
             // 'calendar_link' => 'string', // 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
-            'end_date' => 'date_format:Y-m-d H:i:s'
+            'end_date' => 'date_format:Y-m-d H:i:s',
+            'module_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
+        
         $checker = DB::SELECT("SELECT * FROM modules where courseId = $request->courseId and start_date = '$request->start_date' and status <> 0");
 
         if(!empty($checker)){
@@ -85,6 +86,12 @@ class courseController extends Controller
                 'description' => $description,
             ]);
 
+        }
+
+        if(!empty($request->module_image) || !empty($request->module_link)){
+            $path = Module::moduleImage($request->all());
+                
+            $request->query->add(['cover_photo' => $path]);
         }
         
         $module = Course::createModule($request);
@@ -111,6 +118,7 @@ class courseController extends Controller
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
+            'module_image' => 'image|mimes:jpeg,png,jpg|max:2048',
             // 'module_status' => [
             //             'string',
             //             Rule::in(['draft', 'published', 'archived']),
@@ -148,6 +156,12 @@ class courseController extends Controller
                     'description' => $description,
                 ]);
 
+            }
+            
+            if(!empty($request->module_image) || !empty($request->module_link)){
+                $path = Module::moduleImage($request->all(), $id);
+                    
+                $request->query->add(['cover_photo' => $path]);
             }
 
             $module = Module::find($id);
@@ -761,7 +775,7 @@ class courseController extends Controller
         ]);
 
         if(!empty($request->course_image) || !empty($request->course_link)){
-            $path = Course::courseImage($request->all());
+            $path = Course::courseImage($request->all(), $request->course_id);
         }
 
         $course = Course::find($request->course_id);

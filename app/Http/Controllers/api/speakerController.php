@@ -25,6 +25,7 @@ class speakerController extends Controller
             // 'profile_path' => 'string', // 'regex:'.$regex,
             // 'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => 'required|string',
+            'speaker_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
         // $role = 0;
         
@@ -47,8 +48,14 @@ class speakerController extends Controller
             ]);
 
         }
+        
+        if(!empty($request->speaker_image) || !empty($request->speaker_link)){
+            $path = Speaker::speakerImage($request->all());
+                
+            $request->query->add(['profile_path' => $path]);
+        }
 
-        $speaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path', 'description') +
+        $speaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path', 'description', 'profile_path') +
                 [
                     // 'moduleId' => $request->moduleId,
                     'name' => $request->name,
@@ -105,6 +112,10 @@ class speakerController extends Controller
                 'description' => $description,
             ]);
 
+        }
+        
+        if(!empty($request->speaker_image) || !empty($request->speaker_link)){
+            $path = Speaker::speakerImage($request->all(), $id);
         }
         
         $updateSpeaker = Speaker::find($id);

@@ -18,7 +18,7 @@ class Course extends Model
             
         $module = DB::transaction(function() use ($request) {
             
-            $module = Module::create($request->only('topic', 'chat_url', 'live_url', 'calendar_link') +
+            $module = Module::create($request->only('topic', 'chat_url', 'live_url', 'calendar_link', 'cover_photo') +
                 [
                     'courseId' => $request->courseId,
                     'name' => $request->name,
@@ -78,5 +78,5 @@ class Course extends Model
             return $path;
         }
   
-      }
+    }
 }
