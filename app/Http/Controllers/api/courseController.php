@@ -751,7 +751,7 @@ class courseController extends Controller
         ]);
 
 
-        if(!empty($request->course_image) || !empty($request->course_link)){
+        if(!empty($request->course_image) || !empty($request->course_image_link)){
             $path = Course::courseImage($request->all());
                 
             $request->query->add(['image_link' => $path]);

@@ -61,7 +61,7 @@ class Course extends Model
           $path = Storage::disk('s3')->url($path);
   
         }else{
-          $path = $request['course_link'];
+          $path = $request['course_image_link'];
         }
   
         
