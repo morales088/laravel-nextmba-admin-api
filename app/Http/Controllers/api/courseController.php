@@ -774,7 +774,7 @@ class courseController extends Controller
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if(!empty($request->course_image) || !empty($request->course_link)){
+        if(!empty($request->course_image) || !empty($request->course_image_link)){
             $path = Course::courseImage($request->all(), $request->course_id);
         }
 
