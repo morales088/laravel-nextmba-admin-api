@@ -733,7 +733,17 @@ class courseController extends Controller
         
         $request->validate([
             'name' => 'required|string',
+            'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+
+        if(!empty($request->course_image) || !empty($request->course_link)){
+            $path = Course::courseImage($request->all());
+                
+            $request->query->add(['image_link' => $path]);
+        }
+
+        // dd($request->all());
 
         $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link') + 
                                         [
@@ -747,7 +757,12 @@ class courseController extends Controller
         
         $request->validate([
             'course_id' => 'required|numeric|min:1|exists:courses,id',
+            'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if(!empty($request->course_image) || !empty($request->course_link)){
+            $path = Course::courseImage($request->all());
+        }
 
         $course = Course::find($request->course_id);
 

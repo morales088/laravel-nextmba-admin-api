@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use DB;
 
 class Course extends Model
@@ -48,4 +49,34 @@ class Course extends Model
 
         return $module;
     }
+
+    public static function courseImage($request, $courseId = null){
+              
+        if(!empty($request['course_image'])){
+  
+          $imageName = time().'.'.$request['course_image']->extension();  
+          // dd($request->all(), $imageName);
+      
+          $path = Storage::disk('s3')->put('images/courses_cover', $request['course_image']);
+          $path = Storage::disk('s3')->url($path);
+  
+        }else{
+          $path = $request['course_link'];
+        }
+  
+        
+        if($courseId){
+            DB::table('courses')
+            ->where('id', $courseId)
+            ->update(
+              [
+                'image_link' => $path,
+                'updated_at' => now(),
+              ]
+            );
+        }else{
+            return $path;
+        }
+  
+      }
 }
