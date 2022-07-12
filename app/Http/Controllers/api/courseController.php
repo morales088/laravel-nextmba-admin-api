@@ -612,9 +612,17 @@ class courseController extends Controller
             // 'image_url' => 'string', // 'regex:'.$regex,
             // 'replay_url' => 'string', // 'regex:'.$regex,
             // 'description' => 'string', // 'regex:'.$regex,
+            'video_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $request->query->add(['moduleId' => $request->module_id]);
+        
+        
+        if(!empty($request->video_image) || !empty($request->video_image_link)){
+            $video_image = Extravideo::extaImage($request->all());
+                
+            $request->query->add(['image_url' => $video_image]);
+        }
 
         $video = Extravideo::create($request->only('moduleId', 'image_url', 'replay_url', 'description') +
                 [
@@ -636,12 +644,18 @@ class courseController extends Controller
                         'string',
                         Rule::in(['delete', 'active']),
                     ],
+            'video_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if($request->status == "delete"){
             $request['status'] = 0;
         }elseif($request->status == "active"){
             $request['status'] = 1;
+        }
+
+        
+        if(!empty($request->video_image) || !empty($request->video_image_link)){
+            $video_image = Extravideo::extaImage($request->all(), $request->id);
         }
 
         $updateVideo = Extravideo::find($request->id);

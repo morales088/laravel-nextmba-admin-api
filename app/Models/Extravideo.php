@@ -17,16 +17,16 @@ class Extravideo extends Model
 
     public static function extaImage($request, $extraId = null){
               
-        if(!empty($request['other_image'])){
+        if(!empty($request['video_image'])){
   
-          $imageName = time().'.'.$request['other_image']->extension();  
+          $imageName = time().'.'.$request['video_image']->extension();  
           // dd($request->all(), $imageName);
       
-          $path = Storage::disk('s3')->put('images/other_videos_cover', $request['other_image']);
+          $path = Storage::disk('s3')->put('images/other_videos_cover', $request['video_image']);
           $path = Storage::disk('s3')->url($path);
   
         }else{
-          $path = $request['other_link'];
+          $path = $request['video_image_link'];
         }
   
         
