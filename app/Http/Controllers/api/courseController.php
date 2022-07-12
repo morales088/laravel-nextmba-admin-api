@@ -118,7 +118,7 @@ class courseController extends Controller
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
-            'module_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'module_cover_image' => 'image|mimes:jpeg,png,jpg|max:2048',
             // 'module_status' => [
             //             'string',
             //             Rule::in(['draft', 'published', 'archived']),
@@ -158,7 +158,7 @@ class courseController extends Controller
 
             }
             
-            if(!empty($request->module_image) || !empty($request->module_link)){
+            if(!empty($request->module_cover_image) || !empty($request->module_cover_link)){
                 $path = Module::moduleImage($request->all(), $id);
                     
                 $request->query->add(['cover_photo' => $path]);

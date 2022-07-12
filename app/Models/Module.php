@@ -15,16 +15,16 @@ class Module extends Model
 
     public static function moduleImage($request, $modulesId = null){
               
-        if(!empty($request['module_image'])){
+        if(!empty($request['module_cover_image'])){
   
-          $imageName = time().'.'.$request['module_image']->extension();  
+          $imageName = time().'.'.$request['module_cover_image']->extension();  
           // dd($request->all(), $imageName);
       
-          $path = Storage::disk('s3')->put('images/modules_cover', $request['module_image']);
+          $path = Storage::disk('s3')->put('images/modules_cover', $request['module_cover_image']);
           $path = Storage::disk('s3')->url($path);
   
         }else{
-          $path = $request['module_link'];
+          $path = $request['module_cover_link'];
         }
   
         
