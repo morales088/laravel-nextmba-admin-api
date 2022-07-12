@@ -127,7 +127,7 @@ class speakerController extends Controller
             $path = Speaker::speakerImage($request->all(), $id);
         }
         if(!empty($request->company_image) || !empty($request->company_link)){
-            $path = Speaker::speakerImage($request->all(), $id);
+            $path = Speaker::speakerCompany($request->all(), $id);
         }
         
         $updateSpeaker = Speaker::find($id);
