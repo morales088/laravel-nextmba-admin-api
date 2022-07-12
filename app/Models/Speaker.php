@@ -20,7 +20,7 @@ class Speaker extends Model
           $imageName = time().'.'.$request['speaker_image']->extension();  
           // dd($request->all(), $imageName);
       
-          $path = Storage::disk('s3')->put('images/speakers_cover', $request['speaker_image']);
+          $path = Storage::disk('s3')->put('images/speakers/profile', $request['speaker_image']);
           $path = Storage::disk('s3')->url($path);
   
         }else{
@@ -34,6 +34,35 @@ class Speaker extends Model
             ->update(
               [
                 'profile_path' => $path,
+                'updated_at' => now(),
+              ]
+            );
+        }else{
+            return $path;
+        }
+  
+    }
+    public static function speakerCompany($request, $speakerId = null){
+              
+        if(!empty($request['company_image'])){
+  
+          $imageName = time().'.'.$request['company_image']->extension();  
+          // dd($request->all(), $imageName);
+      
+          $path = Storage::disk('s3')->put('images/speakers/company', $request['company_image']);
+          $path = Storage::disk('s3')->url($path);
+  
+        }else{
+          $path = $request['company_link'];
+        }
+  
+        
+        if($speakerId){
+            DB::table('speakers')
+            ->where('id', $speakerId)
+            ->update(
+              [
+                'company_path' => $path,
                 'updated_at' => now(),
               ]
             );
