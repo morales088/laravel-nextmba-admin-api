@@ -87,8 +87,8 @@ class speakerController extends Controller
             'id' => 'required|numeric|min:1|exists:speakers,id',
             // 'moduleId' => 'numeric|min:1|exists:modules,id',
             'name' => 'string',
-            'position' => 'string',
-            'company' => 'string',
+            // 'position' => 'string',
+            // 'company' => 'string',
             // 'profile_path' => 'string', // 'regex:'.$regex,
             // 'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => [
@@ -132,7 +132,7 @@ class speakerController extends Controller
         
         $updateSpeaker = Speaker::find($id);
         
-        $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'description', 'status') +
+        $updateSpeaker->update($request->only('name', 'position', 'company', 'description', 'status') +
                         [ 'updated_at' => now()]
                         );
 
