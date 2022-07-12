@@ -20,8 +20,8 @@ class speakerController extends Controller
         $speaker = $request->validate([
             // 'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'name' => 'required|string',
-            'position' => 'string',
-            'company' => 'string',
+            // 'position' => 'string',
+            // 'company' => 'string',
             // 'profile_path' => 'string', // 'regex:'.$regex,
             // 'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => 'required|string',
