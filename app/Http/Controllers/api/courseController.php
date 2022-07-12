@@ -146,7 +146,7 @@ class courseController extends Controller
         // }elseif($request->broadcast_status == "replay"){
         //     $request['broadcast_status'] = 4;
         // }
-
+// dd($request->all());
         $module = DB::transaction(function() use ($request, $id) {
         
             
@@ -160,8 +160,6 @@ class courseController extends Controller
             
             if(!empty($request->module_cover_image) || !empty($request->module_cover_link)){
                 $path = Module::moduleImage($request->all(), $id);
-                    
-                $request->query->add(['cover_photo' => $path]);
             }
 
             $module = Module::find($id);
