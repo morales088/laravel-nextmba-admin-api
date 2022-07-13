@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Studentmodule;
 use DB;
 
@@ -51,5 +52,26 @@ class utilityController extends Controller
             
         },5);  // try 5 times
         
+    }
+
+    public function uploadImage(Request $request){
+
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        
+        $imageName = time().'.'.$request->image->extension();  
+        // dd($request->all(), $imageName);
+     
+        $path = Storage::disk('s3')->put('images', $request->image);
+        $path = Storage::disk('s3')->url($path);
+        
+        dd($path);
+
+        // /* Store $imageName name in DATABASE from HERE */
+    
+        // return back()
+        //     ->with('success','You have successfully upload image.')
+        //     ->with('image', $path);
     }
 }

@@ -91,6 +91,7 @@ Route::prefix("/courses")->group( function (){
     Route::middleware("auth:api")->post("/zoom/add", "api\courseController@addZoom"); 
     Route::middleware("auth:api")->put("/zoom/{id}", "api\courseController@updateZoom");
 
+
 });
 
 
@@ -116,5 +117,6 @@ Route::prefix("/payment")->group( function (){
 
 Route::prefix("/utility")->group( function (){
     Route::middleware("api_token")->get("/missing/student_modules", "api\utilityController@studentModules");
+    Route::middleware("auth:api")->post("/upload", "api\utilityController@uploadImage"); 
     
 });

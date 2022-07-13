@@ -70,9 +70,10 @@ class courseController extends Controller
             // 'calendar_link' => 'string', // 'regex:'.$regex,
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
-            'end_date' => 'date_format:Y-m-d H:i:s'
+            'end_date' => 'date_format:Y-m-d H:i:s',
+            // 'module_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
+        
         $checker = DB::SELECT("SELECT * FROM modules where courseId = $request->courseId and start_date = '$request->start_date' and status <> 0");
 
         if(!empty($checker)){
@@ -86,6 +87,12 @@ class courseController extends Controller
             ]);
 
         }
+
+        // if(!empty($request->module_image) || !empty($request->module_link)){
+        //     $path = Module::moduleImage($request->all());
+                
+        //     $request->query->add(['cover_photo' => $path]);
+        // }
         
         $module = Course::createModule($request);
 
@@ -111,6 +118,7 @@ class courseController extends Controller
             // 'date' => 'date_format:Y-m-d',
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
+            'module_cover_image' => 'image|mimes:jpeg,png,jpg|max:2048',
             // 'module_status' => [
             //             'string',
             //             Rule::in(['draft', 'published', 'archived']),
@@ -138,7 +146,7 @@ class courseController extends Controller
         // }elseif($request->broadcast_status == "replay"){
         //     $request['broadcast_status'] = 4;
         // }
-
+// dd($request->all());
         $module = DB::transaction(function() use ($request, $id) {
         
             
@@ -148,6 +156,10 @@ class courseController extends Controller
                     'description' => $description,
                 ]);
 
+            }
+            
+            if(!empty($request->module_cover_image) || !empty($request->module_cover_link)){
+                $path = Module::moduleImage($request->all(), $id);
             }
 
             $module = Module::find($id);
@@ -600,9 +612,17 @@ class courseController extends Controller
             // 'image_url' => 'string', // 'regex:'.$regex,
             // 'replay_url' => 'string', // 'regex:'.$regex,
             // 'description' => 'string', // 'regex:'.$regex,
+            'video_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $request->query->add(['moduleId' => $request->module_id]);
+        
+        
+        if(!empty($request->video_image) || !empty($request->video_image_link)){
+            $video_image = Extravideo::extaImage($request->all());
+                
+            $request->query->add(['image_url' => $video_image]);
+        }
 
         $video = Extravideo::create($request->only('moduleId', 'image_url', 'replay_url', 'description') +
                 [
@@ -624,12 +644,18 @@ class courseController extends Controller
                         'string',
                         Rule::in(['delete', 'active']),
                     ],
+            'video_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if($request->status == "delete"){
             $request['status'] = 0;
         }elseif($request->status == "active"){
             $request['status'] = 1;
+        }
+
+        
+        if(!empty($request->video_image) || !empty($request->video_image_link)){
+            $video_image = Extravideo::extaImage($request->all(), $request->id);
         }
 
         $updateVideo = Extravideo::find($request->id);
@@ -733,7 +759,17 @@ class courseController extends Controller
         
         $request->validate([
             'name' => 'required|string',
+            'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+
+        if(!empty($request->course_image) || !empty($request->course_image_link)){
+            $path = Course::courseImage($request->all());
+                
+            $request->query->add(['image_link' => $path]);
+        }
+
+        // dd($request->all());
 
         $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link') + 
                                         [
@@ -747,7 +783,12 @@ class courseController extends Controller
         
         $request->validate([
             'course_id' => 'required|numeric|min:1|exists:courses,id',
+            'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if(!empty($request->course_image) || !empty($request->course_image_link)){
+            $path = Course::courseImage($request->all(), $request->course_id);
+        }
 
         $course = Course::find($request->course_id);
 

@@ -20,11 +20,13 @@ class speakerController extends Controller
         $speaker = $request->validate([
             // 'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'name' => 'required|string',
-            'position' => 'string',
-            'company' => 'string',
+            // 'position' => 'string',
+            // 'company' => 'string',
             // 'profile_path' => 'string', // 'regex:'.$regex,
             // 'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => 'required|string',
+            'speaker_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'company_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
         // $role = 0;
         
@@ -46,6 +48,18 @@ class speakerController extends Controller
                 'description' => $description,
             ]);
 
+        }
+        
+        if(!empty($request->speaker_image) || !empty($request->speaker_link)){
+            $profile_path = Speaker::speakerImage($request->all());
+                
+            $request->query->add(['profile_path' => $profile_path]);
+        }
+        
+        if(!empty($request->company_image) || !empty($request->company_link)){
+            $company_path = Speaker::speakerCompany($request->all());
+                
+            $request->query->add(['company_path' => $company_path]);
         }
 
         $speaker = Speaker::create($request->only('position', 'company', 'profile_path', 'company_path', 'description') +
@@ -73,8 +87,8 @@ class speakerController extends Controller
             'id' => 'required|numeric|min:1|exists:speakers,id',
             // 'moduleId' => 'numeric|min:1|exists:modules,id',
             'name' => 'string',
-            'position' => 'string',
-            'company' => 'string',
+            // 'position' => 'string',
+            // 'company' => 'string',
             // 'profile_path' => 'string', // 'regex:'.$regex,
             // 'company_path' => 'string', // 'regex:'.$regex,
             // 'role' => [
@@ -85,6 +99,8 @@ class speakerController extends Controller
                         'string',
                         Rule::in(['delete', 'active']),
                     ],
+            'speaker_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'company_image' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
         
         if($request->status == "delete"){
@@ -107,9 +123,16 @@ class speakerController extends Controller
 
         }
         
+        if(!empty($request->speaker_image) || !empty($request->speaker_link)){
+            $path = Speaker::speakerImage($request->all(), $id);
+        }
+        if(!empty($request->company_image) || !empty($request->company_link)){
+            $path = Speaker::speakerCompany($request->all(), $id);
+        }
+        
         $updateSpeaker = Speaker::find($id);
         
-        $updateSpeaker->update($request->only('name', 'position', 'company', 'profile_path', 'company_path', 'description', 'status') +
+        $updateSpeaker->update($request->only('name', 'position', 'company', 'description', 'status') +
                         [ 'updated_at' => now()]
                         );
 
