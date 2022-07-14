@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Studentmodule;
 use DB;
+use Image;
 
 class utilityController extends Controller
 {
@@ -60,13 +61,37 @@ class utilityController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
         
-        $imageName = time().'.'.$request->image->extension();  
-        // dd($request->all(), $imageName);
+        // $imageName = time().'.'.$request->image->extension(); 
      
-        $path = Storage::disk('s3')->put('images', $request->image);
-        $path = Storage::disk('s3')->url($path);
+        // $path = Storage::disk('s3')->put('images', $request->image);
+        // $path = Storage::disk('s3')->url($path);
+
+        // dd($path);
         
-        dd($path);
+        // $avatar = $request->file('image');
+        // $extension = $request->file('image')->getClientOriginalExtension();
+
+        // $filename = md5(time()).'_'.$avatar->getClientOriginalName();
+
+        // $image = Image::make($avatar)->resize(500, 500)->encode($extension);
+        
+
+        // $imageName = time().'.'.$request->image->extension(); 
+        // // $imageName = time().'.'.$image->getClientOriginalExtension();
+        // $path = Storage::disk('s3')->put('test/'.$imageName, $image);
+        // $path = Storage::disk('s3')->url($path);
+
+        $filePath = '/images/' . $request->file('image')->hashName();
+
+        $image = Image::make($request->file('image'))->resize(500, null, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })->encode('jpg', 60);
+
+        Storage::disk('s3')->put($filePath, $image->stream());
+        $path = Storage::disk('s3')->url($filePath);
+        
+        dd(Storage::disk('s3')->url($filePath));
 
         // /* Store $imageName name in DATABASE from HERE */
     
