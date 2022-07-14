@@ -273,7 +273,7 @@ class courseController extends Controller
                                 from modules m 
                                 left join topics t ON m.id = t.moduleId and t.id = m.topicId
                                 where m.status <> 0 or t.status <> 0
-                                group by m.id) m where m.courseId = $id");
+                                group by m.id) m where m.courseId = $id order by m.start_date desc");
 
         foreach ($modules as $key => $value) {
             

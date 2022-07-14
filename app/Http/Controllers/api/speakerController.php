@@ -159,7 +159,7 @@ class speakerController extends Controller
 
             !empty($request->search)? $search_query = "and s.company like '%".addslashes($request->search)."%' or s.name like '%".addslashes($request->search)."%'" : '';
 
-            $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 $search_query");
+            $speaker = DB::SELECT("SELECT * FROM speakers s WHERE status <> 0 $search_query order by s.name asc");
             foreach ($speaker as $key => $value) {
                 // dd($value->description);
                 $value->description = urldecode($value->description);
