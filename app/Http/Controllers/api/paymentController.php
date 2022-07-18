@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Mail;
 use App\Mail\AccountCredentialEmail;
+use App\Mail\PaymentConfirmationEmail;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
@@ -145,12 +146,12 @@ class paymentController extends Controller
             $name = "";
             if(empty($studentChecker)){
                 // CREATE NEW ACCOUNT
-                    
+                    $new_password = Hash::make($password);
                     $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
                         [
                             'name' => $paymentInfo->first_name . ' ' . $paymentInfo->last_name,
                             'email' => $paymentInfo->email,
-                            'password' => Hash::make($password),
+                            'password' => $new_password,
                             'updated_at' => now()
                         ]);
 
@@ -221,11 +222,15 @@ class paymentController extends Controller
             if(empty($studentChecker)){
                 $user = [
                     'email' => $email,
-                    'date' => $date
+                    'password' => $new_password
                 ];
                 Mail::to($email)->send(new AccountCredentialEmail($user));
             }
 
+            $user = [
+                'email' => $email,
+                'date' => now()
+            ];
             Mail::to("service@next.university")->send(new PaymentConfirmationEmail($user));
 
             //emd
