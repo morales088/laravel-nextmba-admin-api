@@ -68,18 +68,21 @@ class paymentController extends Controller
             'country' => 'required|string',
             'product' => 'required|string',
             'url' => 'required|string',
+            'amount' => 'string',
             // 'utm_source' => 'required|string',
             // 'utm_medium' => 'required|string',
             // 'utm_campaign' => 'required|string',
             // 'utm_content' => 'required|string',
         ]);
-        // dd($request->all());
+        // dd($request->all());        
+                
+        $request->query->add(['price' => $request->amount]);
 
         // CHECK IF ACCOUNT ALREADY EXISTING, IF NOT CREATE ACCOUNT
         // $checker = DB::SELECT("SELECT * FROM students where email = " . $request->email);
 
         // CREATE PAYMENT
-        $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
+        $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'price') +
         [
             // 'reference_id ' => $request->reference_id,
             'first_name' => $request->first_name,
@@ -146,12 +149,12 @@ class paymentController extends Controller
             $name = "";
             if(empty($studentChecker)){
                 // CREATE NEW ACCOUNT
-                    $new_password = Hash::make($password);
+                
                     $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
                         [
                             'name' => $paymentInfo->first_name . ' ' . $paymentInfo->last_name,
                             'email' => $paymentInfo->email,
-                            'password' => $new_password,
+                            'password' => Hash::make($password),
                             'updated_at' => now()
                         ]);
 
@@ -222,7 +225,7 @@ class paymentController extends Controller
             if(empty($studentChecker)){
                 $user = [
                     'email' => $email,
-                    'password' => $new_password
+                    'password' => $password
                 ];
                 Mail::to($email)->send(new AccountCredentialEmail($user));
             }
