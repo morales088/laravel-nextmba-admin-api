@@ -90,10 +90,10 @@ class paymentController extends Controller
             'amount' => $request->amount,
             'status' => "Unpaid",
             'url' => $request->url,
-            'utm_source' => $request->utm_source,
-            'utm_medium' => $request->utm_medium,
-            'utm_campaign' => $request->utm_campaign,
-            'utm_content' => $request->utm_content
+            // 'utm_source' => $request->utm_source,
+            // 'utm_medium' => $request->utm_medium,
+            // 'utm_campaign' => $request->utm_campaign,
+            // 'utm_content' => $request->utm_content
         ]);
 
         // $paymentItems = [];
