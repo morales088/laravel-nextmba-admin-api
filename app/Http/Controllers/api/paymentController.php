@@ -175,26 +175,26 @@ class paymentController extends Controller
 
             // insert data to payment_items
             $paymentItems = [];
-            if(str_contains($paymentInfo->product, "Bundle")) {
-                $course1 = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1];
+            if(str_contains($request->product, "executive") && str_contains($request->product, "technology")) {
+                $course1 = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1];
                 array_push($paymentItems, $course1);
-                $course2 = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1];
+                $course2 = ['studentId' => $student->id, 'courseId' => 3, 'qty' => 1];
                 array_push($paymentItems, $course2);
-            } else if(str_contains($paymentInfo->product, "Marketing")) {
+            } else if(str_contains($paymentInfo->product, "marketing")) {
                 $qty = 1;
                 if(str_contains($paymentInfo->product, "10")) $qty = 20;
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
                 else if(str_contains($paymentInfo->product, "3")) $qty = 6;
                 $item = ['studentId' => $student->id, 'courseId' => 1, 'qty' => $qty];
                 array_push($paymentItems, $item);
-            } else if(str_contains($paymentInfo->product, "Executive")) {
+            } else if(str_contains($paymentInfo->product, "executive")) {
                 $qty = 1;
                 if(str_contains($paymentInfo->product, "10")) $qty = 20;
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
                 else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
                 $item = ['studentId' => $student->id, 'courseId' => 2, 'qty' => $qty];
                 array_push($paymentItems, $item);
-            } else if(str_contains($paymentInfo->product, "Technology")) {
+            } else if(str_contains($paymentInfo->product, "technology")) {
                 $qty = 1;
                 if(str_contains($paymentInfo->product, "10")) $qty = 20;
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
