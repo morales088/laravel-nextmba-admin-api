@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use DB;
+use Image;
 
 class Course extends Model
 {
@@ -54,11 +55,22 @@ class Course extends Model
               
         if(!empty($request['course_image'])){
   
-          $imageName = time().'.'.$request['course_image']->extension();  
-          // dd($request->all(), $imageName);
+        //   $imageName = time().'.'.$request['course_image']->extension();  
+        //   // dd($request->all(), $imageName);
       
-          $path = Storage::disk('s3')->put('images/courses_cover', $request['course_image']);
-          $path = Storage::disk('s3')->url($path);
+        //   $path = Storage::disk('s3')->put('images/courses_cover', $request['course_image']);
+        //   $path = Storage::disk('s3')->url($path);
+
+
+        $filePath = 'images/courses_cover' . time().'.'.$request['course_image']->extension();
+        
+        $image = Image::make($request['course_image'])->resize(200, 400, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })->encode('jpg', 60);
+
+        Storage::disk('s3')->put($filePath, $image->stream());
+        $path = Storage::disk('s3')->url($filePath);
   
         }else{
           $path = $request['course_image_link'];

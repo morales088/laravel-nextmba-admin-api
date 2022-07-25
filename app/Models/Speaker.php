@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use DB;
+use Image;
 
 class Speaker extends Model
 {
@@ -17,11 +18,21 @@ class Speaker extends Model
               
         if(!empty($request['speaker_image'])){
   
-          $imageName = time().'.'.$request['speaker_image']->extension();  
-          // dd($request->all(), $imageName);
+          // $imageName = time().'.'.$request['speaker_image']->extension();  
+          // // dd($request->all(), $imageName);
       
-          $path = Storage::disk('s3')->put('images/speakers/profile', $request['speaker_image']);
-          $path = Storage::disk('s3')->url($path);
+          // $path = Storage::disk('s3')->put('images/speakers/profile', $request['speaker_image']);
+          // $path = Storage::disk('s3')->url($path);
+
+          $filePath = 'images/speakers/profile' . time().'.'.$request['speaker_image']->extension();
+        
+          $image = Image::make($request['speaker_image'])->resize(500, null, function ($constraint) {
+              $constraint->aspectRatio();
+              $constraint->upsize();
+          })->encode('jpg', 60);
+
+          Storage::disk('s3')->put($filePath, $image->stream());
+          $path = Storage::disk('s3')->url($filePath);
   
         }else{
           $path = $request['speaker_link'];

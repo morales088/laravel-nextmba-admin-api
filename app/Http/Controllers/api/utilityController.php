@@ -91,7 +91,7 @@ class utilityController extends Controller
         Storage::disk('s3')->put($filePath, $image->stream());
         $path = Storage::disk('s3')->url($filePath);
         
-        dd(Storage::disk('s3')->url($filePath));
+        dd($path);
 
         // /* Store $imageName name in DATABASE from HERE */
     
