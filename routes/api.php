@@ -118,5 +118,6 @@ Route::prefix("/payment")->group( function (){
 Route::prefix("/utility")->group( function (){
     Route::middleware("api_token")->get("/missing/student_modules", "api\utilityController@studentModules");
     Route::middleware("auth:api")->post("/upload", "api\utilityController@uploadImage"); 
+    Route::get("/test", "api\utilityController@test"); 
     
 });

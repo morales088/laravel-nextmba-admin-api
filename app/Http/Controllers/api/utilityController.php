@@ -99,4 +99,10 @@ class utilityController extends Controller
         //     ->with('success','You have successfully upload image.')
         //     ->with('image', $path);
     }
+
+    public function test(Request $request){
+        $exe = str_contains($request->product, "executive");
+        $tech = str_contains($request->product, "technology");
+        dd($exe, $tech, $exe && $tech);
+    }
 }

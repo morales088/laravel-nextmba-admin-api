@@ -426,7 +426,7 @@ class studentController extends Controller
         $payment = DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where student_id = $id");
 
         foreach ($payment as $key => $value) {
-            $value->courses = DB::SELECT("select c.id course_id, c.name course_name, c.price course_price, pi.quantity course_quantity
+            $value->courses = DB::SELECT("select c.id course_id, c.name course_name, c.price course_price, pi.quantity course_quantity, pi.created_at
                                     from payment_items pi
                                     left join courses c ON c.id = pi.product_id
                                     where pi.payment_id = $value->id");

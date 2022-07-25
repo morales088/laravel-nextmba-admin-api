@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Mail;
 use App\Mail\AccountCredentialEmail;
+use App\Mail\PaymentConfirmationEmail;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
@@ -67,18 +68,21 @@ class paymentController extends Controller
             'country' => 'required|string',
             'product' => 'required|string',
             'url' => 'required|string',
+            'amount' => 'string',
             // 'utm_source' => 'required|string',
             // 'utm_medium' => 'required|string',
             // 'utm_campaign' => 'required|string',
             // 'utm_content' => 'required|string',
         ]);
-        // dd($request->all());
+        // dd($request->all());        
+                
+        $request->query->add(['price' => $request->amount]);
 
         // CHECK IF ACCOUNT ALREADY EXISTING, IF NOT CREATE ACCOUNT
         // $checker = DB::SELECT("SELECT * FROM students where email = " . $request->email);
 
         // CREATE PAYMENT
-        $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
+        $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'price') +
         [
             // 'reference_id ' => $request->reference_id,
             'first_name' => $request->first_name,
@@ -90,10 +94,10 @@ class paymentController extends Controller
             'amount' => $request->amount,
             'status' => "Unpaid",
             'url' => $request->url,
-            'utm_source' => $request->utm_source,
-            'utm_medium' => $request->utm_medium,
-            'utm_campaign' => $request->utm_campaign,
-            'utm_content' => $request->utm_content
+            // 'utm_source' => $request->utm_source,
+            // 'utm_medium' => $request->utm_medium,
+            // 'utm_campaign' => $request->utm_campaign,
+            // 'utm_content' => $request->utm_content
         ]);
 
         // $paymentItems = [];
@@ -145,7 +149,7 @@ class paymentController extends Controller
             $name = "";
             if(empty($studentChecker)){
                 // CREATE NEW ACCOUNT
-                    
+                
                     $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
                         [
                             'name' => $paymentInfo->first_name . ' ' . $paymentInfo->last_name,
@@ -171,26 +175,26 @@ class paymentController extends Controller
 
             // insert data to payment_items
             $paymentItems = [];
-            if(str_contains($paymentInfo->product, "Bundle")) {
-                $course1 = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1];
+            if(str_contains($request->product, "executive") && str_contains($request->product, "technology")) {
+                $course1 = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1];
                 array_push($paymentItems, $course1);
-                $course2 = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1];
+                $course2 = ['studentId' => $student->id, 'courseId' => 3, 'qty' => 1];
                 array_push($paymentItems, $course2);
-            } else if(str_contains($paymentInfo->product, "Marketing")) {
+            } else if(str_contains($paymentInfo->product, "marketing")) {
                 $qty = 1;
                 if(str_contains($paymentInfo->product, "10")) $qty = 20;
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
                 else if(str_contains($paymentInfo->product, "3")) $qty = 6;
                 $item = ['studentId' => $student->id, 'courseId' => 1, 'qty' => $qty];
                 array_push($paymentItems, $item);
-            } else if(str_contains($paymentInfo->product, "Executive")) {
+            } else if(str_contains($paymentInfo->product, "executive")) {
                 $qty = 1;
                 if(str_contains($paymentInfo->product, "10")) $qty = 20;
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
                 else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
                 $item = ['studentId' => $student->id, 'courseId' => 2, 'qty' => $qty];
                 array_push($paymentItems, $item);
-            } else if(str_contains($paymentInfo->product, "Technology")) {
+            } else if(str_contains($paymentInfo->product, "technology")) {
                 $qty = 1;
                 if(str_contains($paymentInfo->product, "10")) $qty = 20;
                 else if(str_contains($paymentInfo->product, "5")) $qty = 10;
@@ -221,11 +225,15 @@ class paymentController extends Controller
             if(empty($studentChecker)){
                 $user = [
                     'email' => $email,
-                    'date' => $date
+                    'password' => $password
                 ];
                 Mail::to($email)->send(new AccountCredentialEmail($user));
             }
 
+            $user = [
+                'email' => $email,
+                'date' => now()
+            ];
             Mail::to("service@next.university")->send(new PaymentConfirmationEmail($user));
 
             //emd
