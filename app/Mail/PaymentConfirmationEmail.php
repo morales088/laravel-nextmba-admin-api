@@ -31,7 +31,7 @@ class PaymentConfirmationEmail extends Mailable
      */
     public function build()
     {
-        return $this->subject('METAcademy Account')->view('email.payment-confirmation')->with([
+        return $this->subject('NEXT MBA Account')->view('email.payment-confirmation')->with([
             'email' => $this->user['email'],
             'date' => $this->date,
         ]);
