@@ -45,6 +45,7 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->put("/course/extend", "api\studentController@extendCourse");
 
     Route::middleware("auth:api")->post("/add", "api\studentController@addStudent");
+    Route::middleware("api_token")->post("/payment/add", "api\studentController@addStudent"); // add student via api token
     Route::middleware("auth:api")->post("course/add", "api\studentController@addStudentCourse");
     Route::middleware("auth:api")->post("course/remove", "api\studentController@removeStudentCourse");
 
