@@ -25,7 +25,7 @@ class Module extends Model
           // $path = Storage::disk('s3')->url($path);
 
           
-          $filePath = 'images/modules_cover' . time().'.'.$request['module_cover_image']->extension();
+          $filePath = 'images/modules_cover/' . time().'.'.$request['module_cover_image']->extension();
         
           $image = Image::make($request['module_cover_image'])->resize(400, 200, function ($constraint) {
               $constraint->aspectRatio();

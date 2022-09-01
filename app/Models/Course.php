@@ -62,7 +62,7 @@ class Course extends Model
         //   $path = Storage::disk('s3')->url($path);
 
 
-        $filePath = 'images/courses_cover' . time().'.'.$request['course_image']->extension();
+        $filePath = 'images/courses_cover/' . time().'.'.$request['course_image']->extension();
         
         $image = Image::make($request['course_image'])->resize(560, 400, function ($constraint) {
             $constraint->aspectRatio();

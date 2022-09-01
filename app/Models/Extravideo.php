@@ -26,7 +26,7 @@ class Extravideo extends Model
           // $path = Storage::disk('s3')->put('images/other_videos_cover', $request['video_image']);
           // $path = Storage::disk('s3')->url($path);
 
-          $filePath = 'images/other_videos_cover' . time().'.'.$request['video_image']->extension();
+          $filePath = 'images/other_videos_cover/' . time().'.'.$request['video_image']->extension();
         
           $image = Image::make($request['video_image'])->resize(195, 275, function ($constraint) {
               $constraint->aspectRatio();
