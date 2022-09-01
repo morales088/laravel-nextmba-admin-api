@@ -27,7 +27,7 @@ class Module extends Model
           
           $filePath = 'images/modules_cover' . time().'.'.$request['module_cover_image']->extension();
         
-          $image = Image::make($request['module_cover_image'])->resize(200, 400, function ($constraint) {
+          $image = Image::make($request['module_cover_image'])->resize(400, 200, function ($constraint) {
               $constraint->aspectRatio();
               $constraint->upsize();
           })->encode('jpg', 60);

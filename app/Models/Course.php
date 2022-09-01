@@ -64,7 +64,7 @@ class Course extends Model
 
         $filePath = 'images/courses_cover' . time().'.'.$request['course_image']->extension();
         
-        $image = Image::make($request['course_image'])->resize(200, 400, function ($constraint) {
+        $image = Image::make($request['course_image'])->resize(560, 400, function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         })->encode('jpg', 60);
