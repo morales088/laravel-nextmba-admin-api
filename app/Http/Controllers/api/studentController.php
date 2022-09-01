@@ -73,6 +73,7 @@ class studentController extends Controller
     }
 
     public function coursesByStudent(Request $request, $id){
+        $module_per_course = env('MODULE_PER_COURSE');
         
         $request->query->add(['id' => $id]);
 
@@ -103,7 +104,7 @@ class studentController extends Controller
             }
             
             $value->completedModules = $completedModules;
-            $value->score_percentage = ($completedModules >= 12) ? 100 : round(($completedModules / 12) * 100, 2);
+            $value->score_percentage = ($completedModules >= $module_per_course) ? 100 : round(($completedModules / $module_per_course) * 100, 2);
             $value->modules = $modules;
         }
 
@@ -111,6 +112,8 @@ class studentController extends Controller
     }
 
     public function modulePerCourses(Request $request, $courseId, $id){
+        $module_per_course = env('MODULE_PER_COURSE');
+
         $request->query->add(['id' => $id, 'courseId' => $courseId]);
 
         $students = $request->validate([
@@ -123,7 +126,7 @@ class studentController extends Controller
                                 SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
                                 count(sm.id) total_st_modules,
                                 -- ROUND( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) / count(sm.id)) * 100 ), 0 ) score_percentage
-                                IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  > 11, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / 12) * 100 ), 0 )) score_percentage
+                                IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= $module_per_course, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / $module_per_course) * 100 ), 0 )) score_percentage
                                 from courses c
                                 left join modules m ON m.courseId = c.id
                                 left join student_modules sm ON m.id = sm.moduleId
