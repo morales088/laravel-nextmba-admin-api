@@ -43,15 +43,21 @@ class AccountSeed extends Command
             $file = new \SplfileObject($path);
             $file->setFlags(\SplfileObject::READ_CSV);
 
+            // force to seek to last line, won't raise error
+            $file->seek($file->getSize());
+            $linesTotal = $file->key();
+            
+            // dd($linesTotal);
             // $account = DB::transaction(function() use ($file) {
                 $error_email = "";
                 foreach ($file as $key => $value) {
-                    
+                    $lineCount = ++$key."/".$linesTotal;
                     // check if value i null
 
                     if(!empty($value[0])){
                         list($email, $name, $status, $date_created, $last_login, $courses) = $value;
-
+                        // dd($email, $name, $status, $date_created, $last_login, $courses, $linesTotal, ++$key);
+                        // dd(str_contains($courses, "Course"), str_contains($courses, "CEO") || str_contains($courses, "CMO"));
                         $check = filter_var($email, FILTER_VALIDATE_EMAIL);
                         if($check){
 
@@ -62,7 +68,7 @@ class AccountSeed extends Command
                             // dd($date_created, $expiration_date);
                             // check duplicate on db
                             $check = DB::SELECT("SELECT * FROM students where email = '$email'");
-    
+                            
                             // check if active
                             if(empty($check) && $status == "Active"){
                                 
@@ -86,32 +92,38 @@ class AccountSeed extends Command
                                 Mail::to($email)->send(new AccountCredentialEmail($user));
     
                                 // if $courses has "Course" word str_contains($courses, "Course")
-                                if(str_contains($courses, "Course")){
-                                    $student_courses = explode(",", $courses);
+                                // if(str_contains($courses, "Course")){
+                                if(str_contains($courses, "CEO") || str_contains($courses, "CMO")){
+                                    // $student_courses = explode(",", $courses);
+                                    $student_courses = $courses;
                                     
                                     // dd($student_courses, $date_created, $expiration_date);
     
                                     foreach ($student_courses as $key1 => $value1) {
                                         
-                                        if(str_contains($value1, "Marketing")){
+                                        if(str_contains($value1, "CMO")){
                                             //insert marketing course to student
                                             $info = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
                                             Studentcourse::insertStudentCourse($info);
                                         }
     
-                                        if(str_contains($value1, "Executive")){
+                                        if(str_contains($value1, "CEO")){
                                             //insert Executive course to student
                                             $info = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
                                             Studentcourse::insertStudentCourse($info);
                                         }
                                     }
                                 }
-                                    
+                                $this->line($lineCount);
+  
+                            }else{
+                                $error_email .= $email." (existing account)\n";
+                                $this->error($lineCount." Existing account! - $email");
                             }
 
                         }else{
                             $error_email .= $email."\n";
-
+                            $this->error($lineCount." Invalid Email! - $email");
                         }
                     }
                 }
