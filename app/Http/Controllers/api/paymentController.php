@@ -59,16 +59,19 @@ class paymentController extends Controller
 
     public function createPayment(Request $request){
         $payment = $request->validate([
-            'reference_id' => 'required|string',
+            // 'reference_id' => 'required|string',
+
             // 'hitpay_id' => 'required|string',
-            'email' => 'required|string',
-            'phone' => 'required|string',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'country' => 'required|string',
-            'product' => 'required|string',
-            'url' => 'required|string',
-            'amount' => 'string',
+
+            'email' => 'string',
+            // 'phone' => 'required|string',
+            'first_name' => 'string',
+            'last_name' => 'string',
+            // 'country' => 'required|string',
+            // 'product' => 'required|string',
+            // 'url' => 'required|string',
+            // 'price' => 'string',
+
             // 'utm_source' => 'required|string',
             // 'utm_medium' => 'required|string',
             // 'utm_campaign' => 'required|string',
@@ -76,28 +79,23 @@ class paymentController extends Controller
         ]);
         // dd($request->all());        
                 
-        $request->query->add(['price' => $request->amount]);
+        // $request->query->add(['price' => $request->amount]);
 
         // CHECK IF ACCOUNT ALREADY EXISTING, IF NOT CREATE ACCOUNT
         // $checker = DB::SELECT("SELECT * FROM students where email = " . $request->email);
 
         // CREATE PAYMENT
-        $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'price') +
+        $payment = Payment::create($request->only('hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'price') +
         [
             // 'reference_id ' => $request->reference_id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            'phone' => $request->phone,
-            'country' => $request->country,
-            'product' => $request->product,
-            'amount' => $request->amount,
+            // 'phone' => $request->phone,
+            // 'country' => $request->country,
+            // 'product' => $request->product,
             'status' => "Unpaid",
-            'url' => $request->url,
-            // 'utm_source' => $request->utm_source,
-            // 'utm_medium' => $request->utm_medium,
-            // 'utm_campaign' => $request->utm_campaign,
-            // 'utm_content' => $request->utm_content
+            // 'url' => $request->url,
         ]);
 
         // $paymentItems = [];
