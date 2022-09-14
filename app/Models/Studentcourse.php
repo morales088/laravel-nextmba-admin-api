@@ -45,9 +45,9 @@ class Studentcourse extends Model
                     'moduleId' => $value->id,
                 ];
 
-                if($value->start_date < now()){
-                    $array['status'] = 3;
-                }
+                // if($value->start_date < now()){
+                //     $array['status'] = 3;
+                // }
                 
                 Studentmodule::create($array);
             }
