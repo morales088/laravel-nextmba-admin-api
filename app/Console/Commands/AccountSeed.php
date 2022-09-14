@@ -99,20 +99,20 @@ class AccountSeed extends Command
                                     
                                     // dd($student_courses, $date_created, $expiration_date);
     
-                                    foreach ($student_courses as $key1 => $value1) {
+                                    // foreach ($student_courses as $key1 => $value1) {
                                         
-                                        if(str_contains($value1, "CMO")){
+                                        if(str_contains($student_courses, "CMO")){
                                             //insert marketing course to student
                                             $info = ['studentId' => $student->id, 'courseId' => 1, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
                                             Studentcourse::insertStudentCourse($info);
                                         }
     
-                                        if(str_contains($value1, "CEO")){
+                                        if(str_contains($student_courses, "CEO")){
                                             //insert Executive course to student
                                             $info = ['studentId' => $student->id, 'courseId' => 2, 'qty' => 1, 'starting_date' => $date_created, 'expiration_date' => $expiration_date];
                                             Studentcourse::insertStudentCourse($info);
                                         }
-                                    }
+                                    // }
                                 }
                                 $this->line($lineCount);
   
