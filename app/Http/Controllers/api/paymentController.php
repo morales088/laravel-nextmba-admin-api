@@ -59,19 +59,16 @@ class paymentController extends Controller
 
     public function createPayment(Request $request){
         $payment = $request->validate([
-            // 'reference_id' => 'required|string',
-
+            'reference_id' => 'required|string',
             // 'hitpay_id' => 'required|string',
-
-            'email' => 'string',
-            // 'phone' => 'required|string',
-            'first_name' => 'string',
-            'last_name' => 'string',
-            // 'country' => 'required|string',
-            // 'product' => 'required|string',
-            // 'url' => 'required|string',
-            // 'price' => 'string',
-
+            'email' => 'required|string',
+            'phone' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'country' => 'required|string',
+            'product' => 'required|string',
+            'url' => 'required|string',
+            'amount' => 'string',
             // 'utm_source' => 'required|string',
             // 'utm_medium' => 'required|string',
             // 'utm_campaign' => 'required|string',
@@ -79,7 +76,7 @@ class paymentController extends Controller
         ]);
         // dd($request->all());        
                 
-        // $request->query->add(['price' => $request->amount]);
+        $request->query->add(['price' => $request->amount]);
 
         // CHECK IF ACCOUNT ALREADY EXISTING, IF NOT CREATE ACCOUNT
         // $checker = DB::SELECT("SELECT * FROM students where email = " . $request->email);
@@ -87,15 +84,16 @@ class paymentController extends Controller
         // CREATE PAYMENT
         $payment = Payment::create($request->only('hitpay_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'price') +
         [
-            // 'reference_id ' => $request->reference_id,
+            'reference_id ' => $request->reference_id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            // 'phone' => $request->phone,
-            // 'country' => $request->country,
-            // 'product' => $request->product,
+            'phone' => $request->phone,
+            'country' => $request->country,
+            'product' => $request->product,
+            'amount' => $request->amount,
             'status' => "Unpaid",
-            // 'url' => $request->url,
+            'url' => $request->url,
         ]);
 
         // $paymentItems = [];
@@ -327,5 +325,135 @@ class paymentController extends Controller
 
         return response(["payment" => $payment], 200);
         
+    }
+
+    public function Payment(Request $request){
+        
+        $payment = $request->validate([
+            'reference_id' => 'string',
+            'email' => 'required|string',
+            'phone' => 'string',
+            'full_name' => 'required|string',
+            'country' => 'string',
+            'product' => 'required|string',
+            'url' => 'string',
+            'amount' => 'required|string',
+            'paid' => [
+                        'string',
+                        Rule::in(['true', 'false']),
+                    ],
+        ]);
+
+        $payment = DB::transaction(function() use ($request) {
+
+            $courses = strtolower($request->product);
+            $request->query->add(['price' => $request->amount]);
+            $status = $request->paid == "true" ? "Paid" : "Unpaid" ; 
+            
+            // CREATE PAYMENT
+            $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'phone', 'product', 'country', 'url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
+            [
+                'name' => $request->full_name,
+                'email' => $request->email,
+                'price' => $request->price,
+                'status' => $status
+            ]);
+
+            $paymentId = $payment->id;
+
+            if($request->paid){
+                // // create user/student 
+                $studentChecker = DB::SELECT("select *
+                from students s where s.email = '$request->email'");
+
+                $password = Payment::generate_password();
+                // $email = "";
+                // $name = "";
+
+                if(empty($studentChecker)){
+                    // CREATE NEW ACCOUNT
+                    
+                    $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
+                        [
+                            'name' => $request->full_name,
+                            'email' => $request->email,
+                            'password' => Hash::make($password),
+                            'updated_at' => now()
+                        ]);
+
+                    $user = [
+                        'email' => $request->email,
+                        'password' => $password
+                    ];
+                    Mail::to($request->email)->send(new AccountCredentialEmail($user));
+
+                    $studentId = $student->id;
+                }else{
+                    $studentId = $studentChecker[0]->id;
+                }
+
+                // insert data to payment_items
+                $paymentItems = [];
+                if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
+                    $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
+                    array_push($paymentItems, $course1);
+                    $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                    array_push($paymentItems, $course2);
+                } else if(str_contains($courses, "marketing")) {
+                    $qty = 1;
+                    if(str_contains($courses, "10")) $qty = 20;
+                    else if(str_contains($courses, "5")) $qty = 10;
+                    else if(str_contains($courses, "3")) $qty = 6;
+                    $item = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
+                    array_push($paymentItems, $item);
+                } else if(str_contains($courses, "executive")) {
+                    $qty = 1;
+                    if(str_contains($courses, "10")) $qty = 20;
+                    else if(str_contains($courses, "5")) $qty = 10;
+                    else if(str_contains($courses, "3")) $qty = 6; 
+                    $item = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
+                    array_push($paymentItems, $item);
+                } else if(str_contains($courses, "technology")) {
+                    $qty = 1;
+                    if(str_contains($courses, "10")) $qty = 20;
+                    else if(str_contains($courses, "5")) $qty = 10;
+                    else if(str_contains($courses, "3")) $qty = 6; 
+                    $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                    array_push($paymentItems, $item);
+                }
+                
+                $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
+                //end
+
+                
+                // registrer student course
+                foreach ($paymentItems as $key => $value) {
+                    Studentcourse::insertStudentCourse($value);
+                }
+                // end
+
+                // UPDATE PAYMENT
+                $payment = Payment::find($paymentId);
+
+                $payment->update(
+                    [ 
+                        'student_id' => $studentId,
+                    ]
+                );
+
+                $user = [
+                    'email' => $request->email,
+                    'date' => now()
+                ];
+                
+                Mail::to(env('payment_info_recipient'))->send(new PaymentConfirmationEmail($user));
+
+            }
+        
+            return $payment;
+
+        });
+        
+        return response(["message" => "success", "payment" => $payment], 200);
     }
 }

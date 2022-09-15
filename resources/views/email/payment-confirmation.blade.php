@@ -167,9 +167,9 @@ table, td { color: #000000; } a { color: #0000ee; text-decoration: underline; }
   <tbody>
     <tr>
       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
-        
+      
   <div style="line-height: 140%; text-align: left; word-wrap: break-word;">
-    <p style="font-size: 14px; line-height: 140%;">Date: {{ $date }}.</p>
+    <p style="font-size: 14px; line-height: 140%;">Date: {{ date('Y-m-d H:i:s') }}.</p>
 <p style="font-size: 14px; line-height: 140%;">Account for this email: {{ $email }} was created on {{ env('FRONTEND_LINK') }}</p>
   </div>
 
