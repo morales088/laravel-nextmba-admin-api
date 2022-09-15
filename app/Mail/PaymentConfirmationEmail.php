@@ -33,7 +33,7 @@ class PaymentConfirmationEmail extends Mailable
     {
         return $this->subject('NEXT MBA Account')->view('email.payment-confirmation')->with([
             'email' => $this->user['email'],
-            'date' => $this->date,
+            'date' => date('Y-m-d H:i:s'),
         ]);
     }
 }

@@ -106,7 +106,8 @@ Route::prefix("/speaker")->group( function (){
 
 Route::prefix("/payment")->group( function (){
     Route::middleware("auth:api")->get("/", "api\paymentController@index");
-    Route::post("/create", "api\paymentController@createPayment"); 
+    Route::middleware("api_token")->post("/create", "api\paymentController@payment"); 
+    // Route::post("/create", "api\paymentController@createPayment"); 
     Route::post("/complete", "api\paymentController@completePayment"); 
 
 
