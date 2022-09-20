@@ -426,7 +426,7 @@ class studentController extends Controller
             'id' => 'required|numeric|min:1|exists:students,id',
         ]);
 
-        $payment = DB::SELECT("SELECT *, concat(first_name, ' ', last_name) name FROM payments where student_id = $id");
+        $payment = DB::SELECT("SELECT * FROM payments where student_id = $id");
 
         foreach ($payment as $key => $value) {
             $value->courses = DB::SELECT("select c.id course_id, c.name course_name, c.price course_price, pi.quantity course_quantity, pi.created_at
