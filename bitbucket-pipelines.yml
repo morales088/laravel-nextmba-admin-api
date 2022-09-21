@@ -22,3 +22,4 @@ pipelines:
                 PASSWORD: $PASSWORD
                 SERVER: $SERVER
                 REMOTE_PATH: $REMOTE_PATH
+                LOCAL_PATH: '$(pwd)'
