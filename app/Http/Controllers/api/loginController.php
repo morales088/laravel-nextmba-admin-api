@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use DB;
 
@@ -16,23 +17,28 @@ class loginController extends Controller
         return User::all();
     }
 
-    // public function loginTest (Request $request){
-    //     if(Auth::attempt($request->only('email','password'))){
-    //         $user = Auth::user();
+    public function personalAccessLogin (Request $request){
 
-    //         $accessToken = Auth::user()->createToken('authToken')->accessToken;
+        $login = $request->validate([
+            'email' => 'required|string|exists:users,email,status,1',
+            'password' => 'required|string'
+        ]);
 
-    //         return response(["token" => $accessToken], 200);
-    //     }
+        if(!Auth::attempt($login)){
+            return response(["message" => "Invalid login credentials"], 401);
+        }
 
-    //     return response(["message" => "Invalid login credentials"], 401);
-    // }
+        $accessToken = Auth::user()->createToken('authToken')->accessToken;
+
+        return response()->json(["user" => Auth::user(), "access_token" => $accessToken], 200);
+        
+    }
 
     public function login(Request $request){
         $currentIp = request()->ip();
 
         $login = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|string|email',
             'password' => 'required|string'
         ]);
 
@@ -104,8 +110,80 @@ class loginController extends Controller
         // $oauth_client->revoked=0;
         // $oauth_client->save();
 
+        
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|unique:users',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $password = Hash::make($request->password);
+
+        $user = User::create(
+                [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => $password,
+                ]);
+        
+        return response(["admin" => $user], 200);
 
     }
 
+    public function admin(Request $request, $id = 0){
+                
+        $request->query->add(['id' => $id]);
+
+        // $array = [
+        //         'name' => 'string',
+        //         'email' => 'exists:users,email',
+        //         'password' => 'string',
+        //         ];
+        
+        if($id > 0){
+
+            $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
+                            from users where id = $id");
+
+        }else{
+
+            $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
+            from users");
+
+        }
+
+
+        return response()->json(["admin" => $admin], 200);
+    }
+
+    public function updateAdmin(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            // 'name' => 'string',
+            'email' => 'unique:users',
+            // 'password' => 'string',
+            ]);
+        
+        if(!empty($request->password)){
+            $password = Hash::make($request->password);
+            // $request->query->add(['password' => $password]);
+            $request->merge([
+                'password' => $password,
+            ]);
+
+        }
+        
+        $user = User::find($id);
+
+        $user->update($request->only('name', 'email', 'password') +
+                        [ 'updated_at' => now()]
+                        );
+
+        return response()->json(["admin" => $user], 200);               
+
+    }
 
 }
