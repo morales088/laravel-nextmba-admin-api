@@ -178,23 +178,23 @@ class paymentController extends Controller
                 array_push($paymentItems, $course2);
             } else if(str_contains($paymentInfo->product, "marketing")) {
                 $qty = 1;
-                if(str_contains($paymentInfo->product, "10")) $qty = 20;
-                else if(str_contains($paymentInfo->product, "5")) $qty = 10;
-                else if(str_contains($paymentInfo->product, "3")) $qty = 6;
+                if(str_contains($paymentInfo->product, "20")) $qty = 20;
+                else if(str_contains($paymentInfo->product, "10")) $qty = 10;
+                else if(str_contains($paymentInfo->product, "6")) $qty = 6;
                 $item = ['studentId' => $student->id, 'courseId' => 1, 'qty' => $qty];
                 array_push($paymentItems, $item);
             } else if(str_contains($paymentInfo->product, "executive")) {
                 $qty = 1;
-                if(str_contains($paymentInfo->product, "10")) $qty = 20;
-                else if(str_contains($paymentInfo->product, "5")) $qty = 10;
-                else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
+                if(str_contains($paymentInfo->product, "20")) $qty = 20;
+                else if(str_contains($paymentInfo->product, "10")) $qty = 10;
+                else if(str_contains($paymentInfo->product, "6")) $qty = 6; 
                 $item = ['studentId' => $student->id, 'courseId' => 2, 'qty' => $qty];
                 array_push($paymentItems, $item);
             } else if(str_contains($paymentInfo->product, "technology")) {
                 $qty = 1;
-                if(str_contains($paymentInfo->product, "10")) $qty = 20;
-                else if(str_contains($paymentInfo->product, "5")) $qty = 10;
-                else if(str_contains($paymentInfo->product, "3")) $qty = 6; 
+                if(str_contains($paymentInfo->product, "20")) $qty = 20;
+                else if(str_contains($paymentInfo->product, "10")) $qty = 10;
+                else if(str_contains($paymentInfo->product, "6")) $qty = 6; 
                 $item = ['studentId' => $student->id, 'courseId' => 3, 'qty' => $qty];
                 array_push($paymentItems, $item);
             }
