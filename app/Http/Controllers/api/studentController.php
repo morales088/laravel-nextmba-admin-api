@@ -471,7 +471,7 @@ class studentController extends Controller
             'course_id' => 'required|numeric|min:1|exists:courses,id',
         ]);
 
-        $check = DB::SELECT("SELECT * FROM studentcourses where studentId = $request->student_id and courseId = $request->course_id");
+        $check = DB::SELECT("SELECT * FROM studentcourses where studentId = $request->student_id and courseId = $request->course_id and status <> 0");
         // dd($check[0]->id);
         if(empty($check)){
             return response(["message" => "No course found for this student.",], 422);
