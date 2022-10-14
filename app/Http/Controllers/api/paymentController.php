@@ -385,7 +385,12 @@ class paymentController extends Controller
                         'email' => $request->email,
                         'password' => $password
                     ];
-                    Mail::to($request->email)->send(new AccountCredentialEmail($user));
+                    
+                    try {
+                        Mail::to($request->email)->send(new AccountCredentialEmail($user));
+                    } catch (\Exception $e) {
+                        
+                    }
 
                     $studentId = $student->id;
                 }else{
@@ -421,16 +426,6 @@ class paymentController extends Controller
                     $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
                     array_push($paymentItems, $item);
                 }
-                
-                $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
-                //end
-
-                
-                // registrer student course
-                foreach ($paymentItems as $key => $value) {
-                    Studentcourse::insertStudentCourse($value);
-                }
-                // end
 
                 // UPDATE PAYMENT
                 $payment = Payment::find($paymentId);
@@ -440,14 +435,38 @@ class paymentController extends Controller
                         'student_id' => $studentId,
                     ]
                 );
+                
+                $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
+                //end
+
+                if(empty($studentChecker)){
+                    // registrer student course
+                    foreach ($paymentItems as $key => $value) {
+                        Studentcourse::insertStudentCourse($value);
+                    }
+                    // end
+                }else{
+                    // add course qty to student course
+                    foreach ($paymentItems as $key => $value) {
+                        
+                        DB::table('studentcourses')
+                            ->where('studentId', $value['studentId'] )
+                            ->where('courseId', $value['courseId'] )
+                            ->where('status', 1)
+                            ->increment('quantity', $value['qty']);
+                    }
+                }
 
                 $user = [
                     'email' => $request->email,
                     'date' => now()
                 ];
-                
-                Mail::to(env('payment_info_recipient'))->send(new PaymentConfirmationEmail($user));
 
+                try {
+                    Mail::to(env('payment_info_recipient'))->send(new PaymentConfirmationEmail($user));
+                } catch (\Exception $e) {
+                    
+                }
             }
         
             return $payment;
