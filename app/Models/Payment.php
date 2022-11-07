@@ -115,7 +115,7 @@ class Payment extends Model
       // from payments p) as p $searchQuery$queryText $sort $pagination");
 
       $payments = DB::SELECT("select *
-                              from (select *, concat(p.first_name, ' ', p.last_name) as name
+                              from (select *, concat(p.first_name, ' ', p.last_name) as full_name
                                     from payments p) as p $searchQuery$queryText $sort $pagination");
 
       return $payments;
