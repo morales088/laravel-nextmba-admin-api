@@ -560,7 +560,7 @@ class courseController extends Controller
                     ],
             'broadcast_status' => [
                         'string',
-                        Rule::in(['offline', 'live', 'pending_replay', 'replay']),
+                        Rule::in(['start_server', 'offline', 'live', 'pending_replay', 'replay']),
                     ],
         ]);
         
@@ -573,7 +573,9 @@ class courseController extends Controller
             $request['status'] = 3;
         }
 
-        if($request->broadcast_status == "offline"){
+        if($request->broadcast_status == "start_server"){
+            $request['broadcast_status'] = 0;
+        }elseif($request->broadcast_status == "offline"){
             $request['broadcast_status'] = 1;
         }elseif($request->broadcast_status == "live"){
             $request['broadcast_status'] = 2;
