@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::table('students', function (Blueprint $table) {
             $table->dropColumn('forgot_password_code');
         });
     }

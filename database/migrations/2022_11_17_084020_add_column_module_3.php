@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::create('modules', function (Blueprint $table) {
+        Schema::table('modules', function (Blueprint $table) {
             $table->dropColumn('stream_info');
             $table->dropColumn('stream_json');
         });
