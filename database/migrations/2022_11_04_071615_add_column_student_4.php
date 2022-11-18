@@ -26,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::create('students', function (Blueprint $table) {
+            $table->dropColumn('chat_moderator');
+        });
     }
 };

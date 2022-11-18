@@ -76,6 +76,7 @@ class streamController extends Controller
                 'live_url' => $uid, // ui
                 'steam_info' => $steam_info,
                 'stream_json' => $cf_response_result,
+                'broadcast_status' => 0,
                 'updated_at' => now(),
               ]
             );
@@ -141,7 +142,7 @@ class streamController extends Controller
 
         
         if($response->serverError() || $response->clientError() || $response->failed()){
-            
+
             return response(["message" => "Unable to delete live stream / live stream not found",], 500);
 
         }else{
