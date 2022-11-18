@@ -65,7 +65,7 @@ class streamController extends Controller
 
             $cf_response_result = $response->json()['result'];
             $uid = $cf_response_result['uid'];
-            $steam_info = $cf_response_result['rtmpsPlayback'];
+            $stream_info = $cf_response_result['rtmpsPlayback'];
             // dd($cf_response_result);
 
             // save uid/rtmps_url/streamKey/stream_json
@@ -74,7 +74,7 @@ class streamController extends Controller
             ->update(
               [
                 'live_url' => $uid, // ui
-                'steam_info' => $steam_info,
+                'stream_info' => $stream_info,
                 'stream_json' => $cf_response_result,
                 'broadcast_status' => 0,
                 'updated_at' => now(),
