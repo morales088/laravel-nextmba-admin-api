@@ -123,3 +123,11 @@ Route::prefix("/utility")->group( function (){
     Route::get("/test", "api\utilityController@test"); 
     
 });
+
+Route::prefix("/stream")->group( function (){
+    Route::middleware("auth:api")->get("/verify", "api\streamController@verify"); 
+    Route::middleware("auth:api")->post("/live", "api\streamController@live"); 
+    Route::middleware("api_token")->post("/watch", "api\streamController@watch"); 
+    Route::middleware("auth:api")->post("/delete", "api\streamController@delete"); 
+    
+});
