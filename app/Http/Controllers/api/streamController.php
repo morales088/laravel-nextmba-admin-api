@@ -73,7 +73,7 @@ class streamController extends Controller
             ->where('id', $request->module_id)
             ->update(
               [
-                'live_url' => $uid, // ui
+                'uid' => $uid, // ui
                 'stream_info' => $stream_info,
                 'stream_json' => $cf_response_result,
                 'broadcast_status' => 0,

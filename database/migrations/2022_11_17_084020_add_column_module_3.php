@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('modules', function (Blueprint $table) {
-            $table->string('stream_info')->after('live_url')->nullable();
+            $table->string('uid')->after('live_url')->nullable();
+            $table->string('stream_info')->after('uid')->nullable();
             $table->string('stream_json')->after('stream_info')->nullable();
         });
     }
@@ -27,6 +28,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('modules', function (Blueprint $table) {
+            $table->dropColumn('uid');
             $table->dropColumn('stream_info');
             $table->dropColumn('stream_json');
         });
