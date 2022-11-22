@@ -147,8 +147,8 @@ class streamController extends Controller
         ->where('id', $request->module_id)
         ->update(
             [
-            'uid' => null,
-            'stream_json' => null,
+            // 'uid' => null,
+            'stream_info' => null,
             'updated_at' => now(),
             ]
         );
