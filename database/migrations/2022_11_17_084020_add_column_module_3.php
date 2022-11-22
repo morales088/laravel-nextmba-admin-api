@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('uid')->after('live_url')->nullable();
             $table->string('stream_info')->after('uid')->nullable();
             $table->string('stream_json')->after('stream_info')->nullable();
+            $table->string('srt_url')->after('stream_json')->nullable();
         });
     }
 
