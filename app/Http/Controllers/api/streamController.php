@@ -128,6 +128,7 @@ class streamController extends Controller
 
         
         $stream = $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
             'stream_obs_id' => 'required|string',
         ]);
         
@@ -146,6 +147,18 @@ class streamController extends Controller
             return response(["message" => "Unable to delete live stream / live stream not found",], 500);
 
         }else{
+
+            
+            // remove stream_json
+            DB::table('modules')
+            ->where('id', $request->module_id)
+            ->update(
+              [
+                'stream_json' => null,
+                'updated_at' => now(),
+              ]
+            );
+
 
             $cf_response_result = $response->json()['result'];
         
