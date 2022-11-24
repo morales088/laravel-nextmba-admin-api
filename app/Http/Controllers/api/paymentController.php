@@ -448,17 +448,18 @@ class paymentController extends Controller
                         Studentcourse::insertStudentCourse($value);
                     }
                     // end
-                }else{
-                    // add course qty to student course
-                    foreach ($paymentItems as $key => $value) {
-                        
-                        DB::table('studentcourses')
-                            ->where('studentId', $value['studentId'] )
-                            ->where('courseId', $value['courseId'] )
-                            ->where('status', 1)
-                            ->increment('quantity', $value['qty']);
-                    }
                 }
+                // else{
+                //     // add course qty to student course
+                //     foreach ($paymentItems as $key => $value) {
+                        
+                //         DB::table('studentcourses')
+                //             ->where('studentId', $value['studentId'] )
+                //             ->where('courseId', $value['courseId'] )
+                //             ->where('status', 1)
+                //             ->increment('quantity', $value['qty']);
+                //     }
+                // }
 
                 $user = [
                     'email' => $request->email,

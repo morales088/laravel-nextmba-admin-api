@@ -39,6 +39,7 @@ class Payment extends Model
                   'payment_id' => $paymentId, 
                   'product_id' => $value['courseId'], 
                   'quantity' => $value['qty'],
+                  'giftable' => --$value['qty'],
                   'created_at' => now(),
                   'updated_at' => now()
               ],
