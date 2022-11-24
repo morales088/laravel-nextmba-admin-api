@@ -51,6 +51,8 @@ Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->get("/payment/{id}", "api\studentController@getPayment");
 
+    Route::middleware("auth:api")->post("/gift/{student_id}", "api\giftController@paymentCourses");
+
 
     
 
