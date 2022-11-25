@@ -144,4 +144,21 @@ class giftController extends Controller
         return response(["message" => "Gift successfully sent."], 200);
 
     }
+
+    public function updatePaymentItem(Request $request, $item_id){
+                
+        $request->query->add(['item_id' => $item_id]);
+        $request->validate([
+            'item_id' => 'required|numeric|min:1|exists:payment_items,id',
+            'course_qty' => 'required|numeric|min:1',
+        ]);
+        
+        DB::table('payment_items')
+        ->where('id', $item_id)
+        ->update(['quantity' => $request->course_qty, 'updated_at' => now()]);
+        
+
+        return response(["message" => "Successfully updated product quantity."], 200);
+
+    }
 }

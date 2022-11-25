@@ -134,7 +134,7 @@ class Payment extends Model
       $userId = $student_id;
       $date = $giftable_date;
       
-      $courses = DB::SELECT("select c.id course_id, c.name course_name, pi.quantity course_qty, p.id payment_id, p.student_id, pi.giftable as unconsumed_course, IF(p.created_at < '$date', true, false) is_giftable
+      $courses = DB::SELECT("select c.id course_id, pi.id payment_item_id, c.name course_name, pi.quantity course_qty, p.id payment_id, p.student_id, pi.giftable as unconsumed_course, IF(p.created_at < '$date', true, false) is_giftable
                           from payments p
                           left join payment_items pi ON p.id = pi.payment_id
                           left join courses c ON c.id = pi.product_id
