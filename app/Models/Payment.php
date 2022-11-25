@@ -145,15 +145,14 @@ class Payment extends Model
                                   FROM course_invitations ci
                                   left join students s ON s.email = ci.email
                                   where ci.from_student_id = $userId and ci.from_payment_id = $value->payment_id and ci.course_id = $value->course_id and ci.status <> 0");
-
+        
         foreach ($gift as $key2 => $value2) {
             array_push($user, $value2);
         }
         
-        $value->users = $owner;
+        $value->users = $user;
           
       }
-      
 
       return $courses;
   }
