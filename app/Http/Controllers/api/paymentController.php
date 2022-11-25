@@ -349,7 +349,7 @@ class paymentController extends Controller
                             ],
                 ];
         if($request->manual_payment == true){
-            $validation['studentId'] = 'required|numeric|min:1|exists:students,id';
+            // $validation['studentId'] = 'required|numeric|min:1|exists:students,id';
             $validation['courseId'] = 'required|numeric|min:1|exists:courses,id';
             $validation['course_qty'] = 'required|numeric|min:1';
 
@@ -418,7 +418,7 @@ class paymentController extends Controller
 
                 if($request->manual_payment == true){
                     
-                    $item = ['studentId' => $request->studentId, 'courseId' => $request->courseId, 'qty' => $request->course_qty];
+                    $item = ['studentId' => $studentId, 'courseId' => $request->courseId, 'qty' => $request->course_qty];
                     array_push($paymentItems, $item);
 
                 }else{

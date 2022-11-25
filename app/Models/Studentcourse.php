@@ -16,7 +16,7 @@ class Studentcourse extends Model
         
         $student_id = $data['studentId'];
         $course_id = $data['courseId'];
-        $qty = (isset($data['qty'])? $data['qty'] : 1);
+        // $qty = (isset($data['qty'])? $data['qty'] : 1);
         $starting_date = isset($data['starting_date'])? $data['starting_date'] : now();
         $expiration_date = isset($data['expiration_date'])? $data['expiration_date'] : now()->addMonths(12);
         
@@ -26,7 +26,7 @@ class Studentcourse extends Model
             return false;
         }
         
-        DB::transaction(function() use ($student_id, $course_id, $starting_date, $expiration_date, $qty) {
+        DB::transaction(function() use ($student_id, $course_id, $starting_date, $expiration_date) {
 
             $Studentcourse = Studentcourse::create(
                                         [
@@ -34,7 +34,7 @@ class Studentcourse extends Model
                                             'courseId' => $course_id,
                                             'starting' => $starting_date,
                                             'expirationDate' => $expiration_date,
-                                            'quantity' => --$qty,
+                                            // 'quantity' => --$qty,
                                         ]);
 
             $modules = Module::Where('courseId', $course_id)->Where('status', '<>', 0)->get();
