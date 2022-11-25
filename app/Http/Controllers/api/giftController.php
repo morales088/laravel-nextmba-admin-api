@@ -12,6 +12,7 @@ use App\Models\Student;
 use App\Models\Course;
 use App\Models\Studentcourse;
 use App\Models\Courseinvitation;
+use App\Models\PaymentItem;
 use Mail;
 use DB;
 
@@ -152,10 +153,29 @@ class giftController extends Controller
             'item_id' => 'required|numeric|min:1|exists:payment_items,id',
             'course_qty' => 'required|numeric|min:1',
         ]);
+
+        $payment_item = PaymentItem::find($item_id);
+
+        $min_qty = $payment_item->quantity - $payment_item->giftable;
         
-        DB::table('payment_items')
-        ->where('id', $item_id)
-        ->update(['quantity' => $request->course_qty, 'updated_at' => now()]);
+        if($min_qty >= $request->course_qty){
+            return response()->json(["message" => "course_qty too low."], 422);
+        }
+
+        $giftable = $request->course_qty - $min_qty;
+        // dd($payment_item, $giftable);
+
+        $payment_item->update(
+                            [ 
+                                'quantity' => $request->course_qty,
+                                'giftable' => $giftable,
+                                'updated_at' => now()
+                            ]
+                            );
+
+        // DB::table('payment_items')
+        // ->where('id', $item_id)
+        // ->update(['quantity' => $request->course_qty, 'updated_at' => now()]);
         
 
         return response(["message" => "Successfully updated product quantity."], 200);
