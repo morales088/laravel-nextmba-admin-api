@@ -158,7 +158,7 @@ class giftController extends Controller
 
         $min_qty = $payment_item->quantity - $payment_item->giftable;
         
-        if($min_qty >= $request->course_qty){
+        if($min_qty > $request->course_qty){
             return response()->json(["message" => "course_qty too low."], 422);
         }
 
