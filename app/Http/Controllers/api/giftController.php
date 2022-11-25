@@ -62,7 +62,7 @@ class giftController extends Controller
             return response()->json(["message" => "zero courses available / recipient already has this course / course expired"], 422);
         }
 
-        // dd($available_course_per_payment, $check_recipient_course, $is_giftable);
+        dd($available_course_per_payment, $check_recipient_course, $is_giftable);
         
         $DBtransaction = DB::transaction(function() use ($request, $userId, $fe_link, $giftable_gift, $check_recipient_course, $available_course_per_payment) {
             
@@ -125,7 +125,7 @@ class giftController extends Controller
 
             DB::table('payment_items')
             ->where('id', $available_course_per_payment->id)
-            ->update(['quantity' => --$available_course_per_payment->giftable, 'updated_at' => now()]);
+            ->update(['giftable' => --$available_course_per_payment->giftable, 'updated_at' => now()]);
 
             
             // insert data to course_invitations
