@@ -352,6 +352,8 @@ class paymentController extends Controller
             $validation['studentId'] = 'required|numeric|min:1|exists:students,id';
             $validation['courseId'] = 'required|numeric|min:1|exists:courses,id';
             $validation['course_qty'] = 'required|numeric|min:1';
+
+            $request->query->add(['payment_method' => 'Manual']);
         }
         
         $payment = $request->validate($validation);
@@ -365,7 +367,7 @@ class paymentController extends Controller
             $status = $request->paid == "true" ? "Paid" : "Unpaid" ; 
             
             // CREATE PAYMENT
-            $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'phone', 'product', 'country', 'url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
+            $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'phone', 'payment_method', 'product', 'country', 'url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
             [
                 'name' => $request->full_name,
                 'email' => $request->email,
