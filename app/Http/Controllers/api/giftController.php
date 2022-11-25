@@ -44,8 +44,6 @@ class giftController extends Controller
         $userId = $request->student_id;
         $fe_link = env('FRONTEND_LINK');
         $giftable_gift = env('GIFTABLE_DATE');
-
-        // dd($request->all());
         
         $available_course_per_payment = COLLECT(\DB::SELECT("select pi.* 
                                                 from payments p
@@ -68,7 +66,6 @@ class giftController extends Controller
         $DBtransaction = DB::transaction(function() use ($request, $userId, $fe_link, $giftable_gift, $check_recipient_course, $available_course_per_payment) {
             
             $sender = Student::find($userId);
-            // dd($sender->email);
             $course = Course::find($request->course_id);
             
             $email_check = Student::WHERE('email', '=', $request->email)->first();
