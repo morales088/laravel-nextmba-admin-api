@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Mail;
 use App\Mail\AccountCredentialEmail;
 use App\Mail\PaymentConfirmationEmail;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Studentcourse;
+use Validator;
+use Mail;
 use DB;
 
 class paymentController extends Controller
@@ -329,20 +330,33 @@ class paymentController extends Controller
 
     public function Payment(Request $request){
         
-        $payment = $request->validate([
-            'reference_id' => 'string',
-            'email' => 'required|string',
-            'phone' => 'string',
-            'full_name' => 'required|string',
-            'country' => 'string',
-            'product' => 'required|string',
-            'url' => 'string',
-            'amount' => 'required|string',
-            'paid' => [
-                        'string',
-                        Rule::in(['true', 'false']),
-                    ],
-        ]);
+        $validation = [
+                    'reference_id' => 'string',
+                    'email' => 'required|string',
+                    'phone' => 'string',
+                    'full_name' => 'required|string',
+                    'country' => 'string',
+                    'product' => 'required|string',
+                    // 'url' => 'string',
+                    'amount' => 'required|string',
+                    'paid' => [
+                                'string',
+                                Rule::in(['true', 'false']),
+                            ],
+                    'manual_payment' => [
+                                'string',
+                                Rule::in(['true']),
+                            ],
+                ];
+        if($request->manual_payment == true){
+            $validation['studentId'] = 'required|numeric|min:1|exists:students,id';
+            $validation['courseId'] = 'required|numeric|min:1|exists:courses,id';
+            $validation['course_qty'] = 'required|numeric|min:1';
+        }
+        
+        $payment = $request->validate($validation);
+
+        // dd($request->all(), $request->exists('manual_payment') );
 
         $payment = DB::transaction(function() use ($request) {
 
@@ -399,37 +413,46 @@ class paymentController extends Controller
 
                 // insert data to payment_items
                 $paymentItems = [];
-                if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
-                    $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
-                    array_push($paymentItems, $course1);
-                    $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
-                    array_push($paymentItems, $course2);
-                } else if(str_contains($courses, "marketing")) {
-                    $qty = 1;
-                    if(str_contains($request->amount, "299")) $qty = 2;
-                    else if(str_contains($courses, "20")) $qty = 20;
-                    else if(str_contains($courses, "10")) $qty = 10;
-                    else if(str_contains($courses, "6")) $qty = 6;
-                    $item = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
+
+                if($request->manual_payment == true){
+                    
+                    $item = ['studentId' => $request->studentId, 'courseId' => $request->courseId, 'qty' => $request->course_qty];
                     array_push($paymentItems, $item);
-                } else if(str_contains($courses, "executive")) {
-                    $qty = 1;
-                    if(str_contains($request->amount, "299")) $qty = 2;
-                    else if(str_contains($courses, "20")) $qty = 20;
-                    else if(str_contains($courses, "10")) $qty = 10;
-                    else if(str_contains($courses, "6")) $qty = 6; 
-                    $item = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
-                    array_push($paymentItems, $item);
-                } else if(str_contains($courses, "technology")) {
-                    $qty = 1;
-                    if(str_contains($request->amount, "299")) $qty = 2;
-                    else if(str_contains($courses, "20")) $qty = 20;
-                    else if(str_contains($courses, "10")) $qty = 10;
-                    else if(str_contains($courses, "6")) $qty = 6; 
-                    $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
-                    array_push($paymentItems, $item);
+
+                }else{
+
+                    if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
+                        $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
+                        array_push($paymentItems, $course1);
+                        $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                        array_push($paymentItems, $course2);
+                    } else if(str_contains($courses, "marketing")) {
+                        $qty = 1;
+                        if(str_contains($request->amount, "299")) $qty = 2;
+                        else if(str_contains($courses, "20")) $qty = 20;
+                        else if(str_contains($courses, "10")) $qty = 10;
+                        else if(str_contains($courses, "6")) $qty = 6;
+                        $item = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
+                        array_push($paymentItems, $item);
+                    } else if(str_contains($courses, "executive")) {
+                        $qty = 1;
+                        if(str_contains($request->amount, "299")) $qty = 2;
+                        else if(str_contains($courses, "20")) $qty = 20;
+                        else if(str_contains($courses, "10")) $qty = 10;
+                        else if(str_contains($courses, "6")) $qty = 6; 
+                        $item = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
+                        array_push($paymentItems, $item);
+                    } else if(str_contains($courses, "technology")) {
+                        $qty = 1;
+                        if(str_contains($request->amount, "299")) $qty = 2;
+                        else if(str_contains($courses, "20")) $qty = 20;
+                        else if(str_contains($courses, "10")) $qty = 10;
+                        else if(str_contains($courses, "6")) $qty = 6; 
+                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                        array_push($paymentItems, $item);
+                    }
                 }
-                
+
                 // UPDATE PAYMENT
                 $payment = Payment::find($paymentId);
 
