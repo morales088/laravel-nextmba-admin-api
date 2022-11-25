@@ -32,6 +32,14 @@ class Payment extends Model
         // dd($value, $paymentId);
         
           $checker = DB::SELECT("SELECT * FROM payment_items where payment_id = $paymentId and product_id = ".$value['courseId']);
+          $first_course_check = DB::SELECT("select *
+                                            from payments p
+                                            left join payment_items pi ON pi.payment_id = p.id
+                                            where p.status = 'paid' and p.student_id = ".$value['studentId']." and pi.product_id = ".$value['courseId']);
+
+          // dd($checker, $paymentId, $items, empty($first_course_check));
+          $giftable = empty($first_course_check) ? --$value['qty'] : $value['qty'];
+
           if(empty($checker)){
             
             DB::table('payment_items')->insert([
@@ -39,7 +47,7 @@ class Payment extends Model
                   'payment_id' => $paymentId, 
                   'product_id' => $value['courseId'], 
                   'quantity' => $value['qty'],
-                  'giftable' => --$value['qty'],
+                  'giftable' => $giftable,
                   'created_at' => now(),
                   'updated_at' => now()
               ],
