@@ -137,7 +137,7 @@ class Payment extends Model
         $user = [];
 
         if($key == 0){
-            $owner = DB::SELECT("SELECT email, last_login FROM students where id = $userId and status <> 0");
+            $owner = collect(\DB::SELECT("SELECT email, last_login FROM students where id = $userId and status <> 0"))->first();
             array_push($user, $owner);
         }
           
