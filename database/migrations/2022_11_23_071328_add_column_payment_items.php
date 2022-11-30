@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->string('forgot_password_code')->nullable()->after('profile_picture');
+        Schema::table('payment_items', function (Blueprint $table) {
+            $table->integer('giftable')->after('quantity')->default(0);
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('forgot_password_code');
+        Schema::table('payment_items', function (Blueprint $table) {
+            $table->dropColumn('giftable');
         });
     }
 };

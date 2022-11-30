@@ -51,6 +51,11 @@ Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->get("/payment/{id}", "api\studentController@getPayment");
 
+    Route::middleware("auth:api")->post("/gift/{student_id}", "api\giftController@paymentCourses");
+    Route::middleware("auth:api")->post("/transfer/gift/", "api\giftController@sendGift");
+
+    Route::middleware("auth:api")->put("/payment/course/{item_id}", "api\giftController@updatePaymentItem");
+
 
     
 
@@ -105,16 +110,16 @@ Route::prefix("/speaker")->group( function (){
 });
 
 Route::prefix("/payment")->group( function (){
-    Route::middleware("auth:api")->get("/", "api\paymentController@index");
     Route::middleware("api_token")->post("/create", "api\paymentController@payment"); 
     // Route::post("/create", "api\paymentController@createPayment"); 
     Route::post("/complete", "api\paymentController@completePayment"); 
 
 
-    
+    Route::middleware("auth:api")->get("/", "api\paymentController@index");
     Route::middleware("auth:api")->get("/{id}", "api\paymentController@getPayment");
     // Route::middleware("auth:api")->post("/refund", "api\paymentController@refund");
     Route::middleware("auth:api")->put("/status/{id}", "api\paymentController@updatePayment");
+    Route::middleware("auth:api")->post("/manual/create", "api\paymentController@payment");
 });
 
 Route::prefix("/utility")->group( function (){
@@ -123,3 +128,12 @@ Route::prefix("/utility")->group( function (){
     Route::get("/test", "api\utilityController@test"); 
     
 });
+
+Route::prefix("/stream")->group( function (){
+    Route::middleware("auth:api")->get("/verify", "api\streamController@verify"); 
+    Route::middleware("auth:api")->post("/live", "api\streamController@live"); 
+    Route::middleware("api_token")->post("/watch", "api\streamController@watch"); 
+    Route::middleware("auth:api")->post("/delete", "api\streamController@delete"); 
+    
+});
+
