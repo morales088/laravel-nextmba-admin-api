@@ -328,7 +328,7 @@ class paymentController extends Controller
         
     }
 
-    public function Payment(Request $request){
+    public function payment(Request $request){
         
         $validation = [
                     'reference_id' => 'string',
