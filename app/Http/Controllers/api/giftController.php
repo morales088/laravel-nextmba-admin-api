@@ -40,7 +40,7 @@ class giftController extends Controller
             'course_id' => 'required|numeric|min:1|exists:courses,id',
             'payment_id' => 'required|numeric|min:1|exists:payments,id',
             'student_id' => 'required|numeric|min:1|exists:students,id',
-            'email' => 'required|string|email',
+            'email' => 'required|email',
         ]);
 
         $userId = $request->student_id;
