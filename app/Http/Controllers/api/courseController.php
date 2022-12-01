@@ -160,6 +160,8 @@ class courseController extends Controller
             
             if(!empty($request->module_cover_image) || !empty($request->module_cover_link)){
                 $path = Module::moduleImage($request->all(), $id);
+            }else{
+                $request->query->add(['cover_photo' => $request->module_cover_link]);
             }
 
             $module = Module::find($id);
