@@ -331,11 +331,11 @@ class paymentController extends Controller
     public function payment(Request $request){
         
         $validation = [
-                    'reference_id' => 'string',
+                    // 'reference_id' => 'string',
                     'email' => 'required|string',
-                    'phone' => 'string',
-                    'full_name' => 'string',
-                    'country' => 'string',
+                    // 'phone' => 'string',
+                    // 'full_name' => 'string',
+                    // 'country' => 'string',
                     'product' => 'required|string',
                     // 'url' => 'string',
                     'amount' => 'required|string',
@@ -354,6 +354,13 @@ class paymentController extends Controller
             $validation['course_qty'] = 'required|numeric|min:1';
 
             $request->query->add(['payment_method' => 'Manual']);
+        }else{
+            $validation['reference_id'] = 'string';
+            $validation['phone'] = 'string';
+            $validation['full_name'] = 'string';
+            $validation['country'] = 'string';
+            $validation['country'] = 'string';
+
         }
         
         $payment = $request->validate($validation);
