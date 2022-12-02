@@ -331,11 +331,11 @@ class paymentController extends Controller
     public function payment(Request $request){
         
         $validation = [
-                    'reference_id' => 'string',
+                    // 'reference_id' => 'string',
                     'email' => 'required|string',
-                    'phone' => 'string',
-                    'full_name' => 'string',
-                    'country' => 'string',
+                    // 'phone' => 'string',
+                    // 'full_name' => 'string',
+                    // 'country' => 'string',
                     'product' => 'required|string',
                     // 'url' => 'string',
                     'amount' => 'required|string',
@@ -354,6 +354,14 @@ class paymentController extends Controller
             $validation['course_qty'] = 'required|numeric|min:1';
 
             $request->query->add(['payment_method' => 'Manual']);
+        }else{
+            $validation['reference_id'] = 'string';
+            $validation['phone'] = 'string';
+            $validation['full_name'] = 'string';
+            $validation['country'] = 'string';
+            $validation['country'] = 'string';
+
+            $request->query->add(['name' => $request->full_name]);
         }
         
         $payment = $request->validate($validation);
@@ -367,9 +375,9 @@ class paymentController extends Controller
             $status = $request->paid == "true" ? "Paid" : "Unpaid" ; 
             
             // CREATE PAYMENT
-            $payment = Payment::create($request->only('reference_id', 'hitpay_id', 'phone', 'payment_method', 'product', 'country', 'url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
+            $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'phone', 'payment_method', 'product', 'country', 'url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
             [
-                'name' => $request->full_name,
+                // 'name' => $request->full_name,
                 'email' => $request->email,
                 'price' => $request->price,
                 'status' => $status
