@@ -334,7 +334,7 @@ class paymentController extends Controller
                     'reference_id' => 'string',
                     'email' => 'required|string',
                     'phone' => 'string',
-                    'full_name' => 'required|string',
+                    'full_name' => 'string',
                     'country' => 'string',
                     'product' => 'required|string',
                     // 'url' => 'string',
