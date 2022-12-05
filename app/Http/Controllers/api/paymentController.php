@@ -366,7 +366,7 @@ class paymentController extends Controller
         
         $payment = $request->validate($validation);
 
-        // dd($request->all(), $request->exists('manual_payment') );
+        // dd($request->all(), $request->exists('manual_payment'), $request->manual_payment == true );
 
         $payment = DB::transaction(function() use ($request) {
 
@@ -397,9 +397,9 @@ class paymentController extends Controller
                 if(empty($studentChecker)){
                     // CREATE NEW ACCOUNT
                     
-                    $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
+                    $student = Student::create($request->only('name', 'phone', 'location', 'company', 'position', 'field') + 
                         [
-                            'name' => $request->full_name,
+                            // 'name' => $request->full_name,
                             'email' => $request->email,
                             'password' => Hash::make($password),
                             'updated_at' => now()

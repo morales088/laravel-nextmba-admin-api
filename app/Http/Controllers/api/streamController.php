@@ -169,4 +169,28 @@ class streamController extends Controller
         }
 
     }
+
+    public function watchReplay(Request $request){
+        $stream_link = env('STREAM_LINK');
+        $stream_api_key = env('STREAM_API_TOKEN');
+        $stream_account_id = env('STREAM_ACCCOUNT_ID');
+
+        $stream = $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'uid' => 'required|string',
+        ]);
+
+
+        
+        $response = Http::acceptJson()->withHeaders([
+            'Authorization' => "Bearer $stream_api_key",
+        ])->get($stream_link."/accounts/$stream_account_id/stream/$request->uid", [
+            
+        ]);
+
+        $cf_response_result = $response->json()['result'];
+
+        return response()->json(["cloudflare_replay_result" => $cf_response_result], 200);
+
+    }
 }
