@@ -38,8 +38,8 @@ class Payment extends Model
                                             where p.status = 'paid' and p.student_id = ".$value['studentId']." and pi.product_id = ".$value['courseId']);
 
           // dd($checker, $paymentId, $items, empty($first_course_check));
-          $giftable = empty($first_course_check) ? --$value['qty'] : $value['qty'];
-
+          $giftable = empty($first_course_check) ? $value['qty'] - 1 : $value['qty'];
+          // dd($value, $giftable);
           if(empty($checker)){
             
             DB::table('payment_items')->insert([
