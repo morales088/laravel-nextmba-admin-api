@@ -139,14 +139,16 @@ class Payment extends Model
                           left join payment_items pi ON p.id = pi.payment_id
                           left join courses c ON c.id = pi.product_id
                           where pi.status <> 0 and c.id <> 0 and p.status = 'Paid' and p.student_id = $userId order by p.id asc");
-
+      // dd($courses);
+      $course_id = 0;
       foreach ($courses as $key => $value) {
            
         $user = [];
 
-        if($key == 0){
+        if($value->course_id <> $course_id){
             $owner = collect(\DB::SELECT("SELECT email, last_login FROM students where id = $userId and status <> 0"))->first();
             array_push($user, $owner);
+            $course_id = $value->course_id;
         }
           
         $gift = DB::SELECT("SELECT ci.email, ci.id gift_id, (CASE WHEN ci.status = 1 THEN 'pending' WHEN ci.status = 2 THEN 'active' END) status, last_login
