@@ -146,7 +146,7 @@ class courseController extends Controller
         // }elseif($request->broadcast_status == "replay"){
         //     $request['broadcast_status'] = 4;
         // }
-// dd($request->all());
+        // dd($request->all());
         $module = DB::transaction(function() use ($request, $id) {
         
             
@@ -519,7 +519,7 @@ class courseController extends Controller
             $topic = COLLECT(\DB::SELECT("select t.*, s.id speakerId, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path, s.company_path,
                         (CASE WHEN sr.role = 1 THEN 'main' WHEN sr.role = 2 THEN 'guest' END) as role_code,
                         (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code,
-                        t.ui topic_uid
+                        t.uid topic_uid
                         from topics t
                         left join speaker_roles sr ON t.id = sr.topicId
                         left join speakers s ON s.id = t.speakerId
