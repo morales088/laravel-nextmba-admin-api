@@ -190,7 +190,23 @@ class streamController extends Controller
 
         $cf_response_result = $response->json()['result'];
 
-        return response()->json(["cloudflare_replay_result" => $cf_response_result], 200);
+        // $a = "https://customer-2u5nuvressjoja58.cloudflarestream.com/7267e2f691aea1cf1c6badf2295d7f29/manifest/video.m3u8";
+
+        // $domain = parse_url($a);
+        // dd($domain);
+        $time = now()->addHours(3);
+        // dd( $time, strtotime($time) );
+
+        $response_token = Http::acceptJson()->withHeaders([
+            'Authorization' => "Bearer $stream_api_key",
+        ])->post($stream_link."/accounts/$stream_account_id/stream/$request->uid/token", [
+            'exp' => strtotime($time),
+        ]);
+        
+        $token_response = $response_token->json()['result'];
+        // dd($token_response['token']);
+
+        return response()->json(["access_token" => $token_response['token'], "cloudflare_replay_result" => $cf_response_result], 200);
 
     }
 }

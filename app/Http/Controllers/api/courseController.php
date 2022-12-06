@@ -146,7 +146,7 @@ class courseController extends Controller
         // }elseif($request->broadcast_status == "replay"){
         //     $request['broadcast_status'] = 4;
         // }
-// dd($request->all());
+        // dd($request->all());
         $module = DB::transaction(function() use ($request, $id) {
         
             
@@ -371,7 +371,7 @@ class courseController extends Controller
 
             // insert to topics table
 
-            $addTopic = Topic::create($request->only('video_link', 'description') +
+            $addTopic = Topic::create($request->only('video_link', 'description', 'uid') +
                 [
                     'moduleId' => $request->moduleId,
                     'speakerId' => $request->speakerId,
@@ -388,7 +388,7 @@ class courseController extends Controller
                 ]);
 
                 $topic = collect(\DB::SELECT("select t.*, s.id speakerId, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path, 
-                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
+                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status, t.uid topic_uid
                             from topics t
                             left join speaker_roles sr on t.id = sr.topicId
                             left join speakers s ON s.id = t.speakerId
@@ -464,7 +464,7 @@ class courseController extends Controller
             
             // dd($updateTopic);
         
-            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'description', 'status') +
+            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'uid', 'description', 'status') +
                             [ 'updated_at' => now()]
                             );
                             
@@ -487,7 +487,7 @@ class courseController extends Controller
             //                 where t.moduleId = $request->moduleId and t.speakerId = $request->speakerId and sr.role = 1 and t.status <> 0 and s.status <> 0"))->first();
 
             $topic = collect(\DB::SELECT("select t.*, s.id speakerId, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path speaker_profile_path, s.company_path speaker_company_path, 
-                                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status
+                                            (CASE WHEN role = 0 THEN 'delete' WHEN role = 1 THEN 'active' END) topic_status, t.uid topic_uid
                                             from topics t
                                             left join speaker_roles sr on t.id = sr.topicId
                                             left join speakers s ON s.id = t.speakerId
@@ -518,7 +518,8 @@ class courseController extends Controller
             
             $topic = COLLECT(\DB::SELECT("select t.*, s.id speakerId, s.name speaker_name, s.position speaker_position, s.company speaker_company, s.profile_path, s.company_path,
                         (CASE WHEN sr.role = 1 THEN 'main' WHEN sr.role = 2 THEN 'guest' END) as role_code,
-                        (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code
+                        (CASE WHEN t.status = 0 THEN 'deleted' WHEN t.status = 1 THEN 'active' END) as status_code,
+                        t.uid topic_uid
                         from topics t
                         left join speaker_roles sr ON t.id = sr.topicId
                         left join speakers s ON s.id = t.speakerId
