@@ -438,7 +438,8 @@ class paymentController extends Controller
                         array_push($paymentItems, $course2);
                     } else if(str_contains($courses, "marketing")) {
                         $qty = 1;
-                        if(str_contains($request->amount, "299")) $qty = 2;
+                        if(str_contains($request->amount, "499")) $qty = 2;
+                        else if(str_contains($request->amount, "299")) $qty = 2;
                         else if(str_contains($courses, "20")) $qty = 20;
                         else if(str_contains($courses, "10")) $qty = 10;
                         else if(str_contains($courses, "6")) $qty = 6;
@@ -446,7 +447,8 @@ class paymentController extends Controller
                         array_push($paymentItems, $item);
                     } else if(str_contains($courses, "executive")) {
                         $qty = 1;
-                        if(str_contains($request->amount, "299")) $qty = 2;
+                        if(str_contains($request->amount, "499")) $qty = 2;
+                        else if(str_contains($request->amount, "299")) $qty = 2;
                         else if(str_contains($courses, "20")) $qty = 20;
                         else if(str_contains($courses, "10")) $qty = 10;
                         else if(str_contains($courses, "6")) $qty = 6; 
@@ -454,7 +456,8 @@ class paymentController extends Controller
                         array_push($paymentItems, $item);
                     } else if(str_contains($courses, "technology")) {
                         $qty = 1;
-                        if(str_contains($request->amount, "299")) $qty = 2;
+                        if(str_contains($request->amount, "499")) $qty = 2;
+                        else if(str_contains($request->amount, "299")) $qty = 2;
                         else if(str_contains($courses, "20")) $qty = 20;
                         else if(str_contains($courses, "10")) $qty = 10;
                         else if(str_contains($courses, "6")) $qty = 6; 
