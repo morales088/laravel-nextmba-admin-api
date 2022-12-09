@@ -478,13 +478,13 @@ class paymentController extends Controller
                 $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
                 //end
 
-                if(empty($studentChecker)){
+                // if(empty($studentChecker)){
                     // registrer student course
                     foreach ($paymentItems as $key => $value) {
                         Studentcourse::insertStudentCourse($value);
                     }
                     // end
-                }
+                // }
                 // else{
                 //     // add course qty to student course
                 //     foreach ($paymentItems as $key => $value) {
