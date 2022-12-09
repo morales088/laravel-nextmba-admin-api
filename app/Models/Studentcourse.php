@@ -35,6 +35,7 @@ class Studentcourse extends Model
                                             'starting' => $starting_date,
                                             'expirationDate' => $expiration_date,
                                             // 'quantity' => --$qty,
+                                            'quantity' => 0,
                                         ]);
 
             $modules = Module::Where('courseId', $course_id)->Where('status', '<>', 0)->get();
