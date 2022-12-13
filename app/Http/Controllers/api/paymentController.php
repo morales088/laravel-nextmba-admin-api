@@ -443,8 +443,15 @@ class paymentController extends Controller
                         else if(str_contains($courses, "20")) $qty = 20;
                         else if(str_contains($courses, "10")) $qty = 10;
                         else if(str_contains($courses, "6")) $qty = 6;
+
                         $item = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
                         array_push($paymentItems, $item);
+
+                        if($qty == 1){
+                            $exeItem = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
+                            array_push($paymentItems, $exeItem);
+                        }
+
                     } else if(str_contains($courses, "executive")) {
                         $qty = 1;
                         if(str_contains($request->amount, "499")) $qty = 2;
@@ -452,8 +459,15 @@ class paymentController extends Controller
                         else if(str_contains($courses, "20")) $qty = 20;
                         else if(str_contains($courses, "10")) $qty = 10;
                         else if(str_contains($courses, "6")) $qty = 6; 
+
                         $item = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
                         array_push($paymentItems, $item);
+
+                        if($qty == 1){
+                            $marketItem = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
+                            array_push($paymentItems, $marketItem);
+                        }
+
                     } else if(str_contains($courses, "technology")) {
                         $qty = 1;
                         if(str_contains($request->amount, "499")) $qty = 2;
@@ -465,6 +479,7 @@ class paymentController extends Controller
                         array_push($paymentItems, $item);
                     }
                 }
+                // dd($paymentItems);
 
                 // UPDATE PAYMENT
                 $payment = Payment::find($paymentId);
