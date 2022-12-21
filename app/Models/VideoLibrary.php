@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use DB;
 
 class VideoLibrary extends Model
 {
@@ -12,6 +13,19 @@ class VideoLibrary extends Model
 
     protected $guarded = ['id'];
     protected $table = 'video_libraries';
+
+    public static function studentLibraryAccess ($student_id){
+        $student = Student::find($student_id);
+
+        $student->update(
+            [ 
+                'library_access' => 1,
+                'updated_at' => now(),
+            ]
+        );
+
+        return $student;
+    }
 
     public static function videoLibraryLogo($request){
         $imageName = time().'.'.$request['logo_image']->extension();  

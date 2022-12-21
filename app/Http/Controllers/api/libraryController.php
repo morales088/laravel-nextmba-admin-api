@@ -66,6 +66,11 @@ class libraryController extends Controller
             // 'name' => 'required|string|unique:video_libraries,name',
             // 'uid' => 'required|string',
             // 'date' => 'required|string',
+            'logo_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'logo_delete' => [
+                        'string',
+                        Rule::in(['true', 'false']),
+                    ],
             'broadcast_status' => [
                         'numeric',
                         Rule::in(['0', '1']),
@@ -86,10 +91,13 @@ class libraryController extends Controller
                 ],
             ]);
 
-            if(!empty($request->logo_image)){
+            if($request->logo_delete == 'true'){
+                $request->query->add(['logo' => null]);
+            }elseif(!empty($request->logo_image)){
                 $logo_path = VideoLibrary::videoLibraryLogo($request->all());
                 $request->query->add(['logo' => $logo_path]);
             }
+
             
             $video_library = VideoLibrary::find($id);
             $video_library->update($request->only('name', 'description', 'uid', 'speaker', 'logo', 'date', 'broadcast_status', 'status') +
