@@ -110,6 +110,11 @@ class libraryController extends Controller
                 'name' => 'required|string|unique:video_libraries,name',
             ]);
 
+            if(!empty($request->logo_image)){
+                $logo_path = VideoLibrary::videoLibraryLogo($request->all());
+                $request->query->add(['logo' => $logo_path]);
+            }
+
             $video_library = VideoLibrary::create($request->only('description', 'uid', 'speaker', 'logo', 'date', 'broadcast_status', 'status') +
                         [
                             'name' => $request->name,
