@@ -66,7 +66,7 @@ class libraryController extends Controller
             // 'name' => 'required|string|unique:video_libraries,name',
             // 'uid' => 'required|string',
             // 'date' => 'required|string',
-            'logo_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'logo_image' => 'image|mimes:jpeg,png,jpg|max:3048',
             'logo_delete' => [
                         'string',
                         Rule::in(['true', 'false']),
