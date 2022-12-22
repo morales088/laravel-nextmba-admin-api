@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Studentcourse;
+use App\Models\VideoLibrary;
 use Validator;
 use Mail;
 use DB;
@@ -421,8 +422,18 @@ class paymentController extends Controller
                     $studentId = $studentChecker[0]->id;
                 }
 
+                // UPDATE PAYMENT
+                $payment = Payment::find($paymentId);
+
+                $payment->update(
+                    [ 
+                        'student_id' => $studentId,
+                    ]
+                );
+
                 // insert data to payment_items
                 $paymentItems = [];
+                $not_replay = true;
 
                 if($request->manual_payment == true){
                     
@@ -431,7 +442,12 @@ class paymentController extends Controller
 
                 }else{
 
-                    if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
+                    if(str_contains($courses, "replay")) {
+
+                        VideoLibrary::studentLibraryAccess($studentId);
+                        $not_replay = false;
+
+                    } else if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
                         $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
                         array_push($paymentItems, $course1);
                         $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
@@ -481,16 +497,9 @@ class paymentController extends Controller
                 }
                 // dd($paymentItems);
 
-                // UPDATE PAYMENT
-                $payment = Payment::find($paymentId);
-
-                $payment->update(
-                    [ 
-                        'student_id' => $studentId,
-                    ]
-                );
-                
-                $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
+                if($not_replay){
+                // UPDATE PAYMENT ITEMS
+                    $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
                 //end
 
                 // if(empty($studentChecker)){
@@ -511,6 +520,7 @@ class paymentController extends Controller
                 //             ->increment('quantity', $value['qty']);
                 //     }
                 // }
+                }
 
                 $user = [
                     'email' => $request->email,
