@@ -13,7 +13,7 @@ class libraryController extends Controller
 {
     public function index(Request $request){
                 
-        $speaker = $request->validate([
+        $library = $request->validate([
             'broadcast_status' => [
                         'numeric',
                         Rule::in(['0', '1']),
@@ -55,6 +55,19 @@ class libraryController extends Controller
         ]);
 
         return response(["video_libraries" => $videos], 200);
+
+    }
+
+    public function perlLibrary(Request $request, $id){
+                
+        $request->query->add(['id' => $id]);
+        $speaker = $request->validate([
+            'id' => 'required|string|exists:video_libraries,id',
+        ]);
+        
+        $video_library = VideoLibrary::where('id', $id)->first();
+
+        return response(["video_library" => $video_library], 200);
 
     }
 
