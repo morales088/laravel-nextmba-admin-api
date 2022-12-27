@@ -442,7 +442,7 @@ class paymentController extends Controller
 
                 }else{
 
-                    if(str_contains($courses, "replay")) {
+                    if(str_contains($courses, "archives")) {
 
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
