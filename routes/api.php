@@ -138,3 +138,9 @@ Route::prefix("/stream")->group( function (){
     
 });
 
+Route::prefix("/library")->group( function (){
+    Route::middleware("auth:api")->get("/", "api\libraryController@index");    
+    Route::middleware("auth:api")->get("/{id}", "api\libraryController@perlLibrary");    
+    Route::middleware("auth:api")->post("/videos/{id?}", "api\libraryController@library");    
+});
+
