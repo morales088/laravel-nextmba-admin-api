@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\Rule;
 use App\Models\VideoLibrary;
+
+use Illuminate\Support\Facades\Log;
+
 use DB;
 
 class libraryController extends Controller
@@ -73,12 +76,19 @@ class libraryController extends Controller
 
     public function library(Request $request, $id=null){
         // dd($request->all(), $id);
+
+        // Log::info($id);
         
         $speaker = $request->validate([
             'name' => 'required|string',
             // 'name' => 'required|string|unique:video_libraries,name',
             // 'uid' => 'required|string',
             // 'date' => 'required|string',
+            'cover_image' => 'image|mimes:jpeg,png,jpg|max:3048',
+            'cover_delete' => [
+                        'string',
+                        Rule::in(['true', 'false']),
+                    ],
             'logo_image' => 'image|mimes:jpeg,png,jpg|max:3048',
             'logo_delete' => [
                         'string',
@@ -111,11 +121,25 @@ class libraryController extends Controller
                 $request->query->add(['logo' => $logo_path]);
             }
 
+            $cover_path = '';
+
+            if($request->cover_delete == 'true'){
+                $request->query->add(['cover_image' => null]);
+            }elseif(!empty($request->cover_image)){
+                $cover_path = VideoLibrary::videoLibraryCoverImage($request->all());
+                $request->query->add(['cover_image' => $cover_path]);
+            }
+
             
             $video_library = VideoLibrary::find($id);
-            $video_library->update($request->only('name', 'description', 'uid', 'speaker', 'logo', 'date', 'broadcast_status', 'status') +
+            $video_library->update($request->only('name', 'description', 'uid', 'speaker', 'cover_image', 'logo', 'date', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
+
+            if (!empty($request->cover_image)) {
+                $video_library->cover_image = $cover_path;
+                $video_library->save();
+            }
             
         }else{
             // dd(2);
@@ -128,11 +152,23 @@ class libraryController extends Controller
                 $request->query->add(['logo' => $logo_path]);
             }
 
-            $video_library = VideoLibrary::create($request->only('description', 'uid', 'speaker', 'logo', 'date', 'broadcast_status', 'status') +
+            $cover_path = '';
+
+            if(!empty($request->cover_image)){
+                $cover_path = VideoLibrary::videoLibraryCoverImage($request->all());
+                $request->query->add(['cover_image' => $cover_path]);
+            }
+
+            $video_library = VideoLibrary::create($request->only('description', 'uid', 'speaker', 'cover_image', 'logo', 'date', 'broadcast_status', 'status') +
                         [
                             'name' => $request->name,
                             'updated_at' => now()
                         ]);
+
+            if (!empty($request->cover_image)) {
+                $video_library->cover_image = $cover_path;
+                $video_library->save();
+            }
         }
 
         return response(["video_library" => $video_library], 200);

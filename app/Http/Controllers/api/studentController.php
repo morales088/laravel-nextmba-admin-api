@@ -153,7 +153,7 @@ class studentController extends Controller
 
         $students = Student::find($id);
         
-        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator') +
+        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'library_access') +
                         [ 'updated_at' => now()]
                         );
 
