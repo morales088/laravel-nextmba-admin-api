@@ -44,7 +44,7 @@ class StudentCourseSeed extends Command
                 // dd($starting_date, $expiration_date);
                 // dd(!empty($student_courses), !empty($existing_course));
 
-                if(!empty($student_courses) && !empty($existing_course)){
+                if(!empty($student_courses) && empty($existing_course)){
 
                     $studentCourse = new Studentcourse;
                     $studentCourse->studentId = $value->id;
@@ -56,9 +56,10 @@ class StudentCourseSeed extends Command
     
                     $studentCourse->save();
 
+                    $this->line("student ID : ".$value->id);
+
                 }
                 
-                $this->line("student ID : ".$value->id);
             }
 
             // transfer modules to new course
