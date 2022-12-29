@@ -35,7 +35,7 @@ class StudentCourseSeed extends Command
 
             foreach ($students as $key => $value) {
                 $student_courses = DB::SELECT("SELECT * FROM studentcourses where status <> 0 and studentId = $value->id");
-                $existing_course = DB::SELECT("SELECT * FROM studentcourses where status <> 0 and courseId = 3");
+                $existing_course = DB::SELECT("SELECT * FROM studentcourses where status <> 0 and courseId = 3 and studentId = $value->id");
 
                 $starting_date = "2023-01-01 00:00:00";
                 $expiration_date = "2023-12-31 00:00:00";
