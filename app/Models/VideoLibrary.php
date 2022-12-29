@@ -36,4 +36,14 @@ class VideoLibrary extends Model
           
         return $path;
     }
+
+    public static function videoLibraryCoverImage($request){
+        $imageName = time().'.'.$request['cover_image']->extension();  
+        // dd($request, $imageName);
+      
+        $path = Storage::disk('s3')->put('images/video_library_speaker_cover', $request['cover_image']);
+        $path = Storage::disk('s3')->url($path);
+          
+        return $path;
+    }
 }

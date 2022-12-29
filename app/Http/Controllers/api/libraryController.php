@@ -79,6 +79,11 @@ class libraryController extends Controller
             // 'name' => 'required|string|unique:video_libraries,name',
             // 'uid' => 'required|string',
             // 'date' => 'required|string',
+            'cover_image' => 'image|mimes:jpeg,png,jpg|max:3048',
+            'cover_delete' => [
+                        'string',
+                        Rule::in(['true', 'false']),
+                    ],
             'logo_image' => 'image|mimes:jpeg,png,jpg|max:3048',
             'logo_delete' => [
                         'string',
@@ -111,9 +116,16 @@ class libraryController extends Controller
                 $request->query->add(['logo' => $logo_path]);
             }
 
+            if($request->cover_delete == 'true'){
+                $request->query->add(['cover_image' => null]);
+            }elseif(!empty($request->cover_image)){
+                $cover_path = VideoLibrary::videoLibraryCoverImage($request->all());
+                $request->query->add(['cover_image' => $cover_path]);
+            }
+
             
             $video_library = VideoLibrary::find($id);
-            $video_library->update($request->only('name', 'description', 'uid', 'speaker', 'logo', 'date', 'broadcast_status', 'status') +
+            $video_library->update($request->only('name', 'description', 'uid', 'speaker', 'cover_image', 'logo', 'date', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
             
@@ -128,7 +140,12 @@ class libraryController extends Controller
                 $request->query->add(['logo' => $logo_path]);
             }
 
-            $video_library = VideoLibrary::create($request->only('description', 'uid', 'speaker', 'logo', 'date', 'broadcast_status', 'status') +
+            if(!empty($request->cover_image)){
+                $cover_path = VideoLibrary::videoLibraryCoverImage($request->all());
+                $request->query->add(['cover_image' => $cover_path]);
+            }
+
+            $video_library = VideoLibrary::create($request->only('description', 'uid', 'speaker', 'cover_image', 'logo', 'date', 'broadcast_status', 'status') +
                         [
                             'name' => $request->name,
                             'updated_at' => now()
