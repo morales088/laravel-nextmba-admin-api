@@ -152,11 +152,8 @@ class libraryController extends Controller
                 $request->query->add(['logo' => $logo_path]);
             }
 
-<<<<<<< HEAD
-=======
             $cover_path = '';
 
->>>>>>> d098f000eec863fbbf36e8b0b5d2c86ac34000b9
             if(!empty($request->cover_image)){
                 $cover_path = VideoLibrary::videoLibraryCoverImage($request->all());
                 $request->query->add(['cover_image' => $cover_path]);
