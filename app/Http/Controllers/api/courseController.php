@@ -63,7 +63,7 @@ class courseController extends Controller
         $module = $request->validate([
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'category' => 'string',
+            'category' => 'string|nullable|sometimes',
             // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
