@@ -63,6 +63,7 @@ class courseController extends Controller
         $module = $request->validate([
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
+            'category' => 'string',
             // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
@@ -110,6 +111,7 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:modules,id',
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
+            'category' => 'string',
             // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
@@ -189,7 +191,7 @@ class courseController extends Controller
                 }
             }
             
-            $module->update($request->only('courseId', 'name', 'description', 'cover_photo', 'chat_url', 'live_url', 'topicId', 
+            $module->update($request->only('courseId', 'name', 'description', 'category', 'cover_photo', 'chat_url', 'live_url', 'topicId', 'category', 
                                             'calendar_link', 'start_date', 'end_date') +
                             [ 'updated_at' => now()]
                             );
@@ -236,7 +238,7 @@ class courseController extends Controller
         //                                 where m.status <> 0 or t.status <> 0
         //                                 group by m.id) m where m.id = $id"))->first();
 
-        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
+        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                         (CASE WHEN m.broadcast_status = 0 THEN 'start_server' WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name, m.stream_info, m.stream_json, m.uid, m.srt_url
@@ -277,7 +279,7 @@ class courseController extends Controller
         //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         // }
 
-        $modules = DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
+        $modules = DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
                                 (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                 (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                 t.name topic_name, m.status module_status_code, m.broadcast_status broadcast_status_code
