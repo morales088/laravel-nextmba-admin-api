@@ -111,7 +111,7 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:modules,id',
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'category' => 'string',
+            'category' => 'string|nullable|sometimes',
             // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
