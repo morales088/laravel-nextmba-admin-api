@@ -24,6 +24,7 @@ class Course extends Model
                     'courseId' => $request->courseId,
                     'name' => $request->name,
                     'description' => $request->description,
+                    'category' => $request->category,
                     // 'date' => $request->date,
                     'start_date' => $request->start_date,
                     'end_date' => $request->end_date,
