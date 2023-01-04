@@ -25,6 +25,7 @@ class Course extends Model
                     'name' => $request->name,
                     'description' => $request->description,
                     'category' => $request->category,
+                    'category_color' => $request->category_color,
                     // 'date' => $request->date,
                     'start_date' => $request->start_date,
                     'end_date' => $request->end_date,
