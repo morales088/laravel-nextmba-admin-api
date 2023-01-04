@@ -442,16 +442,35 @@ class paymentController extends Controller
 
                 }else{
 
-                    if(str_contains($courses, "archives")) {
+                    if(str_contains($courses, "archives") || str_contains($courses, "NEXT MBA Course")) {
 
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
 
+                        $qty = 1;
+                        if(str_contains($courses, "+ 1")) $qty = 2;
+                        else if(str_contains($courses, "20")) $qty = 20;
+                        else if(str_contains($courses, "10")) $qty = 10;
+                        else if(str_contains($courses, "6")) $qty = 6;
+
+                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                        array_push($paymentItems, $item);
+
                     } else if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
-                        $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
-                        array_push($paymentItems, $course1);
-                        $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
-                        array_push($paymentItems, $course2);
+                        // $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
+                        // array_push($paymentItems, $course1);
+                        // $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                        // array_push($paymentItems, $course2);
+                        
+
+                        VideoLibrary::studentLibraryAccess($studentId);
+                        $not_replay = false;
+
+                        $qty = 1;
+
+                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                        array_push($paymentItems, $item);
+
                     } else if(str_contains($courses, "marketing")) {
                         $qty = 1;
                         if(str_contains($request->amount, "499")) $qty = 2;
@@ -497,10 +516,11 @@ class paymentController extends Controller
                 }
                 // dd($paymentItems);
 
-                if($not_replay){
                 // UPDATE PAYMENT ITEMS
-                    $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
+                $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
                 //end
+                
+                if($not_replay){
 
                 // if(empty($studentChecker)){
                     // registrer student course
