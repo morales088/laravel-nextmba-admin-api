@@ -436,7 +436,9 @@ class paymentController extends Controller
                 $not_replay = true;
 
                 if($request->manual_payment == true){
-                    
+
+                    if($request->courseId == 3) VideoLibrary::studentLibraryAccess($studentId);
+
                     $item = ['studentId' => $studentId, 'courseId' => $request->courseId, 'qty' => $request->course_qty];
                     array_push($paymentItems, $item);
 
