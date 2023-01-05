@@ -444,10 +444,13 @@ class paymentController extends Controller
 
                 }else{
                     
-                    if(str_contains($courses, "archives") || str_contains($courses, "next mba course")) {
+                    if(str_contains($courses, "archives")) {
 
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
+
+                    }else if(str_contains($courses, "next mba course") || str_contains($courses, "marketing") || str_contains($courses, "executive")) {
+                        
 
                         $qty = 1;
                         if(str_contains($courses, "+ 1")) $qty = 2;
@@ -459,19 +462,18 @@ class paymentController extends Controller
                         array_push($paymentItems, $item);
 
                     } else if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
-                        // $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
-                        // array_push($paymentItems, $course1);
-                        // $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
-                        // array_push($paymentItems, $course2);
-                        
+                        $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
+                        array_push($paymentItems, $course1);
+                        $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                        array_push($paymentItems, $course2);
 
-                        VideoLibrary::studentLibraryAccess($studentId);
-                        $not_replay = false;
+                        // VideoLibrary::studentLibraryAccess($studentId);
+                        // $not_replay = false;
 
-                        $qty = 1;
+                        // $qty = 1;
 
-                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
-                        array_push($paymentItems, $item);
+                        // $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                        // array_push($paymentItems, $item);
 
                     } else if(str_contains($courses, "marketing")) {
                         $qty = 1;
