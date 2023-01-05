@@ -441,8 +441,8 @@ class paymentController extends Controller
                     array_push($paymentItems, $item);
 
                 }else{
-
-                    if(str_contains($courses, "archives") || str_contains($courses, "NEXT MBA Course")) {
+                    
+                    if(str_contains($courses, "archives") || str_contains($courses, "next mba course")) {
 
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
@@ -514,7 +514,7 @@ class paymentController extends Controller
                         array_push($paymentItems, $item);
                     }
                 }
-                // dd($paymentItems);
+                dd($paymentItems);
 
                 // UPDATE PAYMENT ITEMS
                 $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
