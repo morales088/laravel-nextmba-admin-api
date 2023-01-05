@@ -514,7 +514,7 @@ class paymentController extends Controller
                         array_push($paymentItems, $item);
                     }
                 }
-                dd($paymentItems);
+                // dd($paymentItems);
 
                 // UPDATE PAYMENT ITEMS
                 $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
