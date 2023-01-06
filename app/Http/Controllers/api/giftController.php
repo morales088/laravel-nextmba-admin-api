@@ -46,7 +46,15 @@ class giftController extends Controller
         $userId = $request->student_id;
         $fe_link = env('FRONTEND_LINK');
         $giftable_gift = env('GIFTABLE_DATE');
-        
+
+        $check_course_id = COLLECT(\DB::SELECT("select pi.* 
+                                                from payments p
+                                                left join payment_items pi ON pi.payment_id = p.id
+                                                where p.id = $request->payment_id 
+                                                and pi.product_id = $request->course_id 
+                                                and p.status = 'paid'
+                                                and pi.product_id = 3"))->first();
+
         $available_course_per_payment = COLLECT(\DB::SELECT("select pi.* 
                                                 from payments p
                                                 left join payment_items pi ON pi.payment_id = p.id
@@ -59,7 +67,7 @@ class giftController extends Controller
         
         $is_giftable = COLLECT(\DB::SELECT("SELECT * from payments where id = $request->payment_id and created_at > '$giftable_gift'"))->first();
 
-        if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable)){
+        if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable) || !empty($check_course_id)){
             return response()->json(["message" => "zero courses available / recipient already has this course / course expired"], 422);
         }
 
