@@ -5,8 +5,10 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\VideoLibrary;
+use App\Models\Libraryfile;
 
 use Illuminate\Support\Facades\Log;
 
@@ -173,4 +175,82 @@ class libraryController extends Controller
 
         return response(["video_library" => $video_library], 200);
     }
+
+    public function addFiles(Request $request){
+
+        $request->validate([
+            'library_id' => 'required|exists:video_libraries,id',
+            // 'file' => 'required',
+            'name' => 'string',
+        ]);
+
+        // $filePath = time().'.'.$request->file->extension();
+
+        // $path = Storage::disk('s3')->put('images/library', $request->file);
+        // $path = Storage::disk('s3')->url($path);
+
+        // $disk = Storage::disk('s3');
+
+        // $disk->put('images/library', fopen($request->file, 'r+'));
+        // $path = Storage::disk('s3')->url($disk);
+
+        // $path = Storage::disk('s3')->put('images/library', fopen($request->file, 'r+'));
+        // $path = Storage::disk('s3')->url($path);
+
+        // dd($path);
+
+        $files = Libraryfile::create($request->only('link') + 
+                [
+                    'libraryId' => $request->library_id,
+                    'name' => $request->name,
+                ]);
+
+        return response(["files" => $files], 200);
+        
+    }
+
+    public function updateFiles(Request $request, $id){
+
+        $request->query->add(['id' => $id]);
+        
+        $request->validate([
+            'id' => 'required|exists:video_libraries,id',
+            'status' => [
+                        'string',
+                        Rule::in(['0', '1']),
+                    ],
+        ]);
+
+        $file = Libraryfile::find($request->id);
+    
+        $file->update($request->only('name', 'link', 'status') +
+                        [ 'updated_at' => now()]
+                        );
+
+        return response(["file" => $file], 200);
+        
+    }
+
+    public function getFiles(Request $request, $library_id = 0){
+                
+        $request->query->add(['library_id' => $library_id]);
+        
+        $request->validate([
+            'library_id' => 'required|exists:video_libraries,id',
+        ]);
+
+        
+        if($library_id > 0){
+            
+            $files = DB::SELECT("select * from library_files where libraryId = $library_id and status <> 0");
+            
+        }else{
+
+            $files = DB::SELECT("select * from library_files where status <> 0");
+
+        }
+        return response(["files" => $files], 200);
+    }
+
+    
 }
