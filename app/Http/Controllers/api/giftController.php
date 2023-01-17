@@ -35,7 +35,7 @@ class giftController extends Controller
     }
 
     public function sendGift(Request $request){
-                
+        
         $request->validate([
             'course_id' => 'required|numeric|min:1|exists:courses,id',
             'payment_id' => 'required|numeric|min:1|exists:payments,id',
@@ -47,13 +47,13 @@ class giftController extends Controller
         $fe_link = env('FRONTEND_LINK');
         $giftable_gift = env('GIFTABLE_DATE');
 
-        $check_course_id = COLLECT(\DB::SELECT("select pi.* 
-                                                from payments p
-                                                left join payment_items pi ON pi.payment_id = p.id
-                                                where p.id = $request->payment_id 
-                                                and pi.product_id = $request->course_id 
-                                                and p.status = 'paid'
-                                                and pi.product_id = 3"))->first();
+        // $check_course_id = COLLECT(\DB::SELECT("select pi.* 
+        //                                         from payments p
+        //                                         left join payment_items pi ON pi.payment_id = p.id
+        //                                         where p.id = $request->payment_id 
+        //                                         and pi.product_id = $request->course_id 
+        //                                         and p.status = 'paid'
+        //                                         and pi.product_id = 3"))->first();
 
         $available_course_per_payment = COLLECT(\DB::SELECT("select pi.* 
                                                 from payments p
@@ -67,11 +67,11 @@ class giftController extends Controller
         
         $is_giftable = COLLECT(\DB::SELECT("SELECT * from payments where id = $request->payment_id and created_at > '$giftable_gift'"))->first();
 
-        if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable) || !empty($check_course_id)){
+        if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable) || $request->course_id != 3){
             return response()->json(["message" => "zero courses available / recipient already has this course / course expired"], 422);
         }
 
-        // dd($available_course_per_payment, $check_recipient_course, $is_giftable);
+        dd($available_course_per_payment, $check_recipient_course, $is_giftable);
         
         $DBtransaction = DB::transaction(function() use ($request, $userId, $fe_link, $giftable_gift, $check_recipient_course, $available_course_per_payment) {
             
