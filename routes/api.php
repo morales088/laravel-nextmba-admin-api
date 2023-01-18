@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\api\PartnershipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,4 +144,15 @@ Route::prefix("/library")->group( function (){
     Route::middleware("auth:api")->get("/{id}", "api\libraryController@perlLibrary");    
     Route::middleware("auth:api")->post("/videos/{id?}", "api\libraryController@library");    
 });
+
+Route::prefix("/partnership")->middleware("auth:api")
+    ->controller(PartnershipController::class)->group(function () {
+        Route::get("/pending", "getPendingRequest");
+        Route::get("/approved", "getAffiliates");
+        Route::put("/approve/{id}", "approveAffiliate");
+        Route::put("/updateAffiliate", "updateStudentAffiliate");
+        Route::get("/payment", "affiliateWithdrawal");
+        Route::get("/stats", "affiliateStatistics");
+        Route::post("/materials", "promoMaterials");
+    });
 
