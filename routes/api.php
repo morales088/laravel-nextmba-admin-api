@@ -98,6 +98,10 @@ Route::prefix("/courses")->group( function (){
     Route::middleware("auth:api")->post("/zoom/add", "api\courseController@addZoom"); 
     Route::middleware("auth:api")->put("/zoom/{id}", "api\courseController@updateZoom");
 
+    Route::middleware("auth:api")->get("/library/files/{library_id?}", "api\libraryController@getFiles"); 
+    Route::middleware("auth:api")->post("/library/files", "api\libraryController@addFiles"); 
+    Route::middleware("auth:api")->put("/library/files/{id}", "api\libraryController@updateFiles");
+
 
 });
 
