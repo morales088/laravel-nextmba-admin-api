@@ -138,7 +138,7 @@ class Payment extends Model
                           from payments p
                           left join payment_items pi ON p.id = pi.payment_id
                           left join courses c ON c.id = pi.product_id
-                          where pi.status <> 0 and c.id <> 0 and p.status = 'Paid' and p.student_id = $userId order by p.id asc");
+                          where pi.status <> 0 and c.status <> 0 and c.id >= 2 and p.status = 'Paid' and p.student_id = $userId order by p.id asc");
       // dd($courses);
       $course_id = 0;
       foreach ($courses as $key => $value) {
