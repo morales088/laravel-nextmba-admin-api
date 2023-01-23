@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use App\Mail\UpdateAccountEmail;
-use App\Mail\AccountCredentialEmail;
-use App\Models\Studentmodule;
-use App\Models\Studentcourse;
-use App\Models\Student;
+use DB;
+use Mail;
+use Validator;
 use App\Models\Links;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Payment;
+use App\Models\Student;
+use App\Models\Partnership;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\Studentcourse;
+use App\Models\Studentmodule;
 use App\Models\Studentsetting;
-use Validator;
-use DB;
-use Mail;
+use Illuminate\Validation\Rule;
+use App\Mail\UpdateAccountEmail;
+use App\Http\Controllers\Controller;
+use App\Mail\AccountCredentialEmail;
+use Illuminate\Support\Facades\Hash;
 
 class studentController extends Controller
 {
@@ -153,7 +154,7 @@ class studentController extends Controller
 
         $students = Student::find($id);
         
-        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'library_access') +
+        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'library_access', 'affiliate_access') +
                         [ 'updated_at' => now()]
                         );
 
@@ -172,6 +173,19 @@ class studentController extends Controller
         ($request->has('WS'))? $links += ['ws' => addslashes($request->WS)] : '';
 
                         // dd($links, $request->all());
+
+        // Check if it has already existing partnership
+        $existingPartnership = Partnership::where('student_id', $id)
+                                ->whereIn('affiliate_status', [0, 1])
+                                ->first();
+        // Make student as a partner by admin
+        if ($students->affiliate_access = 1 && !$existingPartnership) {
+            $students->partnership()->create([
+                'affiliate_status' => 1,
+                'affiliate_code' => bin2hex(random_bytes(5)),
+                'remarks' => "Directly approved as affiliate by admin."
+            ]);
+        } 
                         
         foreach ($links as $key => $value) {
             // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();

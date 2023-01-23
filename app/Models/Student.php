@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use DB;
+use App\Models\Partnership;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Student extends Model
 {
@@ -12,6 +13,10 @@ class Student extends Model
 
     protected $guarded = ['id'];
     protected $table = 'students';
+
+    public function partnership() {
+        return $this->hasOne(Partnership::class);
+    }
 
     public static function getStudent($filter = []){
 

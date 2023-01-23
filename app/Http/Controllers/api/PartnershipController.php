@@ -16,8 +16,10 @@ class PartnershipController extends Controller
 
     public function getPendingRequest() {
 
-        $applications = Partnership::whereStatus(0)->get();
-        // dd($applications);
+        $applications = Partnership::whereStatus(0)
+                        ->where('status', '<>', 0)
+                        ->get();
+
         return response()->json([
             'applications' => $applications
         ], 200);
@@ -25,8 +27,10 @@ class PartnershipController extends Controller
 
     public function getAffiliates() {
 
-        $applications = Partnership::whereStatus(1)->get();
-        // dd($applications);
+        $applications = Partnership::whereStatus(1)
+                        ->where('status', '<>', 0)
+                        ->get();
+                        
         return response()->json([
             'applications' => $applications
         ], 200);
