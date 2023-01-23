@@ -186,20 +186,12 @@ class libraryController extends Controller
             'name' => 'string',
         ]);
 
-        // $filePath = time().'.'.$request->file->extension();
+        if(!empty($request->file)){
+            $uploadFile = Libraryfile::uploadFiles($request);
+            $request->query->add(['link' => $uploadFile]);
+        }
 
-        // $path = Storage::disk('s3')->put('images/library', $request->file);
-        // $path = Storage::disk('s3')->url($path);
-
-        // $disk = Storage::disk('s3');
-
-        // $disk->put('images/library', fopen($request->file, 'r+'));
-        // $path = Storage::disk('s3')->url($disk);
-
-        // $path = Storage::disk('s3')->put('images/library', fopen($request->file, 'r+'));
-        // $path = Storage::disk('s3')->url($path);
-
-        // dd($path);
+        // dd($uploadFile);
 
         $files = Libraryfile::create($request->only('link') + 
                 [
@@ -221,7 +213,20 @@ class libraryController extends Controller
                         'string',
                         Rule::in(['0', '1']),
                     ],
+            'file_delete' => [
+                        'string',
+                        Rule::in(['true', 'false']),
+                    ],
         ]);
+
+        if(!empty($request->file)){
+            $uploadFile = Libraryfile::uploadFiles($request);
+            $request->query->add(['link' => $uploadFile]);
+        }
+        
+        if($request->file_delete == true){
+            $request->query->add(['link' => null]);
+        }
 
         $file = Libraryfile::find($request->id);
     
