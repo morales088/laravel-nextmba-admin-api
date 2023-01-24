@@ -18,6 +18,7 @@ class PartnershipController extends Controller
 
         $applications = Partnership::whereStatus(0)
                         ->where('status', '<>', 0)
+                        ->orderBy('id', 'DESC')
                         ->get();
 
         return response()->json([
@@ -29,6 +30,7 @@ class PartnershipController extends Controller
 
         $applications = Partnership::whereStatus(1)
                         ->where('status', '<>', 0)
+                        ->orderBy('id', 'DESC')
                         ->get();
                         
         return response()->json([
@@ -49,10 +51,17 @@ class PartnershipController extends Controller
         $application = Partnership::findOrFail($id);
 
         if ($request->affiliate_status === 'approved') {
+            // check if the student has existing affiliate code
+            if (!$application->affiliate_code) {
+                $affiliate_code = bin2hex(random_bytes(5));
+            } else {
+                $affiliate_code = $application->affiliate_code;
+            }
+            
             $application->update([
                 'admin_id' => Auth::user()->id,
                 'affiliate_status' => 1, // approved
-                'affiliate_code' => bin2hex(random_bytes(5)), // generating a unique code
+                'affiliate_code' => $affiliate_code, // generating temporary unique code
                 'remarks' => $request->remarks
             ]);
 

@@ -20,6 +20,7 @@ use Illuminate\Validation\Rule;
 use App\Mail\UpdateAccountEmail;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class studentController extends Controller
@@ -174,18 +175,28 @@ class studentController extends Controller
 
                         // dd($links, $request->all());
 
-        // Check if it has already existing partnership
-        $existingPartnership = Partnership::where('student_id', $id)
-                                ->whereIn('affiliate_status', [0, 1])
-                                ->first();
-        // Make student as a partner by admin
-        if ($students->affiliate_access = 1 && !$existingPartnership) {
-            $students->partnership()->create([
-                'affiliate_status' => 1,
-                'affiliate_code' => bin2hex(random_bytes(5)),
-                'remarks' => "Directly approved as affiliate by admin."
-            ]);
-        } 
+        // // Check if it has already existing partnership
+        // $existingPartnership = Partnership::where('student_id', $id)
+        //                         ->whereIn('affiliate_status', [0, 1])
+        //                         ->first();
+        // // Make student as a partner by admin
+        // if ($students->affiliate_access = 1 && !$existingPartnership) {
+        //     $students->partnership()->create([
+        //         'affiliate_status' => 1,
+        //         'affiliate_code' => bin2hex(random_bytes(5)),
+        //         'remarks' => "Directly approved as affiliate by admin."
+        //     ]);
+        // } 
+        
+        // dd($request->affiliate_access);
+        $existingPartnership = Partnership::where('student_id', $id)->where('status','<>', 0)->first();
+        if ($request->affiliate_access == 1) {
+            $this->approveStudentAsAffiliate($id);
+        } elseif ($request->affiliate_access == 0 && $existingPartnership) {
+            $this->disapproveStudentAsAffiliate($id);
+        } else {
+            return response()->json(['message' => "Invalid Request."]);
+        }
                         
         foreach ($links as $key => $value) {
             // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();
@@ -219,6 +230,80 @@ class studentController extends Controller
         // dd($newStudentInfos, $newStudentLinks);
 
         return response(["student" => $newStudentInfos], 200);
+    }
+
+    public function approveStudentAsAffiliate($studentId) {
+        
+        $student = Student::find($studentId);
+        if ($student) {
+            $existingPartnership = Partnership::where('student_id', $studentId)
+                                    ->whereIn('affiliate_status', [0,1])
+                                    ->where('status', '<>', 0)
+                                    ->first();
+            if (!$existingPartnership) {
+                // update affiliate access
+                $student->affiliate_access = 1;
+                $student->save();
+                // create partnership
+                $student->partnership()->create([
+                    'admin_id' => Auth::user()->id,
+                    'affiliate_status' => 1,
+                    'affiliate_code' => bin2hex(random_bytes(5)),
+                    'remarks' => "Directly approved as affiliate by admin.",
+                    'status' => 1,
+                ]);
+
+                return response()->json([
+                    'message' => "Student has been approved as affiliate."
+                ], 200);
+
+            } elseif ($existingPartnership) {
+                $student->affiliate_access = 1;
+                $student->save();
+
+                $student->partnership()->update([
+                    'admin_id' => Auth::user()->id,
+                    // 'affiliate_code' => bin2hex(random_bytes(5)),
+                    'affiliate_status' => 1,
+                    'remarks' => "Directly updated by admin."
+                ]);
+
+                return response()->json([
+                    'message' => "Student has been approved / updated as affiliate."
+                ], 200);
+            }
+        }
+        return response()->json(['message' => "Student not found."], 404);
+    }
+
+    public function disapproveStudentAsAffiliate($studentId) {
+
+        $student = Student::find($studentId);
+        if ($student) {
+            $existingPartnership = Partnership::where('student_id', $studentId)
+                                    ->whereIn('affiliate_status', [1])
+                                    ->where('status', '<>', 0)
+                                    ->first();
+            if ($existingPartnership) {
+                $student->affiliate_access = 0; // update affiliate access
+                $student->save();
+                // update student partnership back to pending
+                $existingPartnership->affiliate_status = 0; // pending
+                $existingPartnership->remarks = "Partnership updated by admin.";
+                // $existingPartnership->status = 0; // disable partnership
+                $existingPartnership->save(); 
+
+                return response()->json([
+                    'message' => "Student has been disapproved as affiliate."
+                ], 200);
+
+            } else {
+                return response()->json([
+                    'message' => "Student does not have a partnership."
+                ], 200);
+            }
+        } 
+        return response()->json(['message' => "Student not found."], 404);
     }
 
     public function activateDeactivate(Request $request, $id){
