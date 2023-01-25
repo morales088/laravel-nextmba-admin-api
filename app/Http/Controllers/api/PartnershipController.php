@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Models\Student;
 use App\Models\Partnership;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -49,6 +50,7 @@ class PartnershipController extends Controller
 
         // $admin = Auth::user($id);
         $application = Partnership::findOrFail($id);
+        $student = Student::findOrFail($application->student_id);
 
         if ($request->affiliate_status === 'approved') {
             // check if the student has existing affiliate code
@@ -63,6 +65,10 @@ class PartnershipController extends Controller
                 'affiliate_status' => 1, // approved
                 'affiliate_code' => $affiliate_code, // generating temporary unique code
                 'remarks' => $request->remarks
+            ]);
+
+            $student->update([
+                'affiliate_access' => 1 // update to partner
             ]);
 
             return response()->json([
