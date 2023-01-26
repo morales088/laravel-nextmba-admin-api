@@ -15,6 +15,15 @@ class PartnershipController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function getApplications() {
+        
+        $applications = Partnership::all();
+
+        return response()->json([
+            'applications' => $applications
+        ], 200);
+    }
+
     public function getPendingRequest() {
 
         $applications = Partnership::whereStatus(0)
