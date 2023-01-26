@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('partnerships', function (Blueprint $table) {
-            $table->decimal('percentage', 3, 2)->default(0)->after('affiliate_status');
+            $table->decimal('percentage', 5, 2)->default(0)->after('affiliate_status');
             // $table->integer('percentage')->default(0)->after('affiliate_status');
         });
     }
