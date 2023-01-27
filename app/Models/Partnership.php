@@ -12,7 +12,7 @@ class Partnership extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id', 'admin_id', 'affiliate_code', 'affiliate_status', 'status', 'remarks'
+        'student_id', 'admin_id', 'affiliate_code', 'affiliate_status', 'status', 'percentage', 'remarks'
     ];
 
     public function student() {

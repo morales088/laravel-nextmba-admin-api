@@ -12,15 +12,23 @@ class PartnershipController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware("auth:api");
     }
 
     public function getApplications() {
         
-        $applications = Partnership::all();
+        $applications = Partnership::where('status', '<>', 0)
+                        ->orderBy('affiliate_status', 'ASC')
+                        ->with(['student:id,name,email'])
+                        ->get();
+        $grouped = $applications->groupBy('affiliate_status');
 
         return response()->json([
-            'applications' => $applications
+            'applications' => $applications,
+            'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
+            'disapproved' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
+            'approved' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'balance' => 0
         ], 200);
     }
 
@@ -73,6 +81,7 @@ class PartnershipController extends Controller
                 'admin_id' => Auth::user()->id,
                 'affiliate_status' => 1, // approved
                 'affiliate_code' => $affiliate_code, // generating temporary unique code
+                'percentage' => 0.15, // once approved update percentage
                 'remarks' => $request->remarks
             ]);
 
