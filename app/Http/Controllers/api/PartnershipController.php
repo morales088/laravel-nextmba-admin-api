@@ -62,26 +62,33 @@ class PartnershipController extends Controller
         $request->validate([
             'id' => 'required|numeric|min:1|exists:partnerships,id',
             'affiliate_status' => 'required|in:approved,disapproved',
+            'affiliate_code' => 'sometimes|max:100',
+            'withdraw_method' => 'sometimes|max:255',
+            'percentage' => 'required|in:0.15,0.25',
             'remarks' => 'string|max:255'
         ]);
 
-        // $admin = Auth::user($id);
         $application = Partnership::findOrFail($id);
         $student = Student::findOrFail($application->student_id);
 
         if ($request->affiliate_status === 'approved') {
             // check if the student has existing affiliate code
-            if (!$application->affiliate_code) {
-                $affiliate_code = bin2hex(random_bytes(5));
-            } else {
+            if ($request->affiliate_code) {
+                $affiliate_code = $request->affiliate_code;
+            } elseif ($application->affiliate_code) {
                 $affiliate_code = $application->affiliate_code;
+            } else {
+                $affiliate_code = bin2hex(random_bytes(5)); // generating temporary unique code
             }
+
+            $withdraw_method = $request->withdraw_method ?? $application->withdraw_method;
             
             $application->update([
                 'admin_id' => Auth::user()->id,
                 'affiliate_status' => 1, // approved
-                'affiliate_code' => $affiliate_code, // generating temporary unique code
-                'percentage' => 0.15, // once approved update percentage
+                'affiliate_code' => $affiliate_code, 
+                'percentage' => $request->percentage,
+                'withdraw_method' => $withdraw_method,
                 'remarks' => $request->remarks
             ]);
 
