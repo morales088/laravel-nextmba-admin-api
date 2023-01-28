@@ -56,12 +56,12 @@ class PartnershipController extends Controller
         ], 200);
     }
 
-    public function approveAffiliate(Request $request, $id) {
+    public function updateAffiliate(Request $request, $id) {
 
         $request->query->add(['id' => $id]);
         $request->validate([
             'id' => 'required|numeric|min:1|exists:partnerships,id',
-            'affiliate_status' => 'required|in:approved,disapproved',
+            // 'affiliate_status' => 'in:pending,approved,disapproved',
             'affiliate_code' => 'sometimes|max:100',
             'withdraw_method' => 'sometimes|max:255',
             'percentage' => 'required|in:0.15,0.25',
@@ -98,7 +98,7 @@ class PartnershipController extends Controller
 
             return response()->json([
                 'message' => "Application has been approved successfully.",
-                 'application' => $application
+                'application' => $application
             ], 200);
 
         } elseif ($request->affiliate_status === 'disapproved') {
@@ -110,6 +110,19 @@ class PartnershipController extends Controller
             return response()->json([
                 'message' => "Application has been disapproved successfully."
             ], 200);
+        } elseif ($request->affiliate_status === 'pending') {
+            $application->update([
+                'affiliate_status' => 0, // pending
+                'remarks' => $request->remarks
+            ]);
+
+            return response()->json([
+                'message' => "Application has been updated to pending."
+            ], 200);
+        } else {
+            return response()->json([
+                'application' => $application
+            ]);
         }
     }
 }
