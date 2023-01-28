@@ -154,7 +154,7 @@ Route::prefix("/partnership")->middleware("auth:api")
         Route::get("/partner-applications", "getApplications");
         Route::get("/pending", "getPendingRequest");
         Route::get("/approved", "getAffiliates");
-        Route::put("/approve/{id}", "approveAffiliate");
+        Route::put("/update/{id}", "updateAffiliate");
         Route::put("/updateAffiliate{id}", "updateStudentAffiliate");
         // Route::get("/payment", "affiliateWithdrawal");
         // Route::get("/stats", "affiliateStatistics");
