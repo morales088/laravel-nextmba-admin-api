@@ -367,16 +367,38 @@ class paymentController extends Controller
         
         $payment = $request->validate($validation);
 
-        // dd($request->all(), $request->exists('manual_payment'), $request->manual_payment == true );
-
         $payment = DB::transaction(function() use ($request) {
 
             $courses = strtolower($request->product);
             $request->query->add(['price' => $request->amount]);
             $status = $request->paid == "true" ? "Paid" : "Unpaid" ; 
+
+            if( isset($request->affiliate_code) ){
+                $from_student = DB::table('partnerships')
+                                        ->where('affiliate_code', '=', $request->affiliate_code)
+                                        ->where('status', 1)
+                                        ->first();
+
+                $from_student_id = isset($from_student->student_id) ? $from_student->student_id : 0;
+                $request->query->add(['from_student_id' => $from_student_id]);
+
+                if($from_student_id > 0)
+                    $affiliate_count = DB::table('payments')
+                                        ->where('from_student_id', '=', $from_student_id)
+                                        ->where('status', 'Paid')
+                                        ->count();
+
+                    $affiliate_percentage = ($affiliate_count > 5) ? env('proCommissionPercent') : env('baseCommissionPercent');
+                    $request->query->add(['commission_percentage' => $affiliate_count]);
+
+                // dd($from_student_id, $affiliate_percentage);
+            }
+
+            // dd($request->all());
             
             // CREATE PAYMENT
-            $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'phone', 'payment_method', 'product', 'country', 'url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content') +
+            $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'phone', 'payment_method', 'product', 'country', 'url',
+                                                    'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
                 'email' => $request->email,
