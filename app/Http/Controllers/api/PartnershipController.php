@@ -32,6 +32,24 @@ class PartnershipController extends Controller
         ], 200);
     }
 
+    // Initial
+    public function getWithdrawals() {
+        
+        $withdrawals = PartnershipWithdraws::where('status', '<>', 0)
+                        ->orderBy('commission_status', 'ASC')
+                        ->with(['student:id,name,email'])
+                        ->get();
+        $grouped = $withdrawals->groupBy('commission_status');
+
+        return response()->json([
+            'withdrawals' => $withdrawals,
+            'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
+            'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
+            'processed' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'amount' => 0
+        ], 200);
+    }
+
     public function getPendingRequest() {
 
         $applications = Partnership::whereStatus(0)
@@ -64,7 +82,7 @@ class PartnershipController extends Controller
             // 'affiliate_status' => 'in:pending,approved,disapproved',
             'affiliate_code' => 'sometimes|max:100',
             'withdraw_method' => 'sometimes|max:255',
-            'percentage' => 'required|in:0.15,0.25',
+            // 'percentage' => 'required|in:0.15,0.25',
             'remarks' => 'string|max:255'
         ]);
 
