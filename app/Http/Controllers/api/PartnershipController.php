@@ -26,7 +26,7 @@ class PartnershipController extends Controller
         return response()->json([
             'applications' => $applications,
             'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
-            'disapproved' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
+            'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
             'approved' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
             'balance' => 0
         ], 200);
@@ -101,14 +101,14 @@ class PartnershipController extends Controller
                 'application' => $application
             ], 200);
 
-        } elseif ($request->affiliate_status === 'disapproved') {
+        } elseif ($request->affiliate_status === 'declined') {
             $application->update([
                 'affiliate_status' => 2, // declined
                 'remarks' => $request->remarks
             ]);
 
             return response()->json([
-                'message' => "Application has been disapproved successfully."
+                'message' => "Application has been declined successfully."
             ], 200);
         } elseif ($request->affiliate_status === 'pending') {
             $application->update([
