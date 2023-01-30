@@ -375,7 +375,7 @@ class paymentController extends Controller
 
             if( isset($request->affiliate_code) ){
                 $from_student = DB::table('partnerships')
-                                        ->where('affiliate_code', '=', $request->affiliate_code)
+                                        ->where(DB::raw('BINARY `affiliate_code`'), '=', $request->affiliate_code)
                                         ->where('status', 1)
                                         ->first();
 
@@ -471,7 +471,7 @@ class paymentController extends Controller
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
 
-                    }else if(str_contains($courses, "next mba course") || str_contains($courses, "marketing") || str_contains($courses, "executive")) {
+                    }else if(str_contains($courses, "upgrade") || str_contains($courses, "next mba course") || str_contains($courses, "marketing") || str_contains($courses, "executive")) {
                         
 
                         $qty = 1;
