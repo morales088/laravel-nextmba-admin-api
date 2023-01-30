@@ -734,6 +734,12 @@ class courseController extends Controller
             'module_id' => 'required|exists:modules,id',
             'name' => 'string',
         ]);
+        
+
+        // if(!empty($request->file)){
+        //     $uploadFile = Modulefile::uploadFiles($request);
+        //     $request->query->add(['link' => $uploadFile]);
+        // }
 
         $files = Modulefile::create($request->only('link') + 
                 [
@@ -755,7 +761,20 @@ class courseController extends Controller
                         'string',
                         Rule::in(['delete', 'active']),
                     ],
+            'file_delete' => [
+                        'string',
+                        Rule::in(['true', 'false']),
+                    ],
         ]);
+
+        // if(!empty($request->file)){
+        //     $uploadFile = Modulefile::uploadFiles($request);
+        //     $request->query->add(['link' => $uploadFile]);
+        // }
+        
+        // if($request->file_delete == true){
+        //     $request->query->add(['link' => null]);
+        // }
 
         if($request->status == "delete"){
             $request['status'] = 0;
