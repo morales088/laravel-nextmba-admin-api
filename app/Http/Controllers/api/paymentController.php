@@ -389,7 +389,7 @@ class paymentController extends Controller
                                         ->count();
 
                     $affiliate_percentage = ($affiliate_count > 5) ? env('proCommissionPercent') : env('baseCommissionPercent');
-                    $request->query->add(['commission_percentage' => $affiliate_count]);
+                    $request->query->add(['commission_percentage' => $affiliate_percentage]);
 
                 // dd($from_student_id, $affiliate_percentage);
             }
