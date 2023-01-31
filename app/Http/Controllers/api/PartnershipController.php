@@ -126,7 +126,8 @@ class PartnershipController extends Controller
             ]);
 
             return response()->json([
-                'message' => "Application has been declined successfully."
+                'message' => "Application has been declined successfully.",
+                'application' => $application
             ], 200);
         } elseif ($request->affiliate_status == 'pending') {
             $application->update([
@@ -135,7 +136,8 @@ class PartnershipController extends Controller
             ]);
 
             return response()->json([
-                'message' => "Application has been updated to pending."
+                'message' => "Application has been updated to pending.",
+                'application' => $application
             ], 200);
         } else {
             return response()->json([
