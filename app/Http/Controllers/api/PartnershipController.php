@@ -121,6 +121,7 @@ class PartnershipController extends Controller
 
         } elseif ($request->affiliate_status == 'declined') {
             $application->update([
+                'admin_id' => Auth::user()->id,
                 'affiliate_status' => 2, // declined
                 'remarks' => $request->remarks
             ]);
@@ -131,6 +132,7 @@ class PartnershipController extends Controller
             ], 200);
         } elseif ($request->affiliate_status == 'pending') {
             $application->update([
+                'admin_id' => Auth::user()->id,
                 'affiliate_status' => 0, // pending
                 'remarks' => $request->remarks
             ]);
