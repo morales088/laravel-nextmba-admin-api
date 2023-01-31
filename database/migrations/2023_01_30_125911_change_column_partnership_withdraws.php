@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::table('partnership_withdraws', function (Blueprint $table) {
             $table->string('admin_id')->default(0)->change();
-            $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]')->after('remarks');
+            $table->string('withdraw_amount')->default(0)->change();
+            $table->string('commission_status')->default(1)->change();
+            // $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]')->after('remarks');
         });
     }
 
@@ -27,7 +29,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('partnership_withdraws', function (Blueprint $table) {
-            $table->dropColumn('status');
+            // $table->dropColumn('status');
         });
     }
 };
