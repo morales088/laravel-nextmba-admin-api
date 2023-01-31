@@ -79,7 +79,7 @@ class PartnershipController extends Controller
         $request->query->add(['id' => $id]);
         $request->validate([
             'id' => 'required|numeric|min:1|exists:partnerships,id',
-            // 'affiliate_status' => 'in:pending,approved,disapproved',
+            'affiliate_status' => 'in:pending,approved,declined',
             'affiliate_code' => 'sometimes|max:100',
             'withdraw_method' => 'sometimes|max:255',
             // 'percentage' => 'required|in:0.15,0.25',
@@ -89,7 +89,7 @@ class PartnershipController extends Controller
         $application = Partnership::findOrFail($id);
         $student = Student::findOrFail($application->student_id);
 
-        if ($request->affiliate_status === 'approved') {
+        if ($request->affiliate_status == 'approved') {
             // check if the student has existing affiliate code
             if ($request->affiliate_code) {
                 $affiliate_code = $request->affiliate_code;
@@ -119,7 +119,7 @@ class PartnershipController extends Controller
                 'application' => $application
             ], 200);
 
-        } elseif ($request->affiliate_status === 'declined') {
+        } elseif ($request->affiliate_status == 'declined') {
             $application->update([
                 'affiliate_status' => 2, // declined
                 'remarks' => $request->remarks
@@ -128,7 +128,7 @@ class PartnershipController extends Controller
             return response()->json([
                 'message' => "Application has been declined successfully."
             ], 200);
-        } elseif ($request->affiliate_status === 'pending') {
+        } elseif ($request->affiliate_status == 'pending') {
             $application->update([
                 'affiliate_status' => 0, // pending
                 'remarks' => $request->remarks
