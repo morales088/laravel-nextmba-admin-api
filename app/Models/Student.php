@@ -4,6 +4,7 @@ namespace App\Models;
 
 use DB;
 use App\Models\Partnership;
+use App\Models\PartnershipWithdraws;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -16,6 +17,10 @@ class Student extends Model
 
     public function partnership() {
         return $this->hasOne(Partnership::class);
+    }
+
+    public function partnershipWithdraws() {
+        return $this->hasMany(PartnershipWithdraws::class, 'student_id');
     }
 
     public static function getStudent($filter = []){

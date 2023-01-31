@@ -156,6 +156,7 @@ Route::prefix("/partnership")->middleware("auth:api")
         Route::get("/pending", "getPendingRequest");
         Route::get("/approved", "getAffiliates");
         Route::put("/update/{id}", "updateAffiliate");
+        Route::put("/update-withdraw/{id}", "updateWithdraw");
         Route::put("/updateAffiliate{id}", "updateStudentAffiliate");
         // Route::get("/payment", "affiliateWithdrawal");
         // Route::get("/stats", "affiliateStatistics");

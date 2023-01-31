@@ -11,6 +11,7 @@ class Partnership extends Model
 {
     use HasFactory;
 
+    protected $table = 'partnerships';
     protected $fillable = [
         'student_id', 'admin_id', 'affiliate_code', 'affiliate_status', 'status', 'percentage', 'remarks', 'withdraw_method'
     ];
