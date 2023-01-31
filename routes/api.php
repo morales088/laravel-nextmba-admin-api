@@ -152,6 +152,7 @@ Route::prefix("/library")->group( function (){
 Route::prefix("/partnership")->middleware("auth:api")
     ->controller(PartnershipController::class)->group(function () {
         Route::get("/partner-applications", "getApplications");
+        Route::get("/partner-withdrawals", "getWithdrawals");
         Route::get("/pending", "getPendingRequest");
         Route::get("/approved", "getAffiliates");
         Route::put("/update/{id}", "updateAffiliate");
