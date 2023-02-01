@@ -11,4 +11,35 @@ class Modulefile extends Model
     
     protected $guarded = ['id'];
     protected $table = 'module_files';
+
+    public static function uploadFiles($request){
+
+        $filePath = 'images/module_files/'.time().'.'.$request->file->extension();
+        $contents = fopen($request->file('file'), 'rb');
+        $disk = Storage::disk('s3');
+        $s3 = new S3Client([
+            'version' => 'latest',
+            'region'  => env('AWS_DEFAULT_REGION')
+        ]);
+        $uploader = new MultipartUploader($s3, $contents, [
+                'bucket' => env('AWS_BUCKET'),
+            'key'    => $filePath,
+        ]);
+
+        try {
+            $result = $uploader->upload();
+            // dd($result['ObjectURL']);
+            return $result['ObjectURL'];
+        } catch (MultipartUploadException $e) {
+            dd($e->getMessage());
+            return $e->getMessage();
+        }
+
+        // $filePath = 'images/library/'.time().'.'.$request->file->extension();
+
+        // $path = Storage::disk('s3')->put($filePath, fopen($request->file('file'), 'r+'));
+        // $path = Storage::disk('s3')->url($filePath);
+        
+        // return $path;
+    }
 }

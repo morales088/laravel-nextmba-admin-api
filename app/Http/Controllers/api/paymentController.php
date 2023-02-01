@@ -475,7 +475,10 @@ class paymentController extends Controller
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
 
-                    }else if(str_contains($courses, "upgrade") || str_contains($courses, "next mba course") || str_contains($courses, "marketing") || str_contains($courses, "executive")) {
+                    }else if( str_contains($courses, "pro account")
+                            || str_contains($courses, "course") 
+                            || str_contains($courses, "marketing") 
+                            || str_contains($courses, "executive")) {
                         
 
                         $qty = 1;
