@@ -68,8 +68,6 @@ class PartnershipController extends Controller
         ], 200);
     }
 
-
-    // Initial
     public function getWithdrawals() {
         
         $withdrawals = PartnershipWithdraws::with(['student:id,email'])
