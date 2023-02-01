@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\PartnershipWithdraws;
 use Illuminate\Support\Facades\Auth;
+use DB;
 
 class PartnershipController extends Controller
 {
@@ -24,6 +25,40 @@ class PartnershipController extends Controller
                         ->get();
         $grouped = $applications->groupBy('affiliate_status');
 
+        foreach ($applications as $key => $value) {
+            // dd($value->toArray());
+            $commission = DB::TABLE('payments as p')
+                            ->leftJoin('withdrawal_payments as wp', 'wp.payment_id', '=', 'p.id')
+                            ->leftJoin('partnership_withdraws as pw', function($join)
+                                {
+                                    $join->on('wp.withdrawal_id', '=', 'pw.id');
+                                    $join->on('p.from_student_id', '=' ,'pw.student_id');
+                                    // $join->on('pw.commission_status', '=', DB::raw(2));
+                                })
+                            ->where('p.from_student_id', $value->student_id)
+                            ->where('p.status', 'paid')
+                            // ->whereNull('pw.id')
+                            ->select('p.*', 
+                                    DB::raw('if(pw.id is null or pw.commission_status != 2, (p.price * p.commission_percentage), 0) as balance'),
+                                    DB::raw('if(pw.commission_status = 2, (p.price * p.commission_percentage), 0) as withdraw'),
+                                    DB::raw('(p.price * p.commission_percentage) as total_commission'),
+                                    )
+
+                            ->get();
+            $clicks = DB::TABLE('events as e')
+                        ->where('partnership_id', $value->id)
+                        ->where('type', 'click')
+                        ->get();
+            // dd($clicks->count());
+            $value->total_clicks = $clicks->count();
+
+            $value->affiliate_purchases = $commission->count();
+            $value->balance = $commission->sum('balance');
+            $value->total_withdraw_amount = $commission->sum('withdraw');
+            $value->total_commission_amount = $commission->sum('total_commission');
+        }
+
+        // dd($applications);
         return response()->json([
             'applications' => $applications,
             'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
