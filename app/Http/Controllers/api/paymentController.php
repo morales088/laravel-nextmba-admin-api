@@ -382,7 +382,7 @@ class paymentController extends Controller
                 $from_student_id = isset($from_student->student_id) ? $from_student->student_id : 0;
                 $request->query->add(['from_student_id' => $from_student_id]);
 
-                if($from_student_id > 0)
+                if($from_student_id > 0){
                     $affiliate_count = DB::table('payments')
                                         ->where('from_student_id', '=', $from_student_id)
                                         ->where('status', 'Paid')
@@ -391,11 +391,13 @@ class paymentController extends Controller
                     $affiliate_percentage = ($affiliate_count >= 5) ? env('proCommissionPercent') : env('baseCommissionPercent');
                     $request->query->add(['commission_percentage' => $affiliate_percentage]);
                     // dd($affiliate_percentage, $request->all(), $affiliate_count);
-                    if($affiliate_count >= 5)
+                    if($affiliate_count >= 5){
                         $percentage = DB::table('partnerships')
                                         ->where("student_id", $from_student_id)
                                         ->update(["percentage" => $affiliate_percentage]);
+                    }
                         // dd($percentage, $from_student_id);
+                }
                 // dd($from_student_id, $affiliate_percentage);
             }
 
