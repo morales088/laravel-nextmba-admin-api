@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\PartnershipWithdraws;
 use Illuminate\Support\Facades\Auth;
+use App\Models\WithdrawalPayment;
 use DB;
 
 class PartnershipController extends Controller
@@ -77,9 +78,9 @@ class PartnershipController extends Controller
 
         return response()->json([
             'withdrawals' => $withdrawals,
-            'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
-            'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
-            'processed' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'pending' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'declined' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
+            'processed' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
         ], 200);
     }
 
@@ -196,7 +197,14 @@ class PartnershipController extends Controller
         $withdraw = PartnershipWithdraws::findOrFail($id);
         $student = Student::findOrFail($withdraw->student_id);
         // $partnership = Partnership::where('student_id', $withdraw->student_id)->first();
-        // dd($partnership->withdraw_method);
+        // $payment = WithdrawalPayment::find(7)->payment;
+        $payment = DB::TABLE('partnership_withdraws as pw')
+                        ->leftJoin('withdrawal_payments as wp', 'wp.withdrawal_id', '=', 'pw.id')
+                        ->leftJoin('payments as p', 'p.id', '=', 'wp.payment_id')
+                        ->where('pw.id', $id);
+                        // ->update(['p.commission_status' => 1]);
+                        
+        // dd($payment->update(['p.commission_status' => 2]));
 
         if ($request->commission_status == 'processed') {
 
@@ -208,6 +216,7 @@ class PartnershipController extends Controller
                 'withdraw_method' => $request->withdraw_method, // $withdraw_method,
                 'remarks' => $request->remarks
             ]);
+            $payment->update(['p.commission_status' => 1]);
 
             return response()->json([
                 'message' => "Withdraw has been updated successfully.",
@@ -217,9 +226,10 @@ class PartnershipController extends Controller
         } elseif ($request->commission_status == 'declined') {
             $withdraw->update([
                 'admin_id' => Auth::user()->id,
-                'commission_status' => 1, // declined
+                'commission_status' => 0, // declined
                 'remarks' => $request->remarks
             ]);
+            $payment->update(['p.commission_status' => 0]);
 
             return response()->json([
                 'message' => "Withdraw has been declined successfully.",
@@ -228,9 +238,10 @@ class PartnershipController extends Controller
         } elseif ($request->commission_status == 'pending') {
             $withdraw->update([
                 'admin_id' => Auth::user()->id,
-                'commission_status' => 0, // pending
+                'commission_status' => 1, // pending
                 'remarks' => $request->remarks
             ]);
+            $payment->update(['p.commission_status' => 0]);
 
             return response()->json([
                 'message' => "Withdraw has been updated to pending.",
