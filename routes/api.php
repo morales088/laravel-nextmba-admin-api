@@ -153,12 +153,7 @@ Route::prefix("/partnership")->middleware("auth:api")
     ->controller(PartnershipController::class)->group(function () {
         Route::get("/partner-applications", "getApplications");
         Route::get("/partner-withdrawals", "getWithdrawals");
-        Route::get("/pending", "getPendingRequest");
-        Route::get("/approved", "getAffiliates");
         Route::put("/update/{id}", "updateAffiliate");
         Route::put("/update-withdraw/{id}", "updateWithdraw");
-        // Route::put("/updateAffiliate{id}", "updateStudentAffiliate");
-        // Route::get("/payment", "affiliateWithdrawal");
-        // Route::get("/stats", "affiliateStatistics");
 });
 
