@@ -21,13 +21,13 @@ class PartnershipController extends Controller
     public function getApplications() {
         
         $applications = Partnership::where('status', '<>', 0)
-                        ->orderBy('affiliate_status', 'ASC')
+                        // ->orderBy('affiliate_status', 'ASC')
+                        ->orderBy('created_at', 'DESC')
                         ->with(['student:id,name,email'])
                         ->get();
         $grouped = $applications->groupBy('affiliate_status');
 
         foreach ($applications as $key => $value) {
-            // dd($value->toArray());
             $commission = DB::TABLE('payments as p')
                             ->leftJoin('withdrawal_payments as wp', 'wp.payment_id', '=', 'p.id')
                             ->leftJoin('partnership_withdraws as pw', function($join)
@@ -50,7 +50,7 @@ class PartnershipController extends Controller
                         ->where('partnership_id', $value->id)
                         ->where('type', 'click')
                         ->get();
-            // dd($clicks->count());
+  
             $value->total_clicks = $clicks->count();
 
             $value->affiliate_purchases = $commission->count();
@@ -59,20 +59,19 @@ class PartnershipController extends Controller
             $value->total_commission_amount = $commission->sum('total_commission');
         }
 
-        // dd($applications);
         return response()->json([
             'applications' => $applications,
             'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
             'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
             'approved' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
-            'balance' => 0
         ], 200);
     }
 
     public function getWithdrawals() {
         
         $withdrawals = PartnershipWithdraws::with(['student:id,email'])
-                        ->orderBy('commission_status', 'ASC')
+                        // ->orderBy('commission_status', 'ASC')
+                        ->orderBy('created_at', 'DESC')
                         ->get();
         $grouped = $withdrawals->groupBy('commission_status');
 
@@ -81,30 +80,6 @@ class PartnershipController extends Controller
             'pending' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
             'declined' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
             'processed' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
-        ], 200);
-    }
-
-    public function getPendingRequest() {
-
-        $applications = Partnership::whereStatus(0)
-                        ->where('status', '<>', 0)
-                        ->orderBy('id', 'DESC')
-                        ->get();
-
-        return response()->json([
-            'applications' => $applications
-        ], 200);
-    }
-
-    public function getAffiliates() {
-
-        $applications = Partnership::whereStatus(1)
-                        ->where('status', '<>', 0)
-                        ->orderBy('id', 'DESC')
-                        ->get();
-                        
-        return response()->json([
-            'applications' => $applications
         ], 200);
     }
 
@@ -182,7 +157,6 @@ class PartnershipController extends Controller
         }
     }
 
-    // Initial commit
     public function updateWithdraw(Request $request, $id) {
 
         $request->query->add(['id' => $id]);
@@ -193,27 +167,31 @@ class PartnershipController extends Controller
             'remarks' => 'nullable|string|max:255'
         ]);
 
-        // find($withdraw->student_id);
         $withdraw = PartnershipWithdraws::findOrFail($id);
         $student = Student::findOrFail($withdraw->student_id);
-        // $partnership = Partnership::where('student_id', $withdraw->student_id)->first();
-        // $payment = WithdrawalPayment::find(7)->payment;
+        $partnership = Partnership::where('student_id', $withdraw->student_id)->first();
+
         $payment = DB::TABLE('partnership_withdraws as pw')
                         ->leftJoin('withdrawal_payments as wp', 'wp.withdrawal_id', '=', 'pw.id')
                         ->leftJoin('payments as p', 'p.id', '=', 'wp.payment_id')
                         ->where('pw.id', $id);
                         // ->update(['p.commission_status' => 1]);
-                        
-        // dd($payment->update(['p.commission_status' => 2]));
 
+        if ($withdraw->commission_status == 0) {
+            return response()->json([
+                'message' => "Withdraw has already been declined and cannnot be updated.",
+                'withdraw' => $withdraw
+            ]);
+        }
+
+        $withdraw_method = $request->withdraw_method ?? $partnership->withdraw_method;
+        
         if ($request->commission_status == 'processed') {
 
-            // $withdraw_method = $request->withdraw_method ?? $partnership->withdraw_method;
-            
             $withdraw->update([
                 'admin_id' => Auth::user()->id,
                 'commission_status' => 2, // processed
-                'withdraw_method' => $request->withdraw_method, // $withdraw_method,
+                'withdraw_method' => $withdraw_method,
                 'remarks' => $request->remarks
             ]);
             $payment->update(['p.commission_status' => 1]);
