@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\WithdrawalPayment;
 use DB;
 
 class Payment extends Model
@@ -165,6 +166,11 @@ class Payment extends Model
       }
 
       return $courses;
+  }
+
+  public function withdrawal_payment()
+  {
+      return $this->hasOne(WithdrawalPayment::class, 'payment_id');
   }
 
 }

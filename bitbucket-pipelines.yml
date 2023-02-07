@@ -10,6 +10,10 @@ pipelines:
   branches:
     master:
       - step:
+          name: Composer Update
+          script:
+            - composer update
+      - step:
           name: Composer Install
           script:
             - composer install
@@ -30,6 +34,10 @@ pipelines:
                 WEBHOOK_URL: 'https://hooks.slack.com/services/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'
                 MESSAGE: 'NEXTMBA Admin Portal API Deployed to Production'
     develop:
+      - step:
+          name: Composer Update
+          script:
+            - composer update
       - step:
           name: Composer Install
           script:
