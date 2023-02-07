@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Aws\Common\Exception\MultipartUploadException;
+use Aws\S3\MultipartUploader;
+use Aws\S3\S3Client;
 
 class Modulefile extends Model
 {
@@ -14,8 +18,8 @@ class Modulefile extends Model
 
     public static function uploadFiles($request){
 
-        $filePath = 'images/module_files/'.time().'.'.$request->file->extension();
-        $contents = fopen($request->file('file'), 'rb');
+        $filePath = 'images/module_files/'.time().'.'.$request->module_file->extension();
+        $contents = fopen($request->file('module_file'), 'rb');
         $disk = Storage::disk('s3');
         $s3 = new S3Client([
             'version' => 'latest',
