@@ -734,7 +734,7 @@ class courseController extends Controller
             'module_id' => 'required|exists:modules,id',
             'name' => 'string',
         ]);
-        
+        // dd($request->all());
 
         if(!empty($request->file)){
             $uploadFile = Modulefile::uploadFiles($request);
