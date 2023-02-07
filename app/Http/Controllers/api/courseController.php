@@ -736,7 +736,7 @@ class courseController extends Controller
         ]);
         // dd($request->all());
 
-        if(!empty($request->file)){
+        if(!empty($request->module_file)){
             $uploadFile = Modulefile::uploadFiles($request);
             $request->query->add(['link' => $uploadFile]);
         }
@@ -767,7 +767,7 @@ class courseController extends Controller
                     ],
         ]);
 
-        if(!empty($request->file)){
+        if(!empty($request->module_file)){
             $uploadFile = Modulefile::uploadFiles($request);
             $request->query->add(['link' => $uploadFile]);
         }
