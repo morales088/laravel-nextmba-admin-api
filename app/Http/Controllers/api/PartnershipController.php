@@ -85,17 +85,18 @@ class PartnershipController extends Controller
 
     public function updateAffiliate(Request $request, $id) {
 
+        $application = Partnership::findOrFail($id);
+
         $request->query->add(['id' => $id]);
         $request->validate([
             'id' => 'required|numeric|min:1|exists:partnerships,id',
             'affiliate_status' => 'in:pending,approved,declined',
-            'affiliate_code' => 'sometimes|max:100',
+            'affiliate_code' => 'sometimes|max:100|unique:partnerships,affiliate_code,'. $application->id,
             'withdraw_method' => 'sometimes|max:255',
             // 'percentage' => 'required|in:0.15,0.25',
             'remarks' => 'nullable|string|max:255'
         ]);
 
-        $application = Partnership::findOrFail($id);
         $student = Student::findOrFail($application->student_id);
 
         if ($request->affiliate_status == 'approved') {
