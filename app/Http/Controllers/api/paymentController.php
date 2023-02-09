@@ -387,18 +387,19 @@ class paymentController extends Controller
                                         ->where('from_student_id', '=', $from_student_id)
                                         ->where('status', 'Paid')
                                         ->count();
-                                        
+                    ++$affiliate_count;
+                             
                     $partnerAffiliate_count = env('partnerAffiliate_count');
                     $proAffiliate_count = env('proAffiliate_count');
-
+                    
                     if($affiliate_count >= $proAffiliate_count){
                         $affiliate_percentage = env('proCommissionPercent');
                     }elseif($affiliate_count >= $partnerAffiliate_count){
                         $affiliate_percentage = env('partnerCommissionPercent');
+                        VideoLibrary::studentLibraryAccess($from_student_id);
                     }else{
                         $affiliate_percentage = env('beginnerCommissionPercent');
                     }
-                    // dd($affiliate_count, $affiliate_percentage);
 
                     $request->query->add(['commission_percentage' => $affiliate_percentage]);
                     // dd($affiliate_percentage, $request->all(), $affiliate_count);
@@ -407,9 +408,8 @@ class paymentController extends Controller
                                         ->where("student_id", $from_student_id)
                                         ->update(["percentage" => $affiliate_percentage]);
                     // }
-                        // dd($percentage, $from_student_id);
+                    
                 }
-                // dd($from_student_id, $affiliate_percentage);
             }
 
             // dd($request->all());
