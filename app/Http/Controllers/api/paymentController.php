@@ -390,11 +390,12 @@ class paymentController extends Controller
                                         
                     $partnerAffiliate_count = env('partnerAffiliate_count');
                     $proAffiliate_count = env('proAffiliate_count');
-
+                    
                     if($affiliate_count >= $proAffiliate_count){
                         $affiliate_percentage = env('proCommissionPercent');
                     }elseif($affiliate_count >= $partnerAffiliate_count){
                         $affiliate_percentage = env('partnerCommissionPercent');
+                        VideoLibrary::studentLibraryAccess($from_student_id);
                     }else{
                         $affiliate_percentage = env('beginnerCommissionPercent');
                     }
