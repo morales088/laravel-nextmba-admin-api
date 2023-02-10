@@ -26,15 +26,14 @@ class PartnershipController extends Controller
         $status = $request->input('status');
         $dateRange = $request->input('date_range');
         $email = $request->input('email');
+        $perPage = $request->input('per_page', 10);
         
         $applications = Partnership::where('status', '<>', 0)
                         ->orderBy('created_at', 'DESC')
                         ->with(['student:id,name,email']);
         // apply filters
         $applications = $this->filterData($applications, $status, $dateRange, $email, 'affiliate_status');
-
-        $applications = $applications->get();
-        $grouped = $applications->groupBy('affiliate_status');
+        $applications = $applications->paginate($perPage);
 
         foreach ($applications as $key => $value) {
             $commission = DB::TABLE('payments as p')
@@ -91,12 +90,13 @@ class PartnershipController extends Controller
         $status = $request->input('status');
         $dateRange = $request->input('date_range');
         $email = $request->input('email');
+        $perPage = $request->input('per_page', 10);
 
         $withdrawals = PartnershipWithdraws::with(['student:id,email'])
-                        ->orderBy('created_at', 'DESC');
+                        ->orderBy('created_at', 'DESC');                        
         // apply filters
         $withdrawals = $this->filterData($withdrawals, $status, $dateRange, $email, 'commission_status');
-        $withdrawals = $withdrawals->get();
+        $withdrawals = $withdrawals->paginate($perPage);
 
         return response()->json([
             'withdrawals' => $withdrawals,
