@@ -134,18 +134,21 @@ class studentController extends Controller
                                 left join student_modules sm ON m.id = sm.moduleId
                                 left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
                                 where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and sm.studentId = $id and c.id = $courseId");
-        
+                
         // $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
         //                         (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
         //                         from student_modules sm
         //                         left join modules m ON m.id = sm.moduleId
-        //                         where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");
-        
-        $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
-                                (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
-                                from student_modules sm
-                                left join modules m ON m.id = sm.moduleId
-                                where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");
+        //                         where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");  
+
+        $modules = DB::SELECT("select m.id moduleId, sc.studentId, m.name module_name, sm.remarks, sm.status, 
+                                (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, 
+                                sm.updated_at
+                                from modules m
+                                left join studentcourses sc ON m.courseId = sc.courseId
+                                left join student_modules sm ON m.id = sm.moduleId and sm.studentId = sc.studentId
+                                where sc.status <> 0 and
+                                sc.courseId = $courseId and sc.studentId = $id order by m.start_date");
 
 
         return response(["modulePerCourses" => $modules, 'course' => $course], 200);
@@ -385,7 +388,7 @@ class studentController extends Controller
         ]);
         
         $modules = json_decode($request->modules);
-        
+        // dd($modules);
         foreach ($modules->modules as $key => $value) {
             
             if($value->status == "deleted"){
@@ -398,10 +401,14 @@ class studentController extends Controller
                 $status = 1;
             }
         
-            $studentModule = StudentModule::where("studentId", $modules->student_id)->where("moduleId", $value->module_id)->first();
-            
-            if($value->remarks != $studentModule['remarks'] || $value->status != $studentModule['status']){
-                
+            $studentModule = StudentModule::where("studentId", $modules->student_id)
+                                    ->where("moduleId", $value->module_id)
+                                    // ->where("status", '<>', 0)
+                                    ->first();
+            // dd($value, $studentModule);
+            if($studentModule){
+            // if($value->remarks != $studentModule['remarks'] || $value->status != $studentModule['status']){
+                // dd(1);
                 $studentModule->update(
                                 [ 
                                     'remarks' => $value->remarks,
@@ -409,6 +416,14 @@ class studentController extends Controller
                                     'updated_at' => now()
                                 ]
                                 );
+            }else{
+                // dd($modules->student_id, $value->module_id, $value->remarks, $status);
+                $newStudentModule = new StudentModule;
+                $newStudentModule->studentId = $modules->student_id;
+                $newStudentModule->moduleId = $value->module_id;
+                $newStudentModule->remarks = $value->remarks;
+                $newStudentModule->status = $status;
+                $newStudentModule->save();
             }
                     
         }
