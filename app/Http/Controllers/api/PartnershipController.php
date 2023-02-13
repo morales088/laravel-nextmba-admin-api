@@ -79,9 +79,9 @@ class PartnershipController extends Controller
         $grouped = $partnership->groupBy('affiliate_status');
 
         return [
-            'declined' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
-            'pending' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
-            'processed' => $grouped->has(2) ? $grouped->get(2)->count() : 0
+            'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
+            'approved' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0
         ];
     }
 
