@@ -65,10 +65,10 @@ class streamController extends Controller
 
             $cf_response_result = $response->json()['result'];
             $uid = $cf_response_result['uid'];
-            $stream_info = $cf_response_result['rtmpsPlayback'];
+            $stream_info = $cf_response_result['rtmps'];
             $srt = $cf_response_result['srt'];
             $srt_url = $srt['url']."?passphrase=".$srt['passphrase']."&streamid=".$srt['streamId'];
-            // dd($cf_response_result, $srt_url);
+            // dd($cf_response_result, $stream_info);
 
             // save uid/rtmps_url/streamKey/stream_json
             DB::table('modules')

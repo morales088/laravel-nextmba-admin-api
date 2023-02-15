@@ -2,30 +2,38 @@
 
 namespace App\Http\Controllers\api;
 
+use DB;
 use App\Models\Student;
+use App\Traits\Filterable;
 use App\Models\Partnership;
 use Illuminate\Http\Request;
+use App\Models\WithdrawalPayment;
 use App\Http\Controllers\Controller;
 use App\Models\PartnershipWithdraws;
 use Illuminate\Support\Facades\Auth;
-use App\Models\WithdrawalPayment;
-use DB;
 
 class PartnershipController extends Controller
 {
+    use Filterable;
+
     public function __construct()
     {
         $this->middleware("auth:api");
     }
 
-    public function getApplications() {
+    public function getApplications(Request $request) {
+
+        $status = $request->input('status');
+        $dateRange = $request->input('date_range');
+        $email = $request->input('email');
+        $perPage = $request->input('per_page', 10);
         
         $applications = Partnership::where('status', '<>', 0)
-                        // ->orderBy('affiliate_status', 'ASC')
                         ->orderBy('created_at', 'DESC')
-                        ->with(['student:id,name,email'])
-                        ->get();
-        $grouped = $applications->groupBy('affiliate_status');
+                        ->with(['student:id,name,email']);
+        // apply filters
+        $applications = $this->filterData($applications, $status, $dateRange, $email, 'affiliate_status');
+        $applications = $applications->paginate($perPage);
 
         foreach ($applications as $key => $value) {
             $commission = DB::TABLE('payments as p')
@@ -61,26 +69,51 @@ class PartnershipController extends Controller
 
         return response()->json([
             'applications' => $applications,
-            'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
-            'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
-            'approved' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'counts' => $this->countPartnerships()
         ], 200);
     }
 
-    public function getWithdrawals() {
+    public function countPartnerships() {
+
+        $partnership = Partnership::where('status', '<>', 0)->get();
+        $grouped = $partnership->groupBy('affiliate_status');
+
+        return [
+            'pending' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
+            'approved' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'declined' => $grouped->has(2) ? $grouped->get(2)->count() : 0
+        ];
+    }
+
+    public function getWithdrawals(Request $request) {
         
+        $status = $request->input('status');
+        $dateRange = $request->input('date_range');
+        $email = $request->input('email');
+        $perPage = $request->input('per_page', 10);
+
         $withdrawals = PartnershipWithdraws::with(['student:id,email'])
-                        // ->orderBy('commission_status', 'ASC')
-                        ->orderBy('created_at', 'DESC')
-                        ->get();
-        $grouped = $withdrawals->groupBy('commission_status');
+                        ->orderBy('created_at', 'DESC');                        
+        // apply filters
+        $withdrawals = $this->filterData($withdrawals, $status, $dateRange, $email, 'commission_status');
+        $withdrawals = $withdrawals->paginate($perPage);
 
         return response()->json([
             'withdrawals' => $withdrawals,
-            'pending' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
-            'declined' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
-            'processed' => $grouped->has(2) ? $grouped->get(2)->count() : 0,
+            'counts' => $this->countWithdrawals()
         ], 200);
+    }
+
+    public function countWithdrawals() {
+
+        $withdrawals = PartnershipWithdraws::all();
+        $grouped = $withdrawals->groupBy('commission_status');
+
+        return [
+            'declined' => $grouped->has(0) ? $grouped->get(0)->count() : 0,
+            'pending' => $grouped->has(1) ? $grouped->get(1)->count() : 0,
+            'processed' => $grouped->has(2) ? $grouped->get(2)->count() : 0
+        ];
     }
 
     public function updateAffiliate(Request $request, $id) {
@@ -176,7 +209,6 @@ class PartnershipController extends Controller
                         ->leftJoin('withdrawal_payments as wp', 'wp.withdrawal_id', '=', 'pw.id')
                         ->leftJoin('payments as p', 'p.id', '=', 'wp.payment_id')
                         ->where('pw.id', $id);
-                        // ->update(['p.commission_status' => 1]);
 
         if ($withdraw->commission_status == 0) {
             return response()->json([
