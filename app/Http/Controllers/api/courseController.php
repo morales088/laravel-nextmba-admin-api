@@ -123,6 +123,7 @@ class courseController extends Controller
             'start_date' => 'date_format:Y-m-d H:i:s',
             'end_date' => 'date_format:Y-m-d H:i:s',
             'module_cover_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'display_topic' => 'in:1,0',
             'pro_access' => 'in:1,0',
             // 'module_status' => [
             //             'string',
@@ -194,7 +195,7 @@ class courseController extends Controller
                 }
             }
             
-            $module->update($request->only('courseId', 'name', 'description', 'category', 'cover_photo', 'chat_url', 'live_url', 'topicId', 'category', 'category_color', 'pro_access', 
+            $module->update($request->only('courseId', 'name', 'description', 'category', 'cover_photo', 'chat_url', 'live_url', 'topicId', 'category', 'category_color', 'pro_access', 'display_topic',
                                             'calendar_link', 'start_date', 'end_date') +
                             [ 'updated_at' => now()]
                             );
@@ -241,7 +242,7 @@ class courseController extends Controller
         //                                 where m.status <> 0 or t.status <> 0
         //                                 group by m.id) m where m.id = $id"))->first();
 
-        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date, m.pro_access,
+        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date, m.pro_access, m.display_topic,
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                         (CASE WHEN m.broadcast_status = 0 THEN 'start_server' WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name, m.stream_info, m.stream_json, m.uid, m.srt_url
