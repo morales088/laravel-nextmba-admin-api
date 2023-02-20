@@ -106,6 +106,10 @@ class libraryController extends Controller
                         'numeric',
                         Rule::in(['0', '1']),
                     ],
+            'type' => [
+                        'numeric',
+                        Rule::in(['1', '2']),
+                    ],
         ]);
 
         if($id){
@@ -136,7 +140,7 @@ class libraryController extends Controller
 
             
             $video_library = VideoLibrary::find($id);
-            $video_library->update($request->only('name', 'description', 'uid', 'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'broadcast_status', 'status') +
+            $video_library->update($request->only('name', 'description', 'uid', 'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
 
@@ -163,7 +167,7 @@ class libraryController extends Controller
                 $request->query->add(['cover_image' => $cover_path]);
             }
 
-            $video_library = VideoLibrary::create($request->only('description', 'uid', 'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'broadcast_status', 'status') +
+            $video_library = VideoLibrary::create($request->only('description', 'uid', 'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
                         [
                             'name' => $request->name,
                             'updated_at' => now()
