@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('modules', 'display_topic'))
+        if (!Schema::hasColumn('video_libraries', 'type'))
         {
-            Schema::table('modules', function (Blueprint $table) {
-                $table->integer('display_topic')->default(0)->comment('[0 - none, 1 - display]')->after('calendar_link');
+            Schema::table('video_libraries', function (Blueprint $table) {
+                $table->integer('type')->default(1)->comment('[1 - main lecture, 2 - additional lecture]')->after('color');
             });
         }
     }
@@ -28,8 +28,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('modules', function (Blueprint $table) {
-            $table->dropColumn('display_topic');
+        Schema::table('video_libraries', function (Blueprint $table) {
+            $table->dropColumn('type');
         });
     }
 };
