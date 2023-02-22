@@ -484,13 +484,12 @@ class paymentController extends Controller
 
                 }else{
                     
-                    if(str_contains($courses, "archives")) {
+                    if(str_contains($courses, "archives") || str_contains($courses, "pro account")) {
 
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
 
-                    }else if( str_contains($courses, "pro account")
-                            || str_contains($courses, "course") 
+                    }else if( str_contains($courses, "course") 
                             || str_contains($courses, "marketing") 
                             || str_contains($courses, "executive")) {
                         
