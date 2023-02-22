@@ -489,7 +489,7 @@ class paymentController extends Controller
                         VideoLibrary::studentLibraryAccess($studentId);
                         $not_replay = false;
 
-                    }else if(str_contains($courses, "course") 
+                    }else if( str_contains($courses, "course") 
                             || str_contains($courses, "marketing") 
                             || str_contains($courses, "executive")) {
                         
