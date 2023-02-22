@@ -415,7 +415,7 @@ class paymentController extends Controller
             // dd($request->all());
             
             // CREATE PAYMENT
-            $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'phone', 'payment_method', 'product', 'country', 'url',
+            $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'quantity', 'phone', 'payment_method', 'product', 'country', 'url',
                                                     'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
