@@ -590,9 +590,13 @@ class paymentController extends Controller
 
                 $user = [
                     'email' => $request->email,
-                    'date' => now()
+                    'date' => now(),
+                    'course' => $request->product,
+                    'reference_id' => $request->reference_id,
+                    'qty' => $request->quantity,
+                    'amount' => $request->price,
                 ];
-
+                
                 try {
                     Mail::to(env('payment_info_recipient'))->send(new PaymentConfirmationEmail($user));
                 } catch (\Exception $e) {
