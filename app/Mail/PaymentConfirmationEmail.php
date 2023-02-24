@@ -34,6 +34,10 @@ class PaymentConfirmationEmail extends Mailable
         return $this->subject('NEXT MBA Account')->view('email.payment-confirmation')->with([
             'email' => $this->user['email'],
             'date' => date('Y-m-d H:i:s'),
+            'course' => $this->user['course'],
+            'reference_id' => $this->user['reference_id'],
+            'qty' => $this->user['qty'],
+            'amount' => $this->user['amount'],
         ]);
     }
 }
