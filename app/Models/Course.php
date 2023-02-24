@@ -26,6 +26,7 @@ class Course extends Model
                     'description' => $request->description,
                     'category' => $request->category,
                     'category_color' => $request->category_color,
+                    'zoom_link' => $request->zoom_link,
                     // 'date' => $request->date,
                     'start_date' => $request->start_date,
                     'end_date' => $request->end_date,
