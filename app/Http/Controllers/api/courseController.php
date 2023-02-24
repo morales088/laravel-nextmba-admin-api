@@ -65,6 +65,7 @@ class courseController extends Controller
             'name' => 'string',
             'category' => 'string|nullable|sometimes',
             'category_color' => 'string|nullable|sometimes',
+            'zoom_link' => 'string|nullable|sometimes',
             // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
@@ -114,6 +115,7 @@ class courseController extends Controller
             'name' => 'string',
             'category' => 'string|nullable|sometimes',
             'category_color' => 'string|nullable|sometimes',
+            'zoom_link' => 'string|nullable|sometimes',
             // 'description' => 'string',
             // 'chat_url' => 'string', // 'regex:'.$regex,
             // 'live_url' => 'string', // 'regex:'.$regex,
@@ -195,7 +197,7 @@ class courseController extends Controller
                 }
             }
             
-            $module->update($request->only('courseId', 'name', 'description', 'category', 'cover_photo', 'chat_url', 'live_url', 'topicId', 'category', 'category_color', 'pro_access', 'display_topic',
+            $module->update($request->only('courseId', 'name', 'description', 'category', 'cover_photo', 'chat_url', 'live_url', 'topicId', 'category', 'category_color', 'pro_access', 'display_topic', 'zoom_link',
                                             'calendar_link', 'start_date', 'end_date') +
                             [ 'updated_at' => now()]
                             );
@@ -242,7 +244,7 @@ class courseController extends Controller
         //                                 where m.status <> 0 or t.status <> 0
         //                                 group by m.id) m where m.id = $id"))->first();
 
-        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date, m.pro_access, m.display_topic,
+        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date, m.pro_access, m.display_topic, m.zoom_link,
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                         (CASE WHEN m.broadcast_status = 0 THEN 'start_server' WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name, m.stream_info, m.stream_json, m.uid, m.srt_url
@@ -283,7 +285,7 @@ class courseController extends Controller
         //     $value->speakers = DB::SELECT("select *, (CASE WHEN role = 1 THEN 'main' WHEN role = 2 THEN 'guest' END) role_code from speakers where moduleId = $value->id and status <> 0");;
         // }
 
-        $modules = DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date,
+        $modules = DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.zoom_link, m.start_date, m.end_date,
                                 (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                 (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                 t.name topic_name, m.status module_status_code, m.broadcast_status broadcast_status_code
