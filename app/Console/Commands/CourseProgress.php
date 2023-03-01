@@ -40,29 +40,41 @@ class CourseProgress extends Command
                 $studentCourses = Studentcourse::where('studentId', $student->id)->where('status', 1)->get();
                 
                 foreach ($studentCourses as $courseKey => $course) {
-                    
+
                     $modules = Module::where('courseId', $course->courseId)
                                         ->whereIn('broadcast_status', [3,4])
                                         ->where('status', 2)
                                         ->whereDate('start_date', '>=', $student->created_at)
                                         ->get();
 
+
                     foreach ($modules as $moduleKey => $module) {
                         $studentModule = Studentmodule::where('studentId', $student->id)
                                                         ->where('moduleId', $module->id)
                                                         ->where('status', '<>', 0)
                                                         ->get();
-                                                        
-                        foreach ($studentModule as $key => $value) {
-                            $studModule = Studentmodule::find($value->id);
-                            $studModule->status = 3;
-                            $studModule->save();
-                            // dd($studModule);
+                            
+                        if($studentModule->isEmpty()){
+                            $newStudModule = new Studentmodule;
+                            $newStudModule->studentId = $student->id;
+                            $newStudModule->moduleId = $module->id;
+                            $newStudModule->status = 3;
+                            $newStudModule->save();
+
                             $this->line("Student Id '$student->id' - Module Id '$module->id'.");
+                        }else{                       
+                            foreach ($studentModule as $key => $value) {
+                                $studModule = Studentmodule::find($value->id);
+                                $studModule->status = 3;
+                                $studModule->save();
+                                // dd($studModule);
+                                $this->line("Student Id '$student->id' - Module Id '$module->id'.");
+                            }
                         }
                     }
                                                     
                 }
+                    
             }
             
         });
