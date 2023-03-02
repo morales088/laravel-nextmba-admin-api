@@ -128,12 +128,14 @@ class studentController extends Controller
                                 SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
                                 count(sm.id) total_st_modules,
                                 -- ROUND( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) / count(sm.id)) * 100 ), 0 ) score_percentage
-                                IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= $module_per_course, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / $module_per_course) * 100 ), 0 )) score_percentage
+                                -- IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= $module_per_course, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / $module_per_course) * 100 ), 0 )) score_percentage
+                                IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= count(sm.id), 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / count(sm.id)) * 100 ), 0 )) score_percentage
                                 from courses c
                                 left join modules m ON m.courseId = c.id
                                 left join student_modules sm ON m.id = sm.moduleId
                                 left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
-                                where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and sm.studentId = $id and c.id = $courseId");
+                                where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 
+                                and sm.studentId = $id and c.id = $courseId and sc.starting <= m.start_date");
                 
         // $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
         //                         (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
@@ -147,8 +149,9 @@ class studentController extends Controller
                                 from modules m
                                 left join studentcourses sc ON m.courseId = sc.courseId
                                 left join student_modules sm ON m.id = sm.moduleId and sm.studentId = sc.studentId
-                                where sc.status <> 0 and
-                                sc.courseId = $courseId and sc.studentId = $id order by m.start_date");
+                                where sc.status <> 0 and sm.status <> 0 and
+                                sc.courseId = $courseId and sc.studentId = $id 
+                                and sc.starting <= m.start_date order by m.start_date");
 
 
         return response(["modulePerCourses" => $modules, 'course' => $course], 200);
