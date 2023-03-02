@@ -44,61 +44,60 @@ class CourseProgress extends Command
                                 from student_modules
                                 where status <> 0
                                 group by studentId, moduleId ) as sm where sm.count > 1");
-
             foreach ($sms as $smsKey => $sm) {
                 $update = DB::update(DB::raw('UPDATE student_modules 
                                     SET status = 0, updated_at = "'.now().'"
                                     WHERE id in ("'.$sm->ids.'")'));
-                $this->line($sm->ids);
-                dd($sm, $update);
+                // $this->line($sm->ids);
+                // dd($sm, $update);
             }
             // dd($sms);
 
 
 
 
-            // $students = Student::where('status', 1)->get();
+            $students = Student::where('status', 1)->get();
 
-            // foreach ($students as $studentKey => $student) {
-            //     $studentCourses = Studentcourse::where('studentId', $student->id)->where('status', 1)->get();
+            foreach ($students as $studentKey => $student) {
+                $studentCourses = Studentcourse::where('studentId', $student->id)->where('status', 1)->get();
                 
-            //     foreach ($studentCourses as $courseKey => $course) {
+                foreach ($studentCourses as $courseKey => $course) {
 
-            //         $modules = Module::where('courseId', $course->courseId)
-            //                             ->whereIn('broadcast_status', [3,4])
-            //                             ->where('status', 2)
-            //                             ->whereDate('start_date', '>=', $student->created_at)
-            //                             ->get();
+                    $modules = Module::where('courseId', $course->courseId)
+                                        ->whereIn('broadcast_status', [3,4])
+                                        ->where('status', 2)
+                                        ->whereDate('start_date', '>=', $student->created_at)
+                                        ->get();
 
 
-            //         foreach ($modules as $moduleKey => $module) {
-            //             $studentModule = Studentmodule::where('studentId', $student->id)
-            //                                             ->where('moduleId', $module->id)
-            //                                             ->where('status', '<>', 0)
-            //                                             ->get();
+                    foreach ($modules as $moduleKey => $module) {
+                        $studentModule = Studentmodule::where('studentId', $student->id)
+                                                        ->where('moduleId', $module->id)
+                                                        ->where('status', '<>', 0)
+                                                        ->get();
                             
-            //             if($studentModule->isEmpty()){
-            //                 $newStudModule = new Studentmodule;
-            //                 $newStudModule->studentId = $student->id;
-            //                 $newStudModule->moduleId = $module->id;
-            //                 $newStudModule->status = 3;
-            //                 $newStudModule->save();
+                        if($studentModule->isEmpty()){
+                            $newStudModule = new Studentmodule;
+                            $newStudModule->studentId = $student->id;
+                            $newStudModule->moduleId = $module->id;
+                            $newStudModule->status = 3;
+                            $newStudModule->save();
 
-            //                 $this->line("Student Id '$student->id' - Module Id '$module->id'.");
-            //             }else{                       
-            //                 foreach ($studentModule as $key => $value) {
-            //                     $studModule = Studentmodule::find($value->id);
-            //                     $studModule->status = 3;
-            //                     $studModule->save();
-            //                     // dd($studModule);
-            //                     $this->line("Student Id '$student->id' - Module Id '$module->id'.");
-            //                 }
-            //             }
-            //         }
+                            $this->line("Student Id '$student->id' - Module Id '$module->id'.");
+                        }else{                       
+                            foreach ($studentModule as $key => $value) {
+                                $studModule = Studentmodule::find($value->id);
+                                $studModule->status = 3;
+                                $studModule->save();
+                                // dd($studModule);
+                                $this->line("Student Id '$student->id' - Module Id '$module->id'.");
+                            }
+                        }
+                    }
                                                     
-            //     }
+                }
                     
-            // }
+            }
             
         });
 
