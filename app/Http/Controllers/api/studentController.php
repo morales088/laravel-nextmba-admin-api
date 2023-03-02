@@ -134,7 +134,7 @@ class studentController extends Controller
                                 left join modules m ON m.courseId = c.id
                                 left join student_modules sm ON m.id = sm.moduleId
                                 left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
-                                where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 
+                                where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and m.pro_access = 0
                                 and sm.studentId = $id and c.id = $courseId and sc.starting <= m.start_date");
                 
         // $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
@@ -149,8 +149,8 @@ class studentController extends Controller
                                 from modules m
                                 left join studentcourses sc ON m.courseId = sc.courseId
                                 left join student_modules sm ON m.id = sm.moduleId and sm.studentId = sc.studentId
-                                where sc.status <> 0 and sm.status <> 0 and
-                                sc.courseId = $courseId and sc.studentId = $id 
+                                where sc.status <> 0 and sm.status <> 0 and m.pro_access = 0 and
+                                sc.courseId = $courseId and sc.studentId = $id
                                 and sc.starting <= m.start_date order by m.start_date");
 
 
