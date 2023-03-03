@@ -41,7 +41,7 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
 
         $request->validate([
-            'name' => 'string|unique:categories,name,' .$category->id,
+            'name' => 'string',
             'color' => 'string|nullable|sometimes',
             'status' => 'in:delete,active'
         ]);
