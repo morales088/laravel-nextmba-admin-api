@@ -245,7 +245,7 @@ class courseController extends Controller
         //                                 where m.status <> 0 or t.status <> 0
         //                                 group by m.id) m where m.id = $id"))->first();
 
-        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date, m.pro_access, m.display_topic, m.zoom_link,
+        $module = COLLECT(\DB::SELECT("select * from (select m.id, m.courseId, m.name, m.description, m.category_id, m.category, m.category_color, m.cover_photo, m.chat_url, m.live_url, m.topicId, m.calendar_link, m.start_date, m.end_date, m.pro_access, m.display_topic, m.zoom_link,
                                         (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                         (CASE WHEN m.broadcast_status = 0 THEN 'start_server' WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                         t.name topic_name, m.stream_info, m.stream_json, m.uid, m.srt_url
