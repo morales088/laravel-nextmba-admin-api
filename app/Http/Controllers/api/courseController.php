@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
+use DB;
 use App\Models\User;
+use App\Models\Topic;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Speaker;
-use App\Models\Topic;
-use App\Models\Speakerrole;
+use App\Models\Category;
 use App\Models\Extravideo;
 use App\Models\Modulefile;
-use DB;
+use App\Models\Speakerrole;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class courseController extends Controller
 {
@@ -207,7 +208,7 @@ class courseController extends Controller
                                             (CASE WHEN m.status = 1 THEN 'draft' WHEN m.status = 2 THEN 'published' WHEN m.status = 3 THEN 'archived' END) module_status,
                                             (CASE WHEN m.broadcast_status = 1 THEN 'offline' WHEN m.broadcast_status = 2 THEN 'live' WHEN m.broadcast_status = 3 THEN 'pending_replay' WHEN m.broadcast_status = 4 THEN 'replay' END) broadcast_status,
                                             t.name topic_name
-                                            from modules m 
+                                            from modules m       
                                             left join topics t ON t.id = m.topicId
                                             where m.id = $module->id and m.status <> 0 or t.status <> 0"))->first();
 
@@ -262,7 +263,13 @@ class courseController extends Controller
 
         $module->description = urldecode($module->description);
         $module->topics = $topics;
-        // dd($module);
+
+        $category = Category::where('status', '<>', 0)
+            ->whereIn('id', [$module->category_id])
+            ->get();
+        
+        $module->category = $category;
+
         return response(["module" => $module], 200);
 
     }
