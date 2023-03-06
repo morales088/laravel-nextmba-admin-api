@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\PartnershipController;
 
 /*
@@ -155,5 +156,12 @@ Route::prefix("/partnership")->middleware("auth:api")
         Route::get("/partner-withdrawals", "getWithdrawals");
         Route::put("/update/{id}", "updateAffiliate");
         Route::put("/update-withdraw/{id}", "updateWithdraw");
+});
+
+Route::prefix("/categories")
+    ->controller(CategoryController::class)->group(function () {
+        Route::get("/", "getCategories");
+        Route::post("/add", "addCategory");
+        Route::put("/update/{id}", "updateCategory");
 });
 

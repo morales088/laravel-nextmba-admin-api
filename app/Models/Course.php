@@ -24,6 +24,7 @@ class Course extends Model
                     'courseId' => $request->courseId,
                     'name' => $request->name,
                     'description' => $request->description,
+                    'category_id' => $request->category_id,
                     'category' => $request->category,
                     'category_color' => $request->category_color,
                     'zoom_link' => $request->zoom_link,
