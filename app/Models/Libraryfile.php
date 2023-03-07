@@ -19,8 +19,8 @@ class Libraryfile extends Model
 
     public static function uploadFiles($request){
 
-        $filePath = 'images/library/'.time().'.'.$request->file->extension();
-        $contents = fopen($request->file('file'), 'rb');
+        $filePath = 'images/library/'.time().'.'.$request->library_file->extension();
+        $contents = fopen($request->file('library_file'), 'rb');
         $disk = Storage::disk('s3');
         $s3 = new S3Client([
             'version' => 'latest',

@@ -190,7 +190,7 @@ class libraryController extends Controller
             'name' => 'string',
         ]);
 
-        if(!empty($request->file)){
+        if(!empty($request->library_file)){
             $uploadFile = Libraryfile::uploadFiles($request);
             $request->query->add(['link' => $uploadFile]);
         }
@@ -223,7 +223,7 @@ class libraryController extends Controller
                     ],
         ]);
 
-        if(!empty($request->file)){
+        if(!empty($request->library_file)){
             $uploadFile = Libraryfile::uploadFiles($request);
             $request->query->add(['link' => $uploadFile]);
         }
