@@ -253,11 +253,11 @@ class libraryController extends Controller
         
         if($library_id > 0){
             
-            $files = DB::SELECT("select * from library_files where libraryId = $library_id and status <> 0");
+            $files = DB::SELECT("select * from library_files where libraryId = $library_id and status <> 0 order by created_at desc");
             
         }else{
 
-            $files = DB::SELECT("select * from library_files where status <> 0");
+            $files = DB::SELECT("select * from library_files where status <> 0 order by created_at desc");
 
         }
         return response(["files" => $files], 200);
