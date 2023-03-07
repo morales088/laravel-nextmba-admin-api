@@ -190,7 +190,7 @@ class libraryController extends Controller
             'name' => 'string',
         ]);
 
-        if(!empty($request->file)){
+        if(!empty($request->library_file)){
             $uploadFile = Libraryfile::uploadFiles($request);
             $request->query->add(['link' => $uploadFile]);
         }
@@ -223,7 +223,7 @@ class libraryController extends Controller
                     ],
         ]);
 
-        if(!empty($request->file)){
+        if(!empty($request->library_file)){
             $uploadFile = Libraryfile::uploadFiles($request);
             $request->query->add(['link' => $uploadFile]);
         }
@@ -253,11 +253,11 @@ class libraryController extends Controller
         
         if($library_id > 0){
             
-            $files = DB::SELECT("select * from library_files where libraryId = $library_id and status <> 0");
+            $files = DB::SELECT("select * from library_files where libraryId = $library_id and status <> 0 order by created_at desc");
             
         }else{
 
-            $files = DB::SELECT("select * from library_files where status <> 0");
+            $files = DB::SELECT("select * from library_files where status <> 0 order by created_at desc");
 
         }
         return response(["files" => $files], 200);
