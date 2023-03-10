@@ -64,7 +64,7 @@ class courseController extends Controller
         $module = $request->validate([
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'category_id' => 'numeric|min:1|exists:categories,id',
+            'category_id' => 'nullable|numeric',
             // 'category' => 'string|nullable|sometimes',
             // 'category_color' => 'string|nullable|sometimes',
             'zoom_link' => 'string|nullable|sometimes',
@@ -115,7 +115,7 @@ class courseController extends Controller
             'id' => 'required|numeric|min:1|exists:modules,id',
             'courseId' => 'numeric|min:1|exists:courses,id',
             'name' => 'string',
-            'category_id' => 'numeric|min:1|exists:categories,id',
+            'category_id' => 'nullable|numeric',
             // 'category' => 'string|nullable|sometimes',
             // 'category_color' => 'string|nullable|sometimes',
             'zoom_link' => 'string|nullable|sometimes',
