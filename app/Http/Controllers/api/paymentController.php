@@ -374,15 +374,18 @@ class paymentController extends Controller
             $status = $request->paid == "true" ? "Paid" : "Unpaid" ; 
 
             if( isset($request->affiliate_code) ){
+                $vip = env('vipCommissionPercent');
                 $from_student = DB::table('partnerships')
                                         ->where(DB::raw('BINARY `affiliate_code`'), '=', $request->affiliate_code)
                                         ->where('status', 1)
                                         ->first();
+                // dd($from_student, $from_student->percentage, $from_student->percentage < 0.50);
 
                 $from_student_id = isset($from_student->student_id) ? $from_student->student_id : 0;
                 $request->query->add(['from_student_id' => $from_student_id]);
-
-                if($from_student_id > 0){
+                
+                if($from_student_id > 0 && $from_student->percentage < $vip){
+                    
                     $affiliate_count = DB::table('payments')
                                         ->where('from_student_id', '=', $from_student_id)
                                         ->where('status', 'Paid')
@@ -410,6 +413,7 @@ class paymentController extends Controller
                     // }
                     
                 }
+                
             }
 
             // dd($request->all());
