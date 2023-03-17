@@ -87,6 +87,7 @@ class libraryController extends Controller
             // 'name' => 'required|string|unique:video_libraries,name',
             // 'uid' => 'required|string',
             // 'date' => 'required|string',
+            'vimeo_url' => 'string|sometimes|nullable',
             'cover_image' => 'image|mimes:jpeg,png,jpg|max:3048',
             'cover_delete' => [
                         'string',
@@ -140,7 +141,7 @@ class libraryController extends Controller
 
             
             $video_library = VideoLibrary::find($id);
-            $video_library->update($request->only('name', 'description', 'uid', 'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
+            $video_library->update($request->only('name', 'description', 'uid', 'vimeo_url' ,'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
 
@@ -167,7 +168,7 @@ class libraryController extends Controller
                 $request->query->add(['cover_image' => $cover_path]);
             }
 
-            $video_library = VideoLibrary::create($request->only('description', 'uid', 'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
+            $video_library = VideoLibrary::create($request->only('description', 'uid', 'vimeo_url' ,'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
                         [
                             'name' => $request->name,
                             'updated_at' => now()

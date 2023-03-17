@@ -353,6 +353,7 @@ class courseController extends Controller
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'speakerId' => 'required|numeric|min:1|exists:speakers,id',
             'name' => 'required|string',
+            'vimeo_url' => 'string|sometimes|nullable',
             // 'video_link' => 'string', // 'regex:'.$regex,
             // 'description' => 'string',
             'speaker_role' => [
@@ -388,7 +389,7 @@ class courseController extends Controller
 
             // insert to topics table
 
-            $addTopic = Topic::create($request->only('video_link', 'description', 'uid') +
+            $addTopic = Topic::create($request->only('video_link', 'vimeo_url', 'description', 'uid') +
                 [
                     'moduleId' => $request->moduleId,
                     'speakerId' => $request->speakerId,
@@ -431,6 +432,7 @@ class courseController extends Controller
             'moduleId' => 'required|numeric|min:1|exists:modules,id',
             'speakerId' => 'numeric|min:1|exists:speakers,id',
             'name' => 'string',
+            'vimeo_url' => 'string|sometimes|nullable',
             // 'video_link' => 'string', // 'regex:'.$regex,
             // 'description' => 'string',
             // 'speaker_role' => [
@@ -481,7 +483,7 @@ class courseController extends Controller
             
             // dd($updateTopic);
         
-            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'uid', 'description', 'status') +
+            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'vimeo_url', 'uid', 'description', 'status') +
                             [ 'updated_at' => now()]
                             );
                             
