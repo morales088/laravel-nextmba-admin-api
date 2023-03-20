@@ -20,6 +20,7 @@ class VideoLibrary extends Model
 
         $student->update(
             [ 
+                'library_access' => 1,
                 'pro_access' => 1,
                 'updated_at' => now(),
             ]
