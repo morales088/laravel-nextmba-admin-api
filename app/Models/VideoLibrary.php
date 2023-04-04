@@ -15,16 +15,25 @@ class VideoLibrary extends Model
     protected $guarded = ['id'];
     protected $table = 'video_libraries';
 
+    public static function studentProAccess($student_id) {
+
+        $student = Student::find($student_id);
+
+        $student->update([
+            'pro_access' => 1,
+            'updated_at'=> now(),
+        ]);
+        
+        return $student;
+    }
+
     public static function studentLibraryAccess ($student_id){
         $student = Student::find($student_id);
 
-        $student->update(
-            [ 
-                'library_access' => 1,
-                'pro_access' => 1,
-                'updated_at' => now(),
-            ]
-        );
+        $student->update([ 
+            'library_access' => 1,
+            'updated_at' => now(),
+        ]);
 
         return $student;
     }
