@@ -391,18 +391,26 @@ class paymentController extends Controller
                                         ->where('status', 'Paid')
                                         ->count();
                     ++$affiliate_count;
-                             
-                    $partnerAffiliate_count = env('partnerAffiliate_count');
-                    $proAffiliate_count = env('proAffiliate_count');
                     
-                    if($affiliate_count >= $proAffiliate_count){
-                        $affiliate_percentage = env('proCommissionPercent');
-                    }elseif($affiliate_count >= $partnerAffiliate_count){
-                        $affiliate_percentage = env('partnerCommissionPercent');
+                    $partnerAffiliate_count = env('partnerAffiliate_count');
+                    // $proAffiliate_count = env('proAffiliate_count');
+                    
+                    // Initial Partner Commission is now 35% then second tier is 50%
+                    if ($affiliate_count >= $partnerAffiliate_count) {
+                        $affiliate_percentage = env('proCommissionPercent'); // 0.50
                         VideoLibrary::studentLibraryAccess($from_student_id);
-                    }else{
-                        $affiliate_percentage = env('beginnerCommissionPercent');
+                    } else {
+                        $affiliate_percentage = env('partnerCommissionPercent'); // 0.35
                     }
+
+                    // if($affiliate_count >= $proAffiliate_count){
+                    //     $affiliate_percentage = env('proCommissionPercent');
+                    // }elseif($affiliate_count >= $partnerAffiliate_count){
+                    //     $affiliate_percentage = env('partnerCommissionPercent');
+                    //     VideoLibrary::studentLibraryAccess($from_student_id);
+                    // }else{
+                    //     $affiliate_percentage = env('beginnerCommissionPercent');
+                    // }
 
                     $request->query->add(['commission_percentage' => $affiliate_percentage]);
                     // dd($affiliate_percentage, $request->all(), $affiliate_count);
@@ -488,12 +496,18 @@ class paymentController extends Controller
 
                 }else{
                     
-                    if(str_contains($courses, "archives") || str_contains($courses, "pro account")) {
+                    if (str_contains($courses, "kotler mastermind")) {
 
+                        VideoLibrary::studentProAccess($studentId);
+                        $not_replay = false;
+                        
+                    } else if (str_contains($courses, "archives") || str_contains($courses, "pro account")) {
+                        
                         VideoLibrary::studentLibraryAccess($studentId);
+                        VideoLibrary::studentProAccess($studentId);
                         $not_replay = false;
 
-                    }else if( str_contains($courses, "course") 
+                    } else if( str_contains($courses, "course") 
                             || str_contains($courses, "marketing") 
                             || str_contains($courses, "executive")) {
                         
