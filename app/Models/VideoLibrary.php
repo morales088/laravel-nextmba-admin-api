@@ -20,7 +20,7 @@ class VideoLibrary extends Model
         $student = Student::find($student_id);
 
         $student->update([
-            'pro_access' => 1,
+            'account_type' => 3,
             'updated_at'=> now(),
         ]);
         

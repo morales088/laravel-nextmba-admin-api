@@ -431,6 +431,7 @@ class paymentController extends Controller
                                                     'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
+                'module_count' => 24,
                 'email' => $request->email,
                 'price' => $request->price,
                 'status' => $status
@@ -499,7 +500,9 @@ class paymentController extends Controller
                     if (str_contains($courses, "kotler mastermind")) {
 
                         VideoLibrary::studentProAccess($studentId);
-                        $not_replay = false;
+
+                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                        array_push($paymentItems, $item);
                         
                     } else if (str_contains($courses, "archives") || str_contains($courses, "pro account")) {
                         
