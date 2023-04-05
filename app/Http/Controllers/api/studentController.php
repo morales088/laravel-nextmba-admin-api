@@ -490,14 +490,15 @@ class studentController extends Controller
             $textPassword = Payment::generate_password();
             // dd($textPassword);
 
-            if($request->account_type != 1){
+            if($request->account_type == 2 || $request->account_type == 3){
                 $module_count = 24;
             }else{
                 $module_count = 2;
             }
-
+            
             $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field', 'account_type') + 
                                         [
+                                            'module_count' => $module_count,
                                             'name' => $request->name,
                                             'email' => $request->email,
                                             'password' => Hash::make($textPassword),
@@ -525,8 +526,6 @@ class studentController extends Controller
             return $student;
 
         });
-
-        // dd($request->all());
 
         return response(["Student" => $student], 200);
 
