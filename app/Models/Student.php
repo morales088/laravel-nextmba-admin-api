@@ -194,4 +194,18 @@ class Student extends Model
       
         return $str;
       }
+
+    public static function studentBasicAccount($student_id)
+    {
+
+        $student = Student::find($student_id);
+
+        $student->update([
+            'account_type' => 2,
+            'module_count' => 24,
+            'updated_at' => now(),
+        ]);
+
+        return $student;
+    }
 }

@@ -514,7 +514,8 @@ class paymentController extends Controller
                     } else if( str_contains($courses, "course") 
                             || str_contains($courses, "marketing") 
                             || str_contains($courses, "executive")) {
-                        
+
+                        Student::studentBasicAccount($studentId);
 
                         $qty = 1;
                         if(str_contains($courses, "+ 1")) $qty = 2;
@@ -530,14 +531,6 @@ class paymentController extends Controller
                         array_push($paymentItems, $course1);
                         $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
                         array_push($paymentItems, $course2);
-
-                        // VideoLibrary::studentLibraryAccess($studentId);
-                        // $not_replay = false;
-
-                        // $qty = 1;
-
-                        // $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
-                        // array_push($paymentItems, $item);
 
                     } else if(str_contains($courses, "marketing")) {
                         $qty = 1;
