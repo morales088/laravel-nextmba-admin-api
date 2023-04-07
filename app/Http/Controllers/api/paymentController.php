@@ -374,7 +374,7 @@ class paymentController extends Controller
             $status = $request->paid == "true" ? "Paid" : "Unpaid" ; 
 
             if( isset($request->affiliate_code) ){
-                $vip = env('vipCommissionPercent');
+                // $vip = env('vipCommissionPercent');
                 $from_student = DB::table('partnerships')
                                         ->where(DB::raw('BINARY `affiliate_code`'), '=', $request->affiliate_code)
                                         ->where('status', 1)
@@ -384,7 +384,8 @@ class paymentController extends Controller
                 $from_student_id = isset($from_student->student_id) ? $from_student->student_id : 0;
                 $request->query->add(['from_student_id' => $from_student_id]);
                 
-                if($from_student_id > 0 && $from_student->percentage < $vip){
+                // if($from_student_id > 0 && $from_student->percentage < $vip){
+                if ($from_student_id > 0){
                     
                     $affiliate_count = DB::table('payments')
                                         ->where('from_student_id', '=', $from_student_id)
@@ -398,7 +399,7 @@ class paymentController extends Controller
                     // Initial Partner Commission is now 35% then second tier is 50%
                     if ($affiliate_count >= $partnerAffiliate_count) {
                         $affiliate_percentage = env('proCommissionPercent'); // 0.50
-                        VideoLibrary::studentLibraryAccess($from_student_id);
+                        VideoLibrary::studentProAccess($from_student_id);
                     } else {
                         $affiliate_percentage = env('partnerCommissionPercent'); // 0.35
                     }
