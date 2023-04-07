@@ -22,6 +22,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\VideoLibrary;
 
 class studentController extends Controller
 {
@@ -161,7 +162,7 @@ class studentController extends Controller
 
         $students = Student::find($id);
         
-        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'pro_access', 'affiliate_access', 'course_date') +
+        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'account_type', 'affiliate_access', 'course_date') +
                         [ 'updated_at' => now()]
                         );
 
@@ -476,6 +477,10 @@ class studentController extends Controller
             'name' => 'required|string',
             'email' => 'required|unique:students',
             // 'password' => 'required|confirmed|min:8',
+            'account_type' => [
+                'numeric',
+                Rule::in([1, 2, 3]),
+            ]
         ]);
 
         // $link = Links::where('studentId', $id)->where('name', $key)->first();
@@ -485,8 +490,15 @@ class studentController extends Controller
             $textPassword = Payment::generate_password();
             // dd($textPassword);
 
-            $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field') + 
+            if($request->account_type == 2 || $request->account_type == 3){
+                $module_count = 24;
+            }else{
+                $module_count = 2;
+            }
+            
+            $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field', 'account_type') + 
                                         [
+                                            'module_count' => $module_count,
                                             'name' => $request->name,
                                             'email' => $request->email,
                                             'password' => Hash::make($textPassword),
@@ -494,6 +506,12 @@ class studentController extends Controller
                                         ]);
             
             Student::createLinks($student->id, $request->all());
+
+            if($request->account_type == 3){
+                VideoLibrary::studentLibraryAccess($student->id);
+                VideoLibrary::studentProAccess($student->id);
+            }
+            
             
             // send user accout to email
             $user = [
@@ -508,8 +526,6 @@ class studentController extends Controller
             return $student;
 
         });
-
-        // dd($request->all());
 
         return response(["Student" => $student], 200);
 
@@ -581,6 +597,7 @@ class studentController extends Controller
         return response(["message" => "new password successfully sent to email"], 200);
 
     }
+
     public function removeStudentCourse(Request $request){
         
         $request->validate([
