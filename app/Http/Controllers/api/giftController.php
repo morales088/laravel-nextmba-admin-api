@@ -112,6 +112,9 @@ class giftController extends Controller
 
                 $student_id = $student->id;
 
+                // set student to basic account type
+                Student::studentBasicAccount($student_id);
+
                 // send account info thru email
                 $user = [
                     'email_sender' => $sender->email,
