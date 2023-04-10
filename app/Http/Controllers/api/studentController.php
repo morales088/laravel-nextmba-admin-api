@@ -162,6 +162,23 @@ class studentController extends Controller
 
         $students = Student::find($id);
         
+        if(isset($request->account_type)){
+            if($request->account_type == 3){
+                $module_count = 24;
+    
+                VideoLibrary::studentLibraryAccess($id);
+                VideoLibrary::studentProAccess($id);
+
+            }elseif($request->account_type == 2){
+                $module_count = 24;
+    
+            }else{
+                $module_count = 2;
+    
+            }
+            $request->query->add(['module_count' => $module_count]);
+        }
+        
         $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'account_type', 'affiliate_access', 'course_date') +
                         [ 'updated_at' => now()]
                         );
