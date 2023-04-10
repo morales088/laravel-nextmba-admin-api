@@ -112,6 +112,7 @@ class giftController extends Controller
 
                 $student_id = $student->id;
 
+
                 // send account info thru email
                 $user = [
                     'email_sender' => $sender->email,
@@ -129,6 +130,9 @@ class giftController extends Controller
             // add course to student
             $data = ['studentId' => $student_id, 'courseId' => $request->course_id];
             Studentcourse::insertStudentCourse($data);
+
+            // set student to basic account type
+            Student::studentBasicAccount($student_id);
 
             // deduct course to student_course table
 
