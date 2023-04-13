@@ -500,6 +500,7 @@ class paymentController extends Controller
                     
                     if (str_contains($courses, "kotler mastermind")) {
 
+                        VideoLibrary::studentLibraryAccess($studentId);
                         VideoLibrary::studentProAccess($studentId);
 
                         $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
