@@ -432,7 +432,6 @@ class paymentController extends Controller
                                                     'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
-                'module_count' => 24,
                 'email' => $request->email,
                 'price' => $request->price,
                 'status' => $status
@@ -455,6 +454,7 @@ class paymentController extends Controller
                     $student = Student::create($request->only('name', 'phone', 'location', 'company', 'position', 'field') + 
                         [
                             // 'name' => $request->full_name,
+                            'module_count' => 24,
                             'email' => $request->email,
                             'password' => Hash::make($password),
                             'updated_at' => now()
