@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->integer('product_id');
             $table->integer('course_id');
+            $table->integer('quantity')->default(1);
             $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
             $table->timestamps();
         });

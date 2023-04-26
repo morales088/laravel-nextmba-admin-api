@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\PartnershipController;
+use App\Http\Controllers\api\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,3 +166,9 @@ Route::prefix("/categories")
         Route::put("/update/{id}", "updateCategory");
 });
 
+Route::prefix("/product")
+    ->controller(ProductController::class)->group(function () {
+        Route::get("/", "getProducts");
+        Route::post("/", "addProducts");
+        Route::put("/{id}", "updateProducts");
+});

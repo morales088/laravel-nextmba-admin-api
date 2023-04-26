@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('code');
             $table->boolean('pro_access')->default(false);
             $table->boolean('library_access')->default(false);
-            $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active]');
+            $table->integer('status')->default(1)->comment('[0 - deleted, 1 - active, 2 - inactive]');
             $table->timestamps();
         });
     }
