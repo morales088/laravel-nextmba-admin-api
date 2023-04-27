@@ -499,10 +499,16 @@ class paymentController extends Controller
                     $item = ['studentId' => $studentId, 'courseId' => $request->courseId, 'qty' => $request->course_qty];
                     array_push($paymentItems, $item);
 
+                    // registrer student course
+                    foreach ($paymentItems as $key => $value) {
+                        Studentcourse::insertStudentCourse($value);
+                    }
+                    // end
+
                 }else{
-                    //search product
-                    $product = Product::where(DB::raw('BINARY `code`'), $request->product_code)->where('status', 1)->first();
-                    dd($product);
+                    //search product and give access to student
+                    $access = Product::courseAccessByCode($request->product_code, $studentId);
+                    // dd($access);
 
                     // if (str_contains($courses, "kotler mastermind")) {
 
@@ -588,28 +594,6 @@ class paymentController extends Controller
                 // UPDATE PAYMENT ITEMS
                 $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
                 //end
-                
-                if($not_replay){
-
-                // if(empty($studentChecker)){
-                    // registrer student course
-                    foreach ($paymentItems as $key => $value) {
-                        Studentcourse::insertStudentCourse($value);
-                    }
-                    // end
-                // }
-                // else{
-                //     // add course qty to student course
-                //     foreach ($paymentItems as $key => $value) {
-                        
-                //         DB::table('studentcourses')
-                //             ->where('studentId', $value['studentId'] )
-                //             ->where('courseId', $value['courseId'] )
-                //             ->where('status', 1)
-                //             ->increment('quantity', $value['qty']);
-                //     }
-                // }
-                }
 
                 $user = [
                     'email' => $request->email,
