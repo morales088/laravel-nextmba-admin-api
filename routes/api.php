@@ -169,6 +169,9 @@ Route::prefix("/categories")
 Route::prefix("/product")
     ->controller(ProductController::class)->group(function () {
         Route::get("/", "getProducts");
-        Route::post("/", "addProducts");
-        Route::put("/{id}", "updateProducts");
+        Route::post("/", "addProduct");
+        Route::put("/{id}", "updateProduct");
+
+        Route::post("/item", "addItem");
+        Route::put("/item/{id}", "updateItem");
 });
