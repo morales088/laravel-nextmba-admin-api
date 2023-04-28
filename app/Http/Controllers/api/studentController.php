@@ -476,7 +476,10 @@ class studentController extends Controller
 
         // dd($request->all());
 
-        $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
+        $studentModule = StudentCourse::where("studentId", $request->student_id)
+                        ->where("courseId", $request->course_id)
+                        ->where("status", 1)
+                        ->first();
                 
         $studentModule->update($request->only('starting', 'expirationDate') +
                         [ 
