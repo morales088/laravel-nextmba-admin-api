@@ -179,7 +179,7 @@ class studentController extends Controller
             $request->query->add(['module_count' => $module_count]);
         }
         
-        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'account_type', 'affiliate_access', 'module_count', 'course_date') +
+        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'account_type', 'module_count', 'course_date') +
                         [ 'updated_at' => now()]
                         );
 
@@ -197,26 +197,12 @@ class studentController extends Controller
         ($request->has('TG'))? $links += ['tg' => addslashes($request->TG)] : '';
         ($request->has('WS'))? $links += ['ws' => addslashes($request->WS)] : '';
 
-                        // dd($links, $request->all());
-
-        // // Check if it has already existing partnership
-        // $existingPartnership = Partnership::where('student_id', $id)
-        //                         ->whereIn('affiliate_status', [0, 1])
-        //                         ->first();
-        // // Make student as a partner by admin
-        // if ($students->affiliate_access = 1 && !$existingPartnership) {
-        //     $students->partnership()->create([
-        //         'affiliate_status' => 1,
-        //         'affiliate_code' => bin2hex(random_bytes(5)),
-        //         'remarks' => "Directly approved as affiliate by admin."
-        //     ]);
-        // } 
+        $affiliateAccess = $request->affiliate_access ?? $students->affiliate_access;
         
-        // dd($request->affiliate_access);
         $existingPartnership = Partnership::where('student_id', $id)->where('status','<>', 0)->first();
-        if ($request->affiliate_access == 1) {
+        if ($affiliateAccess == 1) {
             $this->approveStudentAsAffiliate($id);
-        } elseif ($request->affiliate_access == 0 && $existingPartnership) {
+        } elseif ($affiliateAccess == 0 && $existingPartnership) {
             $this->disapproveStudentAsAffiliate($id);
         } else {
             return response()->json(['message' => "Invalid Request."]);
@@ -476,7 +462,10 @@ class studentController extends Controller
 
         // dd($request->all());
 
-        $studentModule = StudentCourse::where("studentId", $request->student_id)->where("courseId", $request->course_id)->first();
+        $studentModule = StudentCourse::where("studentId", $request->student_id)
+                        ->where("courseId", $request->course_id)
+                        ->where("status", 1)
+                        ->first();
                 
         $studentModule->update($request->only('starting', 'expirationDate') +
                         [ 
