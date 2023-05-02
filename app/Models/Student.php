@@ -199,10 +199,11 @@ class Student extends Model
     {
 
         $student = Student::find($student_id);
+        $module_count = env('MODULE_PER_COURSE');
 
         $student->update([
             'account_type' => 2,
-            'module_count' => 24,
+            'module_count' => $module_count,
             'updated_at' => now(),
         ]);
 

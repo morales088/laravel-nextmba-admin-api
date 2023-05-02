@@ -429,13 +429,13 @@ class paymentController extends Controller
             }
 
             // dd($request->all());
-            
+            $module_count = env('MODULE_PER_COURSE');
             // CREATE PAYMENT
             $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'quantity', 'phone', 'payment_method', 'product', 'country', 'url',
                                                     'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
-                'module_count' => 24,
+                'module_count' => $MODULE_PER_COURSE,
                 'email' => $request->email,
                 'price' => $request->price,
                 'status' => $status
