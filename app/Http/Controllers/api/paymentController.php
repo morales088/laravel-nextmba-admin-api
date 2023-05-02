@@ -435,7 +435,7 @@ class paymentController extends Controller
                                                     'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
-                'module_count' => $MODULE_PER_COURSE,
+                'module_count' => $module_count,
                 'email' => $request->email,
                 'price' => $request->price,
                 'status' => $status
