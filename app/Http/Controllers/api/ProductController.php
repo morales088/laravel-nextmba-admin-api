@@ -47,7 +47,7 @@ class ProductController extends Controller
             $product->code = $request->code;
             $product->pro_access = $request->pro_access ?? 0;
             $product->library_access = $request->library_access ?? 0;
-            $product->status = $request->status ?? 2;
+            $product->status = $request->status;
             $product->save();
             
             // foreach ($product_items as $key => $value) {
