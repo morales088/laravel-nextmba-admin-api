@@ -121,6 +121,13 @@ class ProductController extends Controller
             'course_id' => 'required|numeric|exists:courses,id',
             'quantity' => 'required|numeric|min:1',
         ]);
+
+        $check = ProductItem::WHERE('product_id', $request->product_id)
+                            ->WHERE('course_id', $request->course_id)
+                            ->WHERE('status', 1)
+                            ->get();
+        // dd($check, !$check->isEmpty());
+        if(!$check->isEmpty()) return response(["message" => "Duplicate data."], 409);
         
         $product_item = new ProductItem;
         $product_item->product_id = $request->product_id;
