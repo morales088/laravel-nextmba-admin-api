@@ -15,6 +15,8 @@ use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Studentcourse;
 use App\Models\VideoLibrary;
+use App\Models\ProductItem;
+use App\Models\Product;
 use Validator;
 use Mail;
 use DB;
@@ -361,6 +363,7 @@ class paymentController extends Controller
             $validation['full_name'] = 'string';
             $validation['country'] = 'string';
             $validation['country'] = 'string';
+            $validation['product_code'] = 'required|string';
 
             $request->query->add(['name' => $request->full_name]);
         }
@@ -426,13 +429,13 @@ class paymentController extends Controller
             }
 
             // dd($request->all());
-            
+            $module_count = env('MODULE_PER_COURSE');
             // CREATE PAYMENT
             $payment = Payment::create($request->only('name', 'reference_id', 'hitpay_id', 'quantity', 'phone', 'payment_method', 'product', 'country', 'url',
                                                     'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'affiliate_code', 'commission_percentage', 'from_student_id') +
             [
                 // 'name' => $request->full_name,
-                'module_count' => 24,
+                'module_count' => $module_count,
                 'email' => $request->email,
                 'price' => $request->price,
                 'status' => $status
@@ -496,113 +499,101 @@ class paymentController extends Controller
                     $item = ['studentId' => $studentId, 'courseId' => $request->courseId, 'qty' => $request->course_qty];
                     array_push($paymentItems, $item);
 
-                }else{
-                    
-                    if (str_contains($courses, "kotler mastermind")) {
-
-                        VideoLibrary::studentLibraryAccess($studentId);
-                        VideoLibrary::studentProAccess($studentId);
-
-                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
-                        array_push($paymentItems, $item);
-                        
-                    } else if (str_contains($courses, "archives") || str_contains($courses, "pro account")) {
-                        
-                        VideoLibrary::studentLibraryAccess($studentId);
-                        VideoLibrary::studentProAccess($studentId);
-                        $not_replay = false;
-
-                    } else if( str_contains($courses, "course") 
-                            || str_contains($courses, "marketing") 
-                            || str_contains($courses, "executive")) {
-
-                        Student::studentBasicAccount($studentId);
-
-                        $qty = 1;
-                        if(str_contains($courses, "+ 1")) $qty = 2;
-                        else if(str_contains($courses, "20")) $qty = 20;
-                        else if(str_contains($courses, "10")) $qty = 10;
-                        else if(str_contains($courses, "6")) $qty = 6;
-
-                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
-                        array_push($paymentItems, $item);
-
-                    } else if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
-                        $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
-                        array_push($paymentItems, $course1);
-                        $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
-                        array_push($paymentItems, $course2);
-
-                    } else if(str_contains($courses, "marketing")) {
-                        $qty = 1;
-                        if(str_contains($request->amount, "499")) $qty = 2;
-                        else if(str_contains($request->amount, "299")) $qty = 2;
-                        else if(str_contains($courses, "20")) $qty = 20;
-                        else if(str_contains($courses, "10")) $qty = 10;
-                        else if(str_contains($courses, "6")) $qty = 6;
-
-                        $item = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
-                        array_push($paymentItems, $item);
-
-                        if($qty == 1){
-                            $exeItem = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
-                            array_push($paymentItems, $exeItem);
-                        }
-
-                    } else if(str_contains($courses, "executive")) {
-                        $qty = 1;
-                        if(str_contains($request->amount, "499")) $qty = 2;
-                        else if(str_contains($request->amount, "299")) $qty = 2;
-                        else if(str_contains($courses, "20")) $qty = 20;
-                        else if(str_contains($courses, "10")) $qty = 10;
-                        else if(str_contains($courses, "6")) $qty = 6; 
-
-                        $item = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
-                        array_push($paymentItems, $item);
-
-                        if($qty == 1){
-                            $marketItem = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
-                            array_push($paymentItems, $marketItem);
-                        }
-
-                    } else if(str_contains($courses, "technology")) {
-                        $qty = 1;
-                        if(str_contains($request->amount, "499")) $qty = 2;
-                        else if(str_contains($request->amount, "299")) $qty = 2;
-                        else if(str_contains($courses, "20")) $qty = 20;
-                        else if(str_contains($courses, "10")) $qty = 10;
-                        else if(str_contains($courses, "6")) $qty = 6; 
-                        $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
-                        array_push($paymentItems, $item);
+                    // registrer student course
+                    foreach ($paymentItems as $key => $value) {
+                        Studentcourse::insertStudentCourse($value);
                     }
+                    // end
+
+                }else{
+                    //search product and give access to student
+                    $access = Product::courseAccessByCode($request->product_code, $studentId);
+                    // dd($access);
+
+                    // if (str_contains($courses, "kotler mastermind")) {
+
+                    //     VideoLibrary::studentLibraryAccess($studentId);
+                    //     VideoLibrary::studentProAccess($studentId);
+
+                    //     $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                    //     array_push($paymentItems, $item);
+                        
+                    // } else if (str_contains($courses, "archives") || str_contains($courses, "pro account")) {
+                        
+                    //     VideoLibrary::studentLibraryAccess($studentId);
+                    //     VideoLibrary::studentProAccess($studentId);
+                    //     $not_replay = false;
+
+                    // } else if( str_contains($courses, "course") 
+                    //         || str_contains($courses, "marketing") 
+                    //         || str_contains($courses, "executive")) {
+
+                    //     Student::studentBasicAccount($studentId);
+
+                    //     $qty = 1;
+                    //     if(str_contains($courses, "+ 1")) $qty = 2;
+                    //     else if(str_contains($courses, "20")) $qty = 20;
+                    //     else if(str_contains($courses, "10")) $qty = 10;
+                    //     else if(str_contains($courses, "6")) $qty = 6;
+
+                    //     $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                    //     array_push($paymentItems, $item);
+
+                    // } else if(str_contains($courses, "executive") && str_contains($request->product, "technology")) {
+                    //     $course1 = ['studentId' => $studentId, 'courseId' => 2, 'qty' => 1];
+                    //     array_push($paymentItems, $course1);
+                    //     $course2 = ['studentId' => $studentId, 'courseId' => 3, 'qty' => 1];
+                    //     array_push($paymentItems, $course2);
+
+                    // } else if(str_contains($courses, "marketing")) {
+                    //     $qty = 1;
+                    //     if(str_contains($request->amount, "499")) $qty = 2;
+                    //     else if(str_contains($request->amount, "299")) $qty = 2;
+                    //     else if(str_contains($courses, "20")) $qty = 20;
+                    //     else if(str_contains($courses, "10")) $qty = 10;
+                    //     else if(str_contains($courses, "6")) $qty = 6;
+
+                    //     $item = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
+                    //     array_push($paymentItems, $item);
+
+                    //     if($qty == 1){
+                    //         $exeItem = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
+                    //         array_push($paymentItems, $exeItem);
+                    //     }
+
+                    // } else if(str_contains($courses, "executive")) {
+                    //     $qty = 1;
+                    //     if(str_contains($request->amount, "499")) $qty = 2;
+                    //     else if(str_contains($request->amount, "299")) $qty = 2;
+                    //     else if(str_contains($courses, "20")) $qty = 20;
+                    //     else if(str_contains($courses, "10")) $qty = 10;
+                    //     else if(str_contains($courses, "6")) $qty = 6; 
+
+                    //     $item = ['studentId' => $studentId, 'courseId' => 2, 'qty' => $qty];
+                    //     array_push($paymentItems, $item);
+
+                    //     if($qty == 1){
+                    //         $marketItem = ['studentId' => $studentId, 'courseId' => 1, 'qty' => $qty];
+                    //         array_push($paymentItems, $marketItem);
+                    //     }
+
+                    // } else if(str_contains($courses, "technology")) {
+                    //     $qty = 1;
+                    //     if(str_contains($request->amount, "499")) $qty = 2;
+                    //     else if(str_contains($request->amount, "299")) $qty = 2;
+                    //     else if(str_contains($courses, "20")) $qty = 20;
+                    //     else if(str_contains($courses, "10")) $qty = 10;
+                    //     else if(str_contains($courses, "6")) $qty = 6; 
+                    //     $item = ['studentId' => $studentId, 'courseId' => 3, 'qty' => $qty];
+                    //     array_push($paymentItems, $item);
+                    // }
+
                 }
                 // dd($paymentItems);
 
                 // UPDATE PAYMENT ITEMS
                 $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
                 //end
-                
-                if($not_replay){
-
-                // if(empty($studentChecker)){
-                    // registrer student course
-                    foreach ($paymentItems as $key => $value) {
-                        Studentcourse::insertStudentCourse($value);
-                    }
-                    // end
-                // }
-                // else{
-                //     // add course qty to student course
-                //     foreach ($paymentItems as $key => $value) {
-                        
-                //         DB::table('studentcourses')
-                //             ->where('studentId', $value['studentId'] )
-                //             ->where('courseId', $value['courseId'] )
-                //             ->where('status', 1)
-                //             ->increment('quantity', $value['qty']);
-                //     }
-                // }
-                }
 
                 $user = [
                     'email' => $request->email,

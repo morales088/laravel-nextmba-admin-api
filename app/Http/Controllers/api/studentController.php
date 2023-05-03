@@ -161,16 +161,17 @@ class studentController extends Controller
     public function updateStudent(Request $request, $id){
 
         $students = Student::find($id);
+        $module_count = env('MODULE_PER_COURSE');
         
         if(isset($request->account_type)){
             if($request->account_type == 3){
-                $module_count = 24;
+                $module_count = $module_count;
     
                 VideoLibrary::studentLibraryAccess($id);
                 VideoLibrary::studentProAccess($id);
 
             }elseif($request->account_type == 2){
-                $module_count = 24;
+                $module_count = $module_count;
     
             }else{
                 $module_count = 2;
@@ -491,13 +492,14 @@ class studentController extends Controller
 
         // $link = Links::where('studentId', $id)->where('name', $key)->first();
         $student = DB::transaction(function() use ($request) {
+            $module_count = env('MODULE_PER_COURSE');
 
             // generate random password
             $textPassword = Payment::generate_password();
             // dd($textPassword);
 
             if($request->account_type == 2 || $request->account_type == 3){
-                $module_count = 24;
+                $module_count = $module_count;
             }else{
                 $module_count = 2;
             }
