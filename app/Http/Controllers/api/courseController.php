@@ -812,7 +812,8 @@ class courseController extends Controller
         $request->validate([
             'name' => 'required|string',
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'is_displayed' => 'in:0,1'
+            'is_displayed' => 'in:0,1',
+            'free' => 'in:0,1'
         ]);
 
 
@@ -824,7 +825,7 @@ class courseController extends Controller
 
         // dd($request->all());
 
-        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link', 'is_displayed') + 
+        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link', 'is_displayed', 'paid') + 
                                         [
                                             'name' => $request->name,
                                         ]);
@@ -837,7 +838,8 @@ class courseController extends Controller
         $request->validate([
             'course_id' => 'required|numeric|min:1|exists:courses,id',
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'is_displayed' => 'in:0,1'
+            'is_displayed' => 'in:0,1',
+            'free' => 'in:0,1'
         ]);
 
         if(!empty($request->course_image) || !empty($request->course_image_link)){
@@ -846,7 +848,7 @@ class courseController extends Controller
 
         $course = Course::find($request->course_id);
 
-        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link', 'is_displayed') + 
+        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link', 'is_displayed', 'paid') + 
                         [ 
                             'updated_at' => now()
                         ]
