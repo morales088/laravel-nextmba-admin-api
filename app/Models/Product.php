@@ -25,7 +25,7 @@ class Product extends Model
                             ->where('status', 1)
                             ->with('product_items')
                             ->first();
-
+                            
         if($product['pro_access']) VideoLibrary::studentProAccess($student_id);
         if($product['library_access']) VideoLibrary::studentLibraryAccess($student_id);
         
