@@ -813,7 +813,7 @@ class courseController extends Controller
             'name' => 'required|string',
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
             'is_displayed' => 'in:0,1',
-            'free' => 'in:0,1'
+            'paid' => 'in:0,1'
         ]);
 
 
@@ -839,7 +839,7 @@ class courseController extends Controller
             'course_id' => 'required|numeric|min:1|exists:courses,id',
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
             'is_displayed' => 'in:0,1',
-            'free' => 'in:0,1'
+            'paid' => 'in:0,1'
         ]);
 
         if(!empty($request->course_image) || !empty($request->course_image_link)){
