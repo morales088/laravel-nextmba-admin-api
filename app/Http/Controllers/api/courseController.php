@@ -28,7 +28,7 @@ class courseController extends Controller
         //                         where s.status <> 0 and sc.status <> 0 and c.status <> 0
         //                         group by c.id");
 
-        $courses = DB::SELECT("select c.id course_id, c.name, c.price course_price, c.description,  c.created_at, c.updated_at
+        $courses = DB::SELECT("select c.id course_id, c.name, c.price course_price, c.description, is_displayed, c.created_at, c.updated_at
                             from courses c 
                             where c.status <> 0");
                             
@@ -812,6 +812,7 @@ class courseController extends Controller
         $request->validate([
             'name' => 'required|string',
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'is_displayed' => 'in:0,1'
         ]);
 
 
@@ -823,7 +824,7 @@ class courseController extends Controller
 
         // dd($request->all());
 
-        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link') + 
+        $course = Course::create($request->only('description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link', 'is_displayed') + 
                                         [
                                             'name' => $request->name,
                                         ]);
@@ -836,6 +837,7 @@ class courseController extends Controller
         $request->validate([
             'course_id' => 'required|numeric|min:1|exists:courses,id',
             'course_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'is_displayed' => 'in:0,1'
         ]);
 
         if(!empty($request->course_image) || !empty($request->course_image_link)){
@@ -844,7 +846,7 @@ class courseController extends Controller
 
         $course = Course::find($request->course_id);
 
-        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link') + 
+        $course->update($request->only('name', 'description', 'cover_photo', 'price', 'telegram_link', 'course_link', 'image_link', 'is_displayed') + 
                         [ 
                             'updated_at' => now()
                         ]
