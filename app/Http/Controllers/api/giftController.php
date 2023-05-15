@@ -67,7 +67,7 @@ class giftController extends Controller
         
         $is_giftable = COLLECT(\DB::SELECT("SELECT * from payments where id = $request->payment_id and created_at > '$giftable_gift'"))->first();
 
-        if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable) || $request->course_id != 3){
+        if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable)){
             return response()->json(["message" => "zero courses available / recipient already has this course / course expired"], 422);
         }
 
