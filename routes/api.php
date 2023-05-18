@@ -104,6 +104,14 @@ Route::prefix("/courses")->group( function (){
     Route::middleware("auth:api")->post("/library/files", "api\libraryController@addFiles"); 
     Route::middleware("auth:api")->put("/library/files/{id}", "api\libraryController@updateFiles");
 
+    Route::middleware("auth:api")->get("/module/streams/{module_id}", "api\courseController@getModuleStream");
+    Route::middleware("auth:api")->post("/module/stream", "api\courseController@createModuleSteam");
+    Route::middleware("auth:api")->put("/module/stream/{id?}", "api\courseController@updateModuleSteam");
+
+    Route::middleware("auth:api")->get("/module/replays/{topic_id}", "api\courseController@getReplayVideo");
+    Route::middleware("auth:api")->post("/module/replay", "api\courseController@createReplayVideo");
+    Route::middleware("auth:api")->put("/module/replay/{id?}", "api\courseController@updateReplayVideo");
+
 
 });
 
