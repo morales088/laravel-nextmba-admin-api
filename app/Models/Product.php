@@ -25,9 +25,14 @@ class Product extends Model
                             ->where('status', 1)
                             ->with('product_items')
                             ->first();
-                            
-        if($product['pro_access']) VideoLibrary::studentProAccess($student_id);
+
         if($product['library_access']) VideoLibrary::studentLibraryAccess($student_id);
+                            
+        if($product['pro_access']){ 
+            VideoLibrary::studentProAccess($student_id);
+            Studentcourse::addAllCourse($student_id);
+            return true;
+        }
         
         $starting_date = now();
         $expiration_date = now()->addMonths(12);

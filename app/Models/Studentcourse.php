@@ -61,4 +61,37 @@ class Studentcourse extends Model
 
 
     }
+
+    public static function addAllCourse($student_id){
+        $active_course = Studentcourse::where('studentId', $student_id)
+                                        ->where('status', 1)
+                                        ->pluck('courseId')
+                                        ->toArray();
+        
+        // $active_course = implode(',', $active_course);
+
+        $other_courses = Course::where('status', 1)
+                                ->where('paid', 1)
+                                ->where('is_displayed', 1)
+                                ->whereNotIn('id', $active_course)
+                                ->get();
+
+        // dd($active_course, $other_courses->toArray());
+
+        $starting_date = now();
+        $expiration_date = now()->addMonths(12);
+
+        foreach ($other_courses as $key => $value) {
+            $Studentcourse = Studentcourse::create(
+                [
+                    'studentId' => $student_id,
+                    'courseId' => $value['id'],
+                    'starting' => $starting_date,
+                    'expirationDate' => $expiration_date,
+                    'quantity' => 0,
+                ]);
+        }
+        return $other_courses;
+        
+    }
 }
