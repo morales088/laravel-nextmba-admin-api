@@ -100,7 +100,7 @@ class SplitCourse extends Command
                         $studentGift->save();
                     }
 
-                $this->line("Student emil: $value->email");
+                $this->line("Student email: $value->email");
             }
 
         });
