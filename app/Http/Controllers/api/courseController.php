@@ -883,11 +883,11 @@ class courseController extends Controller
             'key' => 'required|string',
             'language' => 'in:1,2',
             'type' => 'in:1,2,3,4',
-            'broadcast_status' => 'in:0,1,2,3,4',
-            'status' => 'in:1,2,3'
+            // 'broadcast_status' => 'in:0,1,2,3,4',
+            'status' => 'in:1,2,3,4'
         ]);
 
-        $stream = ModuleStream::create($request->only('chat_link', 'broadcast_status', 'status') + 
+        $stream = ModuleStream::create($request->only('chat_link', 'status') + 
                                         [
                                             'module_id' => $request->module_id,
                                             'name' => $request->name,
@@ -920,15 +920,30 @@ class courseController extends Controller
     }
 
     public function getReplayVideo(Request $request, $id){
-        $request->query->add(['topic_id' => $id]);
+        $request->query->add(['module_id' => $id]);
 
         $request->validate([
-            'topic_id' => 'required|numeric|min:1|exists:topics,id',
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
         ]);
 
-        $replays = ReplayVideo::where('topic_id', $request->topic_id)
-                                ->where('status', '<>', 3)
-                                ->get();
+        $replays = DB::TABLE('topics as t')
+                        ->leftJoin('replay_videos as rv', 't.id', '=', 'rv.topic_id')
+                        ->where('t.status', 1)
+                        ->where('rv.status', '<>', 0)
+                        ->where('t.moduleId', $id)
+                        ->select('rv.*')
+                        ->orderBy('t.id')
+                        ->get();
+
+        // $request->query->add(['topic_id' => $id]);
+
+        // $request->validate([
+        //     'topic_id' => 'required|numeric|min:1|exists:topics,id',
+        // ]);
+
+        // $replays = ReplayVideo::where('topic_id', $request->topic_id)
+        //                         ->where('status', '<>', 3)
+        //                         ->get();
                                 
         return response(["replays" => $replays], 200);
 

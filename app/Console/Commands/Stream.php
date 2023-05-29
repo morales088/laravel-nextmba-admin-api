@@ -50,8 +50,8 @@ class Stream extends Command
                     $moduleStream->key = $value->live_url;
                     $moduleStream->chat_link = $value->chat_url;
                     $moduleStream->type = 1;
-                    $moduleStream->broadcast_status = $value->broadcast_status;
-                    $moduleStream->status = $value->status;
+                    // $moduleStream->broadcast_status = $value->broadcast_status;
+                    $moduleStream->status = 4;
 
                     $moduleStream->save();
                 }
@@ -64,8 +64,8 @@ class Stream extends Command
                     $moduleStream->key = $value->uid;
                     // $moduleStream->chat_link = null;
                     $moduleStream->type = 2;
-                    $moduleStream->broadcast_status = $value->broadcast_status;
-                    $moduleStream->status = $value->status;
+                    // $moduleStream->broadcast_status = $value->broadcast_status;
+                    $moduleStream->status = $value->broadcast_status;
 
                     $moduleStream->save();
                 }
@@ -78,8 +78,8 @@ class Stream extends Command
                     $moduleStream->key = $value->zoom_link;
                     // $moduleStream->chat_link = null;
                     $moduleStream->type = 2;
-                    $moduleStream->broadcast_status = $value->broadcast_status;
-                    $moduleStream->status = $value->status;
+                    // $moduleStream->broadcast_status = $value->broadcast_status;
+                    $moduleStream->status = 4;
 
                     $moduleStream->save();
                 }
