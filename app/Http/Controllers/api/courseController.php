@@ -882,10 +882,12 @@ class courseController extends Controller
             'name' => 'required|string',
             'key' => 'required|string',
             'language' => 'in:1,2',
-            'type' => 'in:1,2,3,4'
+            'type' => 'in:1,2,3,4',
+            'broadcast_status' => 'in:0,1,2,3,4',
+            'status' => 'in:1,2,3'
         ]);
 
-        $stream = ModuleStream::create($request->only('chat_link') + 
+        $stream = ModuleStream::create($request->only('chat_link', 'broadcast_status', 'status') + 
                                         [
                                             'module_id' => $request->module_id,
                                             'name' => $request->name,
@@ -939,10 +941,11 @@ class courseController extends Controller
             'name' => 'required|string',
             'stream_link' => 'required|string',
             'language' => 'in:1,2',
-            'type' => 'in:1,2,3,4'
+            'type' => 'in:1,2,3,4',
+            'status' => 'in:0,1,2'
         ]);
 
-        $replay = ReplayVideo::create($request->only('') + 
+        $replay = ReplayVideo::create($request->only('status') + 
                                         [
                                             'topic_id' => $request->topic_id,
                                             'name' => $request->name,
