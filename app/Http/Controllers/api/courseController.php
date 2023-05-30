@@ -868,7 +868,7 @@ class courseController extends Controller
         ]);
 
         $streams = ModuleStream::where('module_id', $request->module_id)
-                                ->where('status', '<>', 3)
+                                ->where('status', '<>', 0)
                                 ->get();
                                 
         return response(["module_streams" => $streams], 200);
