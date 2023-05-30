@@ -905,7 +905,7 @@ class courseController extends Controller
             'module_id' => 'required|numeric|min:1|exists:modules,id',
             'name' => 'string',
             'key' => 'string',
-            'chat_link' => 'string',
+            // 'chat_link' => 'string',
             'language' => 'in:1,2',
             'type' => 'in:1,2,3,4'
         ]);                                        
@@ -985,7 +985,7 @@ class courseController extends Controller
         
         $replay = ReplayVideo::find($request->id);
     
-        $replay->update($request->only('name', 'stream_link', 'chat_link', 'language', 'type', 'status') +
+        $replay->update($request->only('name', 'stream_link', 'language', 'type', 'status') +
                         [ 'updated_at' => now()]
                         );
                         
