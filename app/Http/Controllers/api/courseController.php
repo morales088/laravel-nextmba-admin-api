@@ -899,10 +899,10 @@ class courseController extends Controller
     }
 
     public function updateModuleSteam(Request $request, $id){
-        $request->query->add(['module_id' => $id]);
+        $request->query->add(['stream_id' => $id]);
 
         $request->validate([
-            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'stream_id' => 'required|numeric|min:1|exists:module_streams,id',
             'name' => 'string',
             'key' => 'string',
             // 'chat_link' => 'string',
@@ -973,10 +973,10 @@ class courseController extends Controller
     }
 
     public function updateReplayVideo(Request $request, $id){
-        $request->query->add(['topic_id' => $id]);
+        $request->query->add(['replay_id' => $id]);
 
         $request->validate([
-            'topic_id' => 'required|numeric|min:1|exists:topics,id',
+            'replay_id' => 'required|numeric|min:1|exists:replay_videos,id',
             'name' => 'string',
             'stream_link' => 'string',
             'language' => 'in:1,2',
