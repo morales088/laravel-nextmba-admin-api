@@ -912,7 +912,7 @@ class courseController extends Controller
 
         $stream = ModuleStream::find($request->id);
     
-        $stream->update($request->only('name', 'key', 'chat_link', 'language', 'type', 'broadcast_status', 'status') +
+        $stream->update($request->only('name', 'key', 'chat_link', 'language', 'type', 'status') +
                         [ 'updated_at' => now()]
                         );
                         
