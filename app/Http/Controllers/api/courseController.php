@@ -904,7 +904,7 @@ class courseController extends Controller
         $request->validate([
             'stream_id' => 'required|numeric|min:1|exists:module_streams,id',
             'name' => 'string',
-            'key' => 'string',
+            // 'key' => 'string',
             // 'chat_link' => 'string',
             'language' => 'in:1,2',
             'type' => 'in:1,2,3,4'
