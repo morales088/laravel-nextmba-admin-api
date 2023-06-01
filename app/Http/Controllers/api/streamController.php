@@ -92,7 +92,7 @@ class streamController extends Controller
             ->update(
               [
                 'key' => $uid, // ui
-                'stream_info' => $stream_info,
+                'stream_json' => $stream_info,
                 'status' => 2,
                 'updated_at' => now(),
               ]
