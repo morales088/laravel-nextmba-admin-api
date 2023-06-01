@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use App\Models\Module;
+use App\Models\ModuleStream;
 use DB;
 
 class streamController extends Controller
@@ -38,10 +39,10 @@ class streamController extends Controller
             'stream_name' => 'required|string',
         ]);
 
-        // check module's uid
-        $module = Module::find($request->module_id);
+        $stream = ModuleStream::find($request->stream_id);
 
-        // dd($module, $module->broadcast_status);
+        // check module's uid
+        $module = Module::find($stream->module_id);
 
         if($module->broadcast_status == 1){ 
 
