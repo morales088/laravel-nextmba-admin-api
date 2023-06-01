@@ -17,7 +17,7 @@ return new class extends Migration
         if (Schema::hasColumn('module_streams', 'key'))
         {
             Schema::table('module_streams', function (Blueprint $table) {
-                $table->integer('key')->nullable()->change();
+                $table->string('key')->nullable()->change();
             });
         }
     }
@@ -30,7 +30,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('module_streams', function (Blueprint $table) {
-            //
+            $table->string('key')->change();
         });
     }
 };
