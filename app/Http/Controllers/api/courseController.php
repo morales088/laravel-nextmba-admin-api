@@ -880,18 +880,18 @@ class courseController extends Controller
         $request->validate([
             'module_id' => 'required|numeric|min:1|exists:modules,id',
             'name' => 'required|string',
-            'key' => 'required|string',
+            // 'key' => 'required|string',
             'language' => 'in:1,2',
             'type' => 'in:1,2,3,4',
             // 'broadcast_status' => 'in:0,1,2,3,4',
             'status' => 'in:1,2,3,4'
         ]);
 
-        $stream = ModuleStream::create($request->only('chat_link', 'status') + 
+        $stream = ModuleStream::create($request->only('key', 'chat_link', 'status') + 
                                         [
                                             'module_id' => $request->module_id,
                                             'name' => $request->name,
-                                            'key' => $request->key,
+                                            // 'key' => $request->key,
                                             'type' => $request->type,
                                         ]);
                         
