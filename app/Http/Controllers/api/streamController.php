@@ -44,7 +44,8 @@ class streamController extends Controller
         // check module's uid
         $module = Module::find($stream->module_id);
 
-        if($module->broadcast_status == 1){ 
+        // if($module->broadcast_status == 1){ 
+        if($stream->status == 1){ 
 
             $response = Http::acceptJson()->withHeaders([
                 'Authorization' => "Bearer $stream_api_key",
@@ -71,19 +72,19 @@ class streamController extends Controller
             $srt_url = $srt['url']."?passphrase=".$srt['passphrase']."&streamid=".$srt['streamId'];
             // dd($cf_response_result, $stream_info);
 
-            // // save uid/rtmps_url/streamKey/stream_json
-            // DB::table('modules')
-            // ->where('id', $request->module_id)
-            // ->update(
-            //   [
-            //     'uid' => $uid, // ui
-            //     'stream_info' => $stream_info,
-            //     'stream_json' => $cf_response_result,
-            //     'srt_url' => $srt_url,
-            //     'broadcast_status' => 0,
-            //     'updated_at' => now(),
-            //   ]
-            // );
+            // save uid/rtmps_url/streamKey/stream_json
+            DB::table('modules')
+            ->where('id', $request->module_id)
+            ->update(
+              [
+                'uid' => $uid, // ui
+                'stream_info' => $stream_info,
+                'stream_json' => $cf_response_result,
+                'srt_url' => $srt_url,
+                'broadcast_status' => 0,
+                'updated_at' => now(),
+              ]
+            );
 
             // save uid/rtmps_url/streamKey/stream_json
             DB::table('module_streams')
