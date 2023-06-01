@@ -176,7 +176,7 @@ class streamController extends Controller
         ->update(
             [
             // 'uid' => null,
-            'stream_info' => null,
+            'stream_json' => null,
             'status' => 4,
             'updated_at' => now(),
             ]
