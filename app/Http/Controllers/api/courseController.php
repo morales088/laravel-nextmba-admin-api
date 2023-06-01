@@ -12,6 +12,8 @@ use App\Models\Category;
 use App\Models\Extravideo;
 use App\Models\Modulefile;
 use App\Models\Speakerrole;
+use App\Models\ModuleStream;
+use App\Models\ReplayVideo;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
@@ -856,5 +858,137 @@ class courseController extends Controller
                         
         return response(["course" => $course], 200);
 
+    }
+
+    public function getModuleStream(Request $request, $id){
+        $request->query->add(['module_id' => $id]);
+
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+        ]);
+
+        $streams = ModuleStream::where('module_id', $request->module_id)
+                                ->where('status', '<>', 0)
+                                ->get();
+                                
+        return response(["module_streams" => $streams], 200);
+
+    }
+
+    public function createModuleSteam(Request $request){
+
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'name' => 'required|string',
+            // 'key' => 'required|string',
+            'language' => 'in:1,2',
+            'type' => 'in:1,2,3,4',
+            // 'broadcast_status' => 'in:0,1,2,3,4',
+            'status' => 'in:1,2,3,4'
+        ]);
+
+        $stream = ModuleStream::create($request->only('key', 'chat_link', 'status') + 
+                                        [
+                                            'module_id' => $request->module_id,
+                                            'name' => $request->name,
+                                            // 'key' => $request->key,
+                                            'type' => $request->type,
+                                        ]);
+                        
+        return response(["module_stream" => $stream], 200);
+    }
+
+    public function updateModuleSteam(Request $request, $id){
+        $request->query->add(['stream_id' => $id]);
+
+        $request->validate([
+            'stream_id' => 'required|numeric|min:1|exists:module_streams,id',
+            'name' => 'string',
+            'key' => 'string',
+            // 'chat_link' => 'string',
+            'language' => 'in:1,2',
+            'type' => 'in:1,2,3,4'
+        ]);                                        
+
+        $stream = ModuleStream::find($request->id);
+    
+        $stream->update($request->only('name', 'key', 'chat_link', 'language', 'type', 'status') +
+                        [ 'updated_at' => now()]
+                        );
+                        
+        return response(["module_stream" => $stream], 200);
+    }
+
+    public function getReplayVideo(Request $request, $id){
+        $request->query->add(['module_id' => $id]);
+
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+        ]);
+
+        $replays = DB::TABLE('topics as t')
+                        ->leftJoin('replay_videos as rv', 't.id', '=', 'rv.topic_id')
+                        ->where('t.status', 1)
+                        ->where('rv.status', '<>', 0)
+                        ->where('t.moduleId', $id)
+                        ->select('rv.*')
+                        ->orderBy('t.id')
+                        ->get();
+
+        // $request->query->add(['topic_id' => $id]);
+
+        // $request->validate([
+        //     'topic_id' => 'required|numeric|min:1|exists:topics,id',
+        // ]);
+
+        // $replays = ReplayVideo::where('topic_id', $request->topic_id)
+        //                         ->where('status', '<>', 3)
+        //                         ->get();
+                                
+        return response(["replays" => $replays], 200);
+
+    }
+
+    public function createReplayVideo(Request $request){
+
+        $request->validate([
+            'topic_id' => 'required|numeric|min:1|exists:topics,id',
+            'name' => 'required|string',
+            'stream_link' => 'required|string',
+            'language' => 'in:1,2',
+            'type' => 'in:1,2,3,4',
+            'status' => 'in:0,1,2'
+        ]);
+
+        $replay = ReplayVideo::create($request->only('status') + 
+                                        [
+                                            'topic_id' => $request->topic_id,
+                                            'name' => $request->name,
+                                            'stream_link' => $request->stream_link,
+                                            'language' => $request->language,
+                                            'type' => $request->type,
+                                        ]);
+                        
+        return response(["replay" => $replay], 200);
+    }
+
+    public function updateReplayVideo(Request $request, $id){
+        $request->query->add(['replay_id' => $id]);
+
+        $request->validate([
+            'replay_id' => 'required|numeric|min:1|exists:replay_videos,id',
+            'name' => 'string',
+            'stream_link' => 'string',
+            'language' => 'in:1,2',
+            'type' => 'in:1,2,3,4'
+        ]);
+        
+        $replay = ReplayVideo::find($request->id);
+    
+        $replay->update($request->only('name', 'stream_link', 'language', 'type', 'status') +
+                        [ 'updated_at' => now()]
+                        );
+                        
+        return response(["replay" => $replay], 200);
     }
 }
