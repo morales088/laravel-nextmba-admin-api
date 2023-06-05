@@ -14,6 +14,7 @@ use App\Models\Modulefile;
 use App\Models\Speakerrole;
 use App\Models\ModuleStream;
 use App\Models\ReplayVideo;
+use App\Models\ModelLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
@@ -881,13 +882,13 @@ class courseController extends Controller
             'module_id' => 'required|numeric|min:1|exists:modules,id',
             'name' => 'required|string',
             // 'key' => 'required|string',
-            'language' => 'in:1,2',
+            // 'language' => 'in:1,2',
             'type' => 'in:1,2,3,4',
             // 'broadcast_status' => 'in:0,1,2,3,4',
             'status' => 'in:1,2,3,4'
         ]);
 
-        $stream = ModuleStream::create($request->only('key', 'chat_link', 'status') + 
+        $stream = ModuleStream::create($request->only('key', 'language', 'chat_link', 'status') + 
                                         [
                                             'module_id' => $request->module_id,
                                             'name' => $request->name,
@@ -906,7 +907,7 @@ class courseController extends Controller
             'name' => 'string',
             // 'key' => 'string',
             // 'chat_link' => 'string',
-            'language' => 'in:1,2',
+            // 'language' => 'in:1,2',
             'type' => 'in:1,2,3,4'
         ]);                                        
 
@@ -955,7 +956,7 @@ class courseController extends Controller
             'topic_id' => 'required|numeric|min:1|exists:topics,id',
             'name' => 'required|string',
             'stream_link' => 'required|string',
-            'language' => 'in:1,2',
+            // 'language' => 'in:1,2',
             'type' => 'in:1,2,3,4',
             'status' => 'in:0,1,2'
         ]);
@@ -979,7 +980,7 @@ class courseController extends Controller
             'replay_id' => 'required|numeric|min:1|exists:replay_videos,id',
             'name' => 'string',
             'stream_link' => 'string',
-            'language' => 'in:1,2',
+            // 'language' => 'in:1,2',
             'type' => 'in:1,2,3,4'
         ]);
         
@@ -990,5 +991,64 @@ class courseController extends Controller
                         );
                         
         return response(["replay" => $replay], 200);
+    }
+    
+
+    public function getModuleLanguage(Request $request, $id){
+        $request->query->add(['module_id' => $id]);
+
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+        ]);
+
+        $module_languages = ModelLanguage::where('module_id', $request->module_id)
+                                        ->where('status', 1)
+                                        ->get();
+
+        return response(["module_languages" => $module_languages], 200);
+
+    }
+
+    public function createModuleLanguage(Request $request){
+
+        $request->validate([
+            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'language' => 'required',
+            'name' => 'required|string',
+            // 'description' => 'required|string',
+            'status' => 'in:0,1',
+        ]);
+        
+        $module_language = ModelLanguage::create($request->only('description', 'status') + 
+                                        [
+                                            'module_id' => $request->module_id,
+                                            'language' => $request->language,
+                                            'name' => $request->name,
+                                        ]);
+                        
+        return response(["module_language" => $module_language], 200);
+
+    }
+
+    public function updateModuleLanguage(Request $request, $id){
+        $request->query->add(['Mlanguage_id' => $id]);
+
+        $request->validate([
+            'Mlanguage_id' => 'required|numeric|min:1|exists:module_languages,id',
+            // 'module_id' => 'required|numeric|min:1|exists:modules,id',
+            // 'language' => 'required',
+            'name' => 'string',
+            'description' => 'string',
+            'status' => 'in:0,1',
+        ]);
+        
+        $module_language = ModelLanguage::find($request->id);
+    
+        $module_language->update($request->only('language', 'name', 'description', 'status') +
+                        [ 'updated_at' => now()]
+                        );
+                        
+        return response(["module_language" => $module_language], 200);
+
     }
 }
