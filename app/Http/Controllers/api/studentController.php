@@ -180,7 +180,7 @@ class studentController extends Controller
             $request->query->add(['module_count' => $module_count]);
         }
         
-        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'account_type', 'module_count', 'course_date') +
+        $students->update($request->only('name', 'email', 'phone', 'location', 'company', 'position', 'field', 'chat_moderator', 'chat_access', 'library_access', 'account_type', 'module_count', 'course_date', 'language') +
                         [ 'updated_at' => now()]
                         );
 

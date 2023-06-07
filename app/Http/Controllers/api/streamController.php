@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use App\Models\Module;
+use App\Models\ModuleStream;
 use DB;
 
 class streamController extends Controller
@@ -34,16 +35,17 @@ class streamController extends Controller
 
         
         $stream = $request->validate([
-            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'stream_id' => 'required|numeric|min:1|exists:module_streams,id',
             'stream_name' => 'required|string',
         ]);
 
+        $stream = ModuleStream::find($request->stream_id);
+
         // check module's uid
-        $module = Module::find($request->module_id);
+        $module = Module::find($stream->module_id);
 
-        // dd($module, $module->broadcast_status);
-
-        if($module->broadcast_status == 1){ 
+        // if($module->broadcast_status == 1){ 
+        if($stream->status == 1){ 
 
             $response = Http::acceptJson()->withHeaders([
                 'Authorization' => "Bearer $stream_api_key",
@@ -80,6 +82,18 @@ class streamController extends Controller
                 'stream_json' => $cf_response_result,
                 'srt_url' => $srt_url,
                 'broadcast_status' => 0,
+                'updated_at' => now(),
+              ]
+            );
+
+            // save uid/rtmps_url/streamKey/stream_json
+            DB::table('module_streams')
+            ->where('id', $request->stream_id)
+            ->update(
+              [
+                'key' => $uid, // ui
+                'stream_json' => $stream_info,
+                'status' => 2,
                 'updated_at' => now(),
               ]
             );
@@ -131,7 +145,7 @@ class streamController extends Controller
 
         
         $stream = $request->validate([
-            'module_id' => 'required|numeric|min:1|exists:modules,id',
+            'stream_id' => 'required|numeric|min:1|exists:module_streams,id',
             'stream_obs_id' => 'required|string',
         ]);
         
@@ -145,16 +159,29 @@ class streamController extends Controller
         // dd($response->serverError(), $response->clientError(), $response->failed());
 
             
+        // // remove stream_json
+        // DB::table('modules')
+        // ->where('id', $request->module_id)
+        // ->update(
+        //     [
+        //     // 'uid' => null,
+        //     'stream_info' => null,
+        //     'updated_at' => now(),
+        //     ]
+        // );
+
         // remove stream_json
-        DB::table('modules')
-        ->where('id', $request->module_id)
+        DB::table('module_streams')
+        ->where('id', $request->stream_id)
         ->update(
             [
             // 'uid' => null,
-            'stream_info' => null,
+            'stream_json' => null,
+            'status' => 4,
             'updated_at' => now(),
             ]
         );
+        
         
         if($response->serverError() || $response->clientError() || $response->failed()){
 
