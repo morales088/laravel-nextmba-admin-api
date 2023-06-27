@@ -2,9 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\PartnershipController;
-use App\Http\Controllers\api\ProductController;
+use App\Http\Controllers\api\BusinessPartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -186,4 +187,10 @@ Route::prefix("/product")
 
         Route::post("/item", "addItem");
         Route::put("/item/{id}", "updateItem");
+});
+
+Route::prefix("/partner")->middleware("auth:api")
+    ->controller(BusinessPartnerController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/create", "createPartnerAccount")->withoutMiddleware("auth:api");
 });
