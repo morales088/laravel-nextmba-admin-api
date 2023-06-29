@@ -16,7 +16,7 @@ return new class extends Migration
         if (!Schema::hasColumn('payments', 'partner_id'))
         {
             Schema::table('payments', function (Blueprint $table) {
-                $table->foreignId('partner_id')->constrained()->cascadeOnDelete()->after('hitpay_id');
+                $table->foreignId('partner_id')->after('reference_id');
             });
         }
     }
