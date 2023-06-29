@@ -16,6 +16,7 @@
 
         /* Email container */
         .email-container {
+            font-size: 15px;
             max-width: 600px;
             margin: 0 auto;
             background-color: #FFFFFF;
@@ -60,7 +61,7 @@
             text-align: center;
             text-decoration: none;
             background-color: #FF5600;
-            color: #FFFFFF;
+            color: #FFFFFF !important;
             border-radius: 4px;
         }
 
