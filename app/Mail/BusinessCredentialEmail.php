@@ -24,33 +24,42 @@ class BusinessCredentialEmail extends Mailable
         $this->password = $password;
     }
 
-    /**
-     * Get the message envelope.
-     *
-     * @return \Illuminate\Mail\Mailables\Envelope
-     */
-    public function envelope()
-    {
-        return new Envelope(
-            subject: 'NEXT MBA Account',
-        );
-    }
+    public function build() {
 
-    /**
-     * Get the message content definition.
-     *
-     * @return \Illuminate\Mail\Mailables\Content
-     */
-    public function content()
-    {
-        return new Content(
-            view: 'email.business-partner-account', 
-            with: [
+        return $this->subject('NEXT MBA Account')
+            ->view('email.business-partner-account', [
                 'email' => $this->email,
                 'password' => $this->password
-            ],
-        );
+            ]);
     }
+
+    // /**
+    //  * Get the message envelope.
+    //  *
+    //  * @return \Illuminate\Mail\Mailables\Envelope
+    //  */
+    // public function envelope()
+    // {
+    //     return new Envelope(
+    //         subject: 'NEXT MBA Account',
+    //     );
+    // }
+
+    // /**
+    //  * Get the message content definition.
+    //  *
+    //  * @return \Illuminate\Mail\Mailables\Content
+    //  */
+    // public function content()
+    // {
+    //     return new Content(
+    //         view: 'email.business-partner-account', 
+    //         with: [
+    //             'email' => $this->email,
+    //             'password' => $this->password
+    //         ],
+    //     );
+    // }
 
     /**
      * Get the attachments for the message.
