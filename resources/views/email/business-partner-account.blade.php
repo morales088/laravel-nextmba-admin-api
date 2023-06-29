@@ -63,7 +63,19 @@
             color: #FFFFFF;
             border-radius: 4px;
         }
-        
+
+        /* Footer section */
+        .footer {
+            background-color: #F5F5F5;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
         /* Responsive styles */
         @media screen and (max-width: 600px) {
             .email-container {

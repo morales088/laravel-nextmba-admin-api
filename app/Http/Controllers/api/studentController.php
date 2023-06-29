@@ -12,7 +12,6 @@ use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Partnership;
 use Illuminate\Support\Str;
-use App\Models\VideoLibrary;
 use Illuminate\Http\Request;
 use App\Models\Studentcourse;
 use App\Models\Studentmodule;
@@ -23,7 +22,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Mail\StudentAccountCreatedEmail;
+use App\Models\VideoLibrary;
 
 class studentController extends Controller
 {
@@ -522,14 +521,13 @@ class studentController extends Controller
             }
             
             
-            // send user account to email & send user account to admin's email
+            // send user accout to email
             $user = [
                 'email' => $request->email,
                 'password' => $textPassword
             ];
 
             Mail::to($request->email)->send(new AccountCredentialEmail($user));
-            Mail::to(env('ADMIN_EMAIL_ADDRESS'))->send(new StudentAccountCreatedEmail($user));
 
             $student->links = Links::where('studentId', $student->id)->get();
             
