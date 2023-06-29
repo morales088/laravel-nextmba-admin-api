@@ -192,5 +192,5 @@ Route::prefix("/product")
 Route::prefix("/partner")->middleware("auth:api")
     ->controller(BusinessPartnerController::class)->group(function () {
         Route::get("/", "index");
-        Route::post("/create", "createPartnerAccount")->withoutMiddleware("auth:api");
+        Route::post("/create", "createPartnerAccount");
 });
