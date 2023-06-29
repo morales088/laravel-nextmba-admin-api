@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use App\Mail\AccountCredentialEmail;
-use App\Mail\PaymentConfirmationEmail;
+use DB;
+use Mail;
+use Validator;
 use App\Models\User;
 use App\Models\Payment;
-use App\Models\Student;
-use App\Models\Studentcourse;
-use App\Models\VideoLibrary;
-use App\Models\ProductItem;
 use App\Models\Product;
-use Validator;
-use Mail;
-use DB;
+use App\Models\Student;
+use App\Models\ProductItem;
+use App\Models\VideoLibrary;
+use Illuminate\Http\Request;
+use App\Models\Studentcourse;
+use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use App\Mail\AccountCredentialEmail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use App\Mail\PaymentConfirmationEmail;
+use App\Mail\StudentAccountCreatedEmail;
 
 class paymentController extends Controller
 {
@@ -471,6 +472,8 @@ class paymentController extends Controller
                     
                     try {
                         Mail::to($request->email)->send(new AccountCredentialEmail($user));
+                        // send an email as well of students when created to tech@nexmba.online
+                        Mail::to(env('ADMIN_EMAIL_ADDRESS'))->send(new StudentAccountCreatedEmail($user));
                     } catch (\Exception $e) {
                         
                     }

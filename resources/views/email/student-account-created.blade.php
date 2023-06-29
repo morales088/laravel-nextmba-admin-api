@@ -51,19 +51,6 @@
             font-weight: bold;
         }
 
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            background-color: #FF5600;
-            color: #FFFFFF;
-            border-radius: 4px;
-        }
-        
         /* Responsive styles */
         @media screen and (max-width: 600px) {
             .email-container {
@@ -73,31 +60,26 @@
         }
     </style>
 </head>
-<body>
-    <div class="email-container">
-        <div class="header">
-            <h1>Account Credentials</h1>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>New Student Account Created</h1>
+            </div>
+
+            <div class="content">
+                <p>Dear Admin,</p>
+
+                <p>A new student account has been created. The student's account credentials are as follows:</p>
+
+                <p>
+                    <strong>Email:</strong> {{ $email }}<br>
+                </p>
+
+                <p>Please ensure that the student is provided with these credentials and assist them as needed.</p>
+
+                <p>Thank you for your attention to this matter.</p>
+                <p>Regards, NEXT MBA</p>
+            </div>
         </div>
-
-        <div class="content">
-            <p>Dear User,</p>
-
-            <p>Your account credentials are as follows:</p>
-
-            <p>
-                <strong>Email:</strong> {{ $email }}<br>
-                <strong>Password:</strong> {{ $password }}
-            </p>
-
-            <p>Please keep these credentials secure and do not share them with anyone.</p>
-
-            <p>You can login using the following link:</p>
-
-            <a href="{{ env('PARTNER_FRONTEND_LINK') }}" target="_blank" class="button">LOGIN TO YOUR ACCOUNT</a>
-  
-            <p>Thank you for using our service!</p>
-            <p>Regards, NEXT MBA</p>
-        </div>
-    </div>
-</body>
+    </body>
 </html>
