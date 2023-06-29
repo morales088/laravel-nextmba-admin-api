@@ -8,7 +8,7 @@
         /* Global styles */
         body {
             font-family: Arial, sans-serif;
-            background-color: #F5F5F5;
+            background-color: #e0d7d7;
             color: #333333;
             margin: 0;
             padding: 0;
@@ -19,7 +19,7 @@
             font-size: 15px;
             max-width: 600px;
             margin: 0 auto;
-            background-color: #FFFFFF;
+            background-color: transparent !important;
             border-radius: 5px;
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
