@@ -468,9 +468,14 @@ class paymentController extends Controller
                         'email' => $request->email,
                         'password' => $password
                     ];
+
+                    $recipients = [
+                        $request->email,
+                        env('ADMIN_EMAIL_ADDRESS')
+                    ];
                     
                     try {
-                        Mail::to($request->email)->send(new AccountCredentialEmail($user));
+                        Mail::to($recipients)->send(new AccountCredentialEmail($user));
                     } catch (\Exception $e) {
                         
                     }
@@ -486,6 +491,7 @@ class paymentController extends Controller
                 $payment->update(
                     [ 
                         'student_id' => $studentId,
+                        'partner_id' => $request->partner_id
                     ]
                 );
 
