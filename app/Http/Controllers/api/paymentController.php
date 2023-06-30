@@ -459,6 +459,7 @@ class paymentController extends Controller
                     $student = Student::create($request->only('name', 'phone', 'location', 'company', 'position', 'field') + 
                         [
                             // 'name' => $request->full_name,
+                            'module_count' => 24,
                             'email' => $request->email,
                             'password' => Hash::make($password),
                             'updated_at' => now()
@@ -512,9 +513,13 @@ class paymentController extends Controller
                     }
                     // end
 
+                    // UPDATE PAYMENT ITEMS
+                    $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
+                    //end
+
                 }else{
                     //search product and give access to student
-                    $access = Product::courseAccessByCode($request->product_code, $studentId);
+                    $paymentItems = Product::courseAccessByCode($request->product_code, $studentId, $paymentId);
                     // dd($access);
 
                     // if (str_contains($courses, "kotler mastermind")) {
@@ -597,10 +602,6 @@ class paymentController extends Controller
 
                 }
                 // dd($paymentItems);
-
-                // UPDATE PAYMENT ITEMS
-                $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
-                //end
 
                 $user = [
                     'email' => $request->email,

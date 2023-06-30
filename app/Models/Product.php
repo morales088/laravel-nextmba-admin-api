@@ -20,7 +20,7 @@ class Product extends Model
         return $items;
     }
 
-    public static function courseAccessByCode($code, $student_id){
+    public static function courseAccessByCode($code, $student_id, $paymentId){
         $product = Product::where(DB::raw('BINARY `code`'), $code)
                             ->where('status', 1)
                             ->with('product_items')
@@ -37,6 +37,7 @@ class Product extends Model
         $starting_date = now();
         $expiration_date = now()->addMonths(12);
 
+        $paymentItems = [];
         foreach ($product['product_items'] as $key => $value) {            
 
             $Studentcourse = Studentcourse::create(
@@ -47,9 +48,18 @@ class Product extends Model
                     'expirationDate' => $expiration_date,
                     'quantity' => $value['quantity'],
                 ]);
+
+            $item = ['studentId' => $student_id, 'courseId' => $value['course_id'], 'qty' => $value['quantity']];
+            array_push($paymentItems, $item);
+
         }
 
-        // dd($product->toArray());
+        // dd($paymentItems);
+        
+        // UPDATE PAYMENT ITEMS
+        $insertPaymentItems = Payment::insertPaymentItems($paymentId, $paymentItems);
+        //end
+
         return true;
     }
 }
