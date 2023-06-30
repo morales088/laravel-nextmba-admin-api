@@ -11,10 +11,7 @@ use DB;
 
 class ProductController extends Controller
 {
-    public function __construct() {
-        $this->middleware("auth:api");
-    }
-
+    
     public function getProducts(Request $request){
         $product = Product::where('status', '<>', 0)->with('product_items')->get();
 
