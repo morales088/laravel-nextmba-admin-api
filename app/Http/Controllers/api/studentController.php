@@ -527,7 +527,12 @@ class studentController extends Controller
                 'password' => $textPassword
             ];
 
-            Mail::to($request->email)->send(new AccountCredentialEmail($user));
+            $recipients = [
+                $request->email,
+                env('ADMIN_EMAIL_ADDRESS')
+            ];
+
+            Mail::to($recipients)->send(new AccountCredentialEmail($user));
 
             $student->links = Links::where('studentId', $student->id)->get();
             
