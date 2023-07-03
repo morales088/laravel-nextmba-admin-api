@@ -71,7 +71,7 @@ class Studentcourse extends Model
         // $active_course = implode(',', $active_course);
 
         $other_courses = Course::where('status', 1)
-                                ->where('paid', 1)
+                                // ->where('paid', 1)
                                 ->where('is_displayed', 1)
                                 ->whereNotIn('id', $active_course)
                                 ->get();
