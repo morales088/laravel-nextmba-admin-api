@@ -144,13 +144,23 @@ class studentController extends Controller
         //                         left join modules m ON m.id = sm.moduleId
         //                         where sm.status <> 0 and m.courseId = $courseId and sm.studentId = $id");  
 
-        $modules = DB::SELECT("select m.id moduleId, sc.studentId, m.name module_name, sm.remarks, sm.status, 
-                                (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, 
+        // $modules = DB::SELECT("select m.id moduleId, sc.studentId, m.name module_name, sm.remarks, sm.status, 
+        //                         (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, 
+        //                         sm.updated_at
+        //                         from modules m
+        //                         left join studentcourses sc ON m.courseId = sc.courseId
+        //                         left join student_modules sm ON m.id = sm.moduleId and sm.studentId = sc.studentId
+        //                         where sc.status <> 0 and sm.status <> 0 and m.pro_access = 0 and
+        //                         sc.courseId = $courseId and sc.studentId = $id
+        //                         and sc.starting <= m.start_date order by m.start_date");
+
+        $modules = DB::SELECT("select m.id moduleId, sc.studentId, m.name module_name, sm.remarks, sm.status,
+                                (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code,
                                 sm.updated_at
                                 from modules m
                                 left join studentcourses sc ON m.courseId = sc.courseId
-                                left join student_modules sm ON m.id = sm.moduleId and sm.studentId = sc.studentId
-                                where sc.status <> 0 and sm.status <> 0 and m.pro_access = 0 and
+                                left join student_modules sm ON m.id = sm.moduleId and sm.studentId = sc.studentId and sm.status <> 0
+                                where sc.status <> 0 and m.pro_access = 0 and
                                 sc.courseId = $courseId and sc.studentId = $id
                                 and sc.starting <= m.start_date order by m.start_date");
 
