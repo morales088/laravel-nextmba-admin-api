@@ -2,9 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\PartnershipController;
-use App\Http\Controllers\api\ProductController;
+use App\Http\Controllers\api\BusinessPartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,19 +172,29 @@ Route::prefix("/partnership")->middleware("auth:api")
         Route::put("/update-withdraw/{id}", "updateWithdraw");
 });
 
-Route::prefix("/categories")
+Route::prefix("/categories")->middleware("auth:api")
     ->controller(CategoryController::class)->group(function () {
         Route::get("/", "getCategories");
         Route::post("/add", "addCategory");
         Route::put("/update/{id}", "updateCategory");
 });
 
-Route::prefix("/product")
+Route::prefix("/product")->middleware("auth:api")
     ->controller(ProductController::class)->group(function () {
         Route::get("/", "getProducts");
         Route::post("/", "addProduct");
         Route::put("/{id}", "updateProduct");
-
+        
         Route::post("/item", "addItem");
         Route::put("/item/{id}", "updateItem");
+
+        Route::get("partner/", "getProducts")
+            ->middleware("api_token")
+            ->withOutMiddleware("auth:api");
+    });
+
+Route::prefix("/partner")->middleware("auth:api")
+    ->controller(BusinessPartnerController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/create", "createPartnerAccount");
 });

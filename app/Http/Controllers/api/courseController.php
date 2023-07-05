@@ -751,6 +751,7 @@ class courseController extends Controller
         $request->validate([
             'module_id' => 'required|exists:modules,id',
             'name' => 'string',
+            'type' => 'in:0,1'
         ]);
         // dd($request->all());
 
@@ -763,6 +764,7 @@ class courseController extends Controller
                 [
                     'moduleId' => $request->module_id,
                     'name' => $request->name,
+                    'type' => $request->type
                 ]);
 
         return response(["files" => $files], 200);
@@ -783,6 +785,7 @@ class courseController extends Controller
                         'string',
                         Rule::in(['true', 'false']),
                     ],
+            'type' => 'in:0,1'
         ]);
 
         if(!empty($request->module_file)){
@@ -802,7 +805,7 @@ class courseController extends Controller
 
         $file = Modulefile::find($request->id);
     
-        $file->update($request->only('name', 'link', 'status') +
+        $file->update($request->only('name', 'link', 'type', 'status') +
                         [ 'updated_at' => now()]
                         );
 

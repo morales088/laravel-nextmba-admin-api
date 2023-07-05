@@ -492,6 +492,7 @@ class paymentController extends Controller
                 $payment->update(
                     [ 
                         'student_id' => $studentId,
+                        'partner_id' => $request->partner_id
                     ]
                 );
 
