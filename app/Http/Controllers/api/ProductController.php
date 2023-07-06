@@ -13,9 +13,24 @@ class ProductController extends Controller
 {
     
     public function getProducts(Request $request){
-        $product = Product::where('status', '<>', 0)->with('product_items')->get();
+        $products = Product::where('status', '<>', 0)
+            ->with('product_items.course')
+            ->get();
 
-        return response(["product_courses" => $product], 200);
+        $products->transform(function ($product) {
+            $totalAmount = 0; // reset total amount for each product
+            $product->product_items->transform(function ($productItem) use (&$totalAmount) {
+                $productItem->product_total = $productItem->course->price * $productItem->quantity;
+                $totalAmount += $productItem->product_total;
+                return $productItem;
+            });
+    
+            $product->total_amount_of_items = $totalAmount;
+    
+            return $product;
+        });
+
+        return response(["product_courses" => $products], 200);
     }
     
     public function addProduct(Request $request){
