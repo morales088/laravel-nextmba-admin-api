@@ -12,8 +12,7 @@ class Studentcourse extends Model
     
     protected $guarded = ['id'];
 
-    public static function insertStudentCourse($data){
-        
+    public static function insertStudentCourse($data, $course_type = 1){
         $student_id = $data['studentId'];
         $course_id = $data['courseId'];
         // $qty = (isset($data['qty'])? $data['qty'] : 1);
@@ -32,6 +31,7 @@ class Studentcourse extends Model
                                         [
                                             'studentId' => $student_id,
                                             'courseId' => $course_id,
+                                            'course_type' => $course_type,
                                             'starting' => $starting_date,
                                             'expirationDate' => $expiration_date,
                                             // 'quantity' => --$qty,

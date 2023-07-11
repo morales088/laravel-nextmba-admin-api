@@ -98,22 +98,12 @@ class Student extends Model
             }
 
         }
-        // dd($status, $filter);
-
-
-        // dd("select * from 
-        // (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
-        // from students as s
-        // left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
-        // from studentcourses as sc
-        // left join courses as c ON sc.courseId = c.id 
-        // WHERE c.status = 1 
-        // GROUP BY sc.studentId) as sc on s.id = sc.studentId WHERE s.status <> 0 $searchQuery) as st".$queryText.$sort.$pagination);
-
+        
         $students = DB::SELECT("select * from 
-                                (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses
+                                (select s.id, s.name, s.email, s.phone, s.location, s.company, s.position, s.field, IF(s.status = 1, 'active', 'deleted') as status, sc.courses, sc.account_type
                                 from students as s
-                                left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses
+                                left join (select sc.studentId, sc.courseId, c.name as courseName, c.description as courseDesciption, sc.status as studentCourseStatus, GROUP_CONCAT(c.name SEPARATOR ', ') courses,
+                                GROUP_CONCAT(DISTINCT IF(sc.course_type = 1, 'Paid', IF(sc.course_type = 2 , 'Manual', 'Gifted') ) SEPARATOR ' + ') account_type
                                 from studentcourses as sc
                                 left join courses as c ON sc.courseId = c.id 
                                 WHERE c.status = 1 and sc.status <> 0
