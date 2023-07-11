@@ -66,7 +66,7 @@ class giftController extends Controller
                     where s.status <> 0 and sc.status <> 0 and s.email = '$request->email' and sc.courseId = $request->course_id");
         
         $is_giftable = COLLECT(\DB::SELECT("SELECT * from payments where id = $request->payment_id and created_at > '$giftable_gift'"))->first();
-
+        
         if($available_course_per_payment->giftable <= 0 || !empty($check_recipient_course) || empty($is_giftable)){
             return response()->json(["message" => "zero courses available / recipient already has this course / course expired"], 422);
         }
@@ -129,7 +129,7 @@ class giftController extends Controller
 
             // add course to student
             $data = ['studentId' => $student_id, 'courseId' => $request->course_id];
-            Studentcourse::insertStudentCourse($data);
+            Studentcourse::insertStudentCourse($data, 3);
 
             // set student to basic account type
             Student::studentBasicAccount($student_id);
