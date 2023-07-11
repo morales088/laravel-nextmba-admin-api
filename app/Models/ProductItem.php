@@ -15,4 +15,10 @@ class ProductItem extends Model
     public function product() {
         return $this->belongsTo(Product::class, 'product_id');
     }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id')
+            ->select('id', 'name', 'price');
+    }
 }

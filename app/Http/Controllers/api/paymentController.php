@@ -509,7 +509,7 @@ class paymentController extends Controller
 
                     // registrer student course
                     foreach ($paymentItems as $key => $value) {
-                        Studentcourse::insertStudentCourse($value);
+                        Studentcourse::insertStudentCourse($value, 2);
                     }
                     // end
 
