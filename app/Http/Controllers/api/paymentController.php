@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use App\Mail\AccountCredentialEmail;
-use App\Mail\PaymentConfirmationEmail;
-use App\Models\User;
-use App\Models\Payment;
-use App\Models\Student;
-use App\Models\Studentcourse;
-use App\Models\VideoLibrary;
-use App\Models\ProductItem;
-use App\Models\Product;
-use Validator;
-use Mail;
 use DB;
+use Mail;
+use Validator;
+use App\Models\User;
+use App\Models\Partner;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Student;
+use App\Models\ProductItem;
+use App\Models\VideoLibrary;
+use Illuminate\Http\Request;
+use App\Models\Studentcourse;
+use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use App\Mail\AccountCredentialEmail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use App\Mail\PaymentConfirmationEmail;
 
 class paymentController extends Controller
 {
@@ -469,11 +470,16 @@ class paymentController extends Controller
                         'email' => $request->email,
                         'password' => $password
                     ];
-
+                    
                     $recipients = [
                         $request->email,
                         env('ADMIN_EMAIL_ADDRESS')
                     ];
+
+                    if ($request->partner_id) {
+                        $partner = Partner::where('id', $request->partner_id)->first();
+                        $recipients[] = $partner->email;
+                    }
                     
                     try {
                         Mail::to($recipients)->send(new AccountCredentialEmail($user));
