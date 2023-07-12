@@ -25,7 +25,7 @@ class Studentcourse extends Model
             return false;
         }
         
-        DB::transaction(function() use ($student_id, $course_id, $starting_date, $expiration_date) {
+        DB::transaction(function() use ($student_id, $course_id, $starting_date, $expiration_date, $course_type) {
 
             $Studentcourse = Studentcourse::create(
                                         [
