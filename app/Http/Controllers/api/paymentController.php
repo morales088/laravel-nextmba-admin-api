@@ -463,6 +463,7 @@ class paymentController extends Controller
                             'module_count' => 24,
                             'email' => $request->email,
                             'password' => Hash::make($password),
+                            'account_type' => 2,
                             'updated_at' => now()
                         ]);
 
