@@ -166,8 +166,8 @@ Route::prefix("/library")->group( function (){
 
 Route::prefix("/affiliate")->middleware("auth:api")
     ->controller(AffiliateController::class)->group(function () {
-        Route::get("/affiliate-applications", "getApplications");
-        Route::get("/affiliate-withdrawals", "getWithdrawals");
+        Route::get("/applications", "getApplications");
+        Route::get("/withdrawals", "getWithdrawals");
         Route::put("/update/{id}", "updateAffiliate");
         Route::put("/update-withdraw/{id}", "updateWithdraw");
 });
