@@ -19,8 +19,22 @@ class BusinessPartnerController extends Controller {
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $partnersData = [];
+
+        foreach ($partners as $partner) {
+            $payments = Payment::where('partner_id', $partner->id)->get();
+            $paymentCount = $payments->count();
+            $totalAmount = $payments->sum('price');
+
+            $partnersData[] = [
+                'partner' => $partner,
+                'payment_count' => $paymentCount,
+                'total_amount' => $totalAmount
+            ];
+        }
+
         return response()->json([
-            'business_partners' => $partners
+            'business_partners' => $partnersData
         ]);
     }
 
