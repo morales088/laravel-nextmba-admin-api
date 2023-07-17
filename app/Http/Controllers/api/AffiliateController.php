@@ -141,12 +141,13 @@ class AffiliateController extends Controller
             }
 
             $withdraw_method = $request->withdraw_method ?? $application->withdraw_method;
+            $percentage = $request->percentage ?? $application->percentage;
             
             $application->update([
                 'admin_id' => Auth::user()->id,
                 'affiliate_status' => 1, // approved
                 'affiliate_code' => $affiliate_code, 
-                'percentage' => $request->percentage,
+                'percentage' => $percentage,
                 'withdraw_method' => $withdraw_method,
                 'remarks' => $request->remarks
             ]);
