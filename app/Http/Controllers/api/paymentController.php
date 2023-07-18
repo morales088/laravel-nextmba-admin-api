@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use App\Mail\AccountCredentialEmail;
-use App\Mail\PaymentConfirmationEmail;
-use App\Models\User;
-use App\Models\Payment;
-use App\Models\Student;
-use App\Models\Studentcourse;
-use App\Models\VideoLibrary;
-use App\Models\ProductItem;
-use App\Models\Product;
-use Validator;
-use Mail;
 use DB;
+use Mail;
+use Validator;
+use App\Models\User;
+use App\Models\Partner;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Student;
+use App\Models\ProductItem;
+use App\Models\VideoLibrary;
+use Illuminate\Http\Request;
+use App\Models\Studentcourse;
+use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use App\Mail\AccountCredentialEmail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use App\Mail\PaymentConfirmationEmail;
 
 class paymentController extends Controller
 {
@@ -36,6 +37,7 @@ class paymentController extends Controller
             'country' => 'string',
             'product_name' => 'string',
             'status' => 'string',
+            'partner_email' => 'string',
         ]);
 
         $query_filter = [];
@@ -50,6 +52,7 @@ class paymentController extends Controller
         !empty($request->product_name)? $query_filter += ['product_name' => $request->product_name] : '';
         !empty($request->status)? $query_filter += ['status' => $request->status] : '';
         !empty($request->search)? $query_filter += ['search' => $request->search] : '';
+        !empty($request->partner_email) ? $query_filter += ['partner_email' => $request->partner_email] : '';
         
         !empty($request->page)? $query_filter += ['page' => $request->page] : '';
         (!empty($request->sort_column) && !empty($request->sort_type) )? $query_filter += ['sort_column' => $request->sort_column, 'sort_type' => $request->sort_type] : '';
@@ -462,6 +465,7 @@ class paymentController extends Controller
                             'module_count' => 24,
                             'email' => $request->email,
                             'password' => Hash::make($password),
+                            'account_type' => 2,
                             'updated_at' => now()
                         ]);
 
@@ -469,11 +473,16 @@ class paymentController extends Controller
                         'email' => $request->email,
                         'password' => $password
                     ];
-
+                    
                     $recipients = [
                         $request->email,
                         env('ADMIN_EMAIL_ADDRESS')
                     ];
+
+                    if ($request->partner_id) {
+                        $partner = Partner::where('id', $request->partner_id)->first();
+                        $recipients[] = $partner->email;
+                    }
                     
                     try {
                         Mail::to($recipients)->send(new AccountCredentialEmail($user));
@@ -509,7 +518,7 @@ class paymentController extends Controller
 
                     // registrer student course
                     foreach ($paymentItems as $key => $value) {
-                        Studentcourse::insertStudentCourse($value);
+                        Studentcourse::insertStudentCourse($value, 2);
                     }
                     // end
 

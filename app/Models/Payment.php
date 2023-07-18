@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\WithdrawalPayment;
 use DB;
+use App\Models\Partner;
+use App\Models\WithdrawalPayment;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payment extends Model
 {
@@ -109,6 +110,14 @@ class Payment extends Model
         $query += ["status" => "p.status = '%".addslashes(strtolower($filter["status"]))."%'"];
       }
 
+      // filter for business partner email
+      if (!empty($filter['partner_email'])) {
+        $partner = Partner::where('email', $filter['partner_email'])->first();
+        if ($partner) {
+            $query += ['partner_id' => "p.partner_id = " . $partner->id];
+        }
+      }
+
       foreach ($query as $key => $value) {
           if($key === array_key_first($query) && empty($searchQuery)){ //check if this is this the first row
               $queryText .= " WHERE ".$value;
@@ -120,13 +129,9 @@ class Payment extends Model
       if(!empty($filter['sort_column']) && !empty($filter['sort_type'])){
         $sort =" order by p.".$filter["sort_column"]." ".$filter["sort_type"];
       }
-      // dd("select *
-      // from (select *, concat(p.first_name, ' ', p.last_name) as name
-      // from payments p) as p $searchQuery$queryText $sort $pagination");
 
-      $payments = DB::SELECT("select *
-                              from (select *, concat(p.first_name, ' ', p.last_name) as full_name
-                                    from payments p) as p $searchQuery$queryText $sort $pagination");
+      $payments = DB::SELECT("select * from (select *, concat(p.first_name, ' ', p.last_name) as full_name
+                  from payments p) as p $searchQuery$queryText $sort $pagination");
 
       return $payments;
     }
