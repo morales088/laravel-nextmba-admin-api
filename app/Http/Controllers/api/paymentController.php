@@ -37,6 +37,7 @@ class paymentController extends Controller
             'country' => 'string',
             'product_name' => 'string',
             'status' => 'string',
+            'partner_email' => 'string',
         ]);
 
         $query_filter = [];
@@ -51,6 +52,7 @@ class paymentController extends Controller
         !empty($request->product_name)? $query_filter += ['product_name' => $request->product_name] : '';
         !empty($request->status)? $query_filter += ['status' => $request->status] : '';
         !empty($request->search)? $query_filter += ['search' => $request->search] : '';
+        !empty($request->partner_email) ? $query_filter += ['partner_email' => $request->partner_email] : '';
         
         !empty($request->page)? $query_filter += ['page' => $request->page] : '';
         (!empty($request->sort_column) && !empty($request->sort_type) )? $query_filter += ['sort_column' => $request->sort_column, 'sort_type' => $request->sort_type] : '';
