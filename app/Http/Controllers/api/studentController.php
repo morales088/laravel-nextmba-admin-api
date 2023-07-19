@@ -126,10 +126,8 @@ class studentController extends Controller
 
         $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate, c.price course_price,
                                 SUM(CASE WHEN sm.status = 1 THEN 1 ELSE 0 END) AS `incomple_modules`,
-                                SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
+                                -- SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
                                 count(sm.id) total_st_modules,
-                                -- ROUND( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) / count(sm.id)) * 100 ), 0 ) score_percentage
-                                -- IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= $module_per_course, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / $module_per_course) * 100 ), 0 )) score_percentage
                                 IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= count(sm.id), 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / count(sm.id)) * 100 ), 0 )) score_percentage
                                 from courses c
                                 left join modules m ON m.courseId = c.id
@@ -137,6 +135,17 @@ class studentController extends Controller
                                 left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
                                 where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and m.pro_access = 0
                                 and sm.studentId = $id and c.id = $courseId and sc.starting <= m.start_date");
+
+        $course[0]->complete_modules = DB::TABLE("studentcourses as sc")
+                            ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
+                            ->where("m.status", 2)
+                            ->where("sc.status", 1)
+                            ->whereIn("m.broadcast_status", [3,4])
+                            ->where("sc.courseId", $courseId)
+                            ->where("sc.studentId", $id)
+                            ->whereRaw("date(m.start_date) >= date(sc.starting)")
+                            ->count();
+        // dd($course);
                 
         // $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
         //                         (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
