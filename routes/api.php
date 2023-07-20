@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\CategoryController;
-use App\Http\Controllers\api\PartnershipController;
+use App\Http\Controllers\api\AffiliateController;
 use App\Http\Controllers\api\BusinessPartnerController;
 
 /*
@@ -164,10 +164,10 @@ Route::prefix("/library")->group( function (){
     Route::middleware("auth:api")->post("/videos/{id?}", "api\libraryController@library");    
 });
 
-Route::prefix("/partnership")->middleware("auth:api")
-    ->controller(PartnershipController::class)->group(function () {
-        Route::get("/partner-applications", "getApplications");
-        Route::get("/partner-withdrawals", "getWithdrawals");
+Route::prefix("/affiliate")->middleware("auth:api")
+    ->controller(AffiliateController::class)->group(function () {
+        Route::get("/applications", "getApplications");
+        Route::get("/withdrawals", "getWithdrawals");
         Route::put("/update/{id}", "updateAffiliate");
         Route::put("/update-withdraw/{id}", "updateWithdraw");
 });

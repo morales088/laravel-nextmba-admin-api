@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use DB;
-use App\Models\Partnership;
-use App\Models\PartnershipWithdraws;
+use App\Models\Affiliate;
+use App\Models\AffiliateWithdraws;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -15,12 +15,12 @@ class Student extends Model
     protected $guarded = ['id'];
     protected $table = 'students';
 
-    public function partnership() {
-        return $this->hasOne(Partnership::class);
+    public function affiliate() {
+        return $this->hasOne(Affiliate::class);
     }
 
-    public function partnershipWithdraws() {
-        return $this->hasMany(PartnershipWithdraws::class, 'student_id');
+    public function affiliateWithdraws() {
+        return $this->hasMany(AffiliateWithdraws::class, 'student_id');
     }
 
     public static function getStudent($filter = []){

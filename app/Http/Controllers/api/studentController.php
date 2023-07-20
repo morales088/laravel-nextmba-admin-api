@@ -10,8 +10,9 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\Payment;
 use App\Models\Student;
-use App\Models\Partnership;
+use App\Models\Affiliate;
 use Illuminate\Support\Str;
+use App\Models\VideoLibrary;
 use Illuminate\Http\Request;
 use App\Models\Studentcourse;
 use App\Models\Studentmodule;
@@ -22,7 +23,6 @@ use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\VideoLibrary;
 
 class studentController extends Controller
 {
@@ -126,10 +126,8 @@ class studentController extends Controller
 
         $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate, c.price course_price,
                                 SUM(CASE WHEN sm.status = 1 THEN 1 ELSE 0 END) AS `incomple_modules`,
-                                SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
+                                -- SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
                                 count(sm.id) total_st_modules,
-                                -- ROUND( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) / count(sm.id)) * 100 ), 0 ) score_percentage
-                                -- IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= $module_per_course, 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / $module_per_course) * 100 ), 0 )) score_percentage
                                 IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= count(sm.id), 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / count(sm.id)) * 100 ), 0 )) score_percentage
                                 from courses c
                                 left join modules m ON m.courseId = c.id
@@ -137,6 +135,17 @@ class studentController extends Controller
                                 left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
                                 where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and m.pro_access = 0
                                 and sm.studentId = $id and c.id = $courseId and sc.starting <= m.start_date");
+
+        $course[0]->complete_modules = DB::TABLE("studentcourses as sc")
+                            ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
+                            ->where("m.status", 2)
+                            ->where("sc.status", 1)
+                            ->whereIn("m.broadcast_status", [3,4])
+                            ->where("sc.courseId", $courseId)
+                            ->where("sc.studentId", $id)
+                            ->whereRaw("date(m.start_date) >= date(sc.starting)")
+                            ->count();
+        // dd($course);
                 
         // $modules = DB::SELECT("select m.id moduleId, sm.studentId, m.name module_name, sm.remarks, sm.status, 
         //                         (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
@@ -173,20 +182,19 @@ class studentController extends Controller
         $students = Student::find($id);
         $module_count = env('MODULE_PER_COURSE');
         
-        if(isset($request->account_type)){
-            if($request->account_type == 3){
+        if (isset($request->account_type)) {
+            if ($request->account_type == 3) {
                 $module_count = $module_count;
     
                 VideoLibrary::studentLibraryAccess($id);
                 VideoLibrary::studentProAccess($id);
 
-            }elseif($request->account_type == 2){
+            } elseif ($request->account_type == 2) {
                 $module_count = $module_count;
-    
-            }else{
+            } else {
                 $module_count = 2;
-    
             }
+
             $request->query->add(['module_count' => $module_count]);
         }
         
@@ -196,12 +204,6 @@ class studentController extends Controller
 
         $links = [];
 
-        // !empty($request->LI)? $links += ['li' => $request->LI] : '';
-        // !empty($request->IG)? $links += ['ig' => $request->IG] : '';
-        // !empty($request->FB)? $links += ['fb' => $request->FB] : '';
-        // !empty($request->TG)? $links += ['tg' => $request->TG] : '';
-        // !empty($request->WS)? $links += ['ws' => $request->WS] : '';
-
         ($request->has('LI'))? $links += ['li' => addslashes($request->LI)] : '';
         ($request->has('IG'))? $links += ['ig' => addslashes($request->IG)] : '';
         ($request->has('FB'))? $links += ['fb' => addslashes($request->FB)] : '';
@@ -210,45 +212,40 @@ class studentController extends Controller
 
         $affiliateAccess = $request->affiliate_access ?? $students->affiliate_access;
         
-        $existingPartnership = Partnership::where('student_id', $id)->where('status','<>', 0)->first();
+        $existingAffiliate = Affiliate::where('student_id', $id)
+            ->where('status','<>', 0)
+            ->first();
+
         if ($affiliateAccess == 1) {
             $this->approveStudentAsAffiliate($id);
-        } elseif ($affiliateAccess == 0 && $existingPartnership) {
+        } elseif ($affiliateAccess == 0 && $existingAffiliate) {
             $this->disapproveStudentAsAffiliate($id);
         } else {
             return response()->json(['message' => "Invalid Request."]);
         }
                         
         foreach ($links as $key => $value) {
-            // $link = collect(\DB::SELECT("SELECT * FROM links where studentId = $id and name = '$key'"))->first();
 
             $link = Links::where('studentId', $id)->where('name', $key)->first();
             
-            if($link){
-                $link->update(
-                [ 
+            if ($link) {
+                $link->update([ 
                     'link' => $value,
                     'updated_at' => now()
-                ]
-                );
-            }else{
-                Links::create($request->only('icon') + 
-                [
+                ]);
+
+            } else {
+                Links::create($request->only('icon') + [
                     'studentId' => $id,
                     'name' => $key,
                     'link' => $value
                 ]);
             }
-
         }
         
         $newStudentInfos =  Student::find($id);
-
         $newStudentLinks =  Links::where('studentId', $id)->get();
-        
         $newStudentInfos->links = $newStudentLinks;
-
-        // dd($newStudentInfos, $newStudentLinks);
 
         return response(["student" => $newStudentInfos], 200);
     }
@@ -256,17 +253,20 @@ class studentController extends Controller
     public function approveStudentAsAffiliate($studentId) {
         
         $student = Student::find($studentId);
+
         if ($student) {
-            $existingPartnership = Partnership::where('student_id', $studentId)
-                                    ->whereIn('affiliate_status', [0,1])
-                                    ->where('status', '<>', 0)
-                                    ->first();
-            if (!$existingPartnership) {
-                // update affiliate access
+            $existingAffiliate = Affiliate::where('student_id', $studentId)
+                ->whereIn('affiliate_status', [0,1])
+                ->where('status', '<>', 0)
+                ->first();
+
+            if (!$existingAffiliate) {
+                // update student affiliate access flag
                 $student->affiliate_access = 1;
                 $student->save();
-                // create partnership
-                $student->partnership()->create([
+
+                // create student affiliate
+                $student->affiliate()->create([
                     'admin_id' => Auth::user()->id,
                     'affiliate_status' => 1,
                     'affiliate_code' => bin2hex(random_bytes(5)),
@@ -278,13 +278,12 @@ class studentController extends Controller
                     'message' => "Student has been approved as affiliate."
                 ], 200);
 
-            } elseif ($existingPartnership) {
+            } elseif ($existingAffiliate) {
                 $student->affiliate_access = 1;
                 $student->save();
 
-                $student->partnership()->update([
+                $student->affiliate()->update([
                     'admin_id' => Auth::user()->id,
-                    // 'affiliate_code' => bin2hex(random_bytes(5)),
                     'affiliate_status' => 1,
                     'remarks' => "Directly updated by admin."
                 ]);
@@ -300,19 +299,21 @@ class studentController extends Controller
     public function disapproveStudentAsAffiliate($studentId) {
 
         $student = Student::find($studentId);
+
         if ($student) {
-            $existingPartnership = Partnership::where('student_id', $studentId)
-                                    ->whereIn('affiliate_status', [1])
-                                    ->where('status', '<>', 0)
-                                    ->first();
-            if ($existingPartnership) {
+            $existingAffiliate = Affiliate::where('student_id', $studentId)
+                ->whereIn('affiliate_status', [1])
+                ->where('status', '<>', 0)
+                ->first();
+
+            if ($existingAffiliate) {
                 $student->affiliate_access = 0; // update affiliate access
                 $student->save();
-                // update student partnership back to pending
-                $existingPartnership->affiliate_status = 0; // pending
-                $existingPartnership->remarks = "Partnership updated by admin.";
-                // $existingPartnership->status = 0; // disable partnership
-                $existingPartnership->save(); 
+
+                // update student affiliate back to pending
+                $existingAffiliate->affiliate_status = 0; // pending
+                $existingAffiliate->remarks = "Affiliate updated by admin.";
+                $existingAffiliate->save(); 
 
                 return response()->json([
                     'message' => "Student has been disapproved as affiliate."
@@ -320,7 +321,7 @@ class studentController extends Controller
 
             } else {
                 return response()->json([
-                    'message' => "Student does not have a partnership."
+                    'message' => "Student does not have a affiliate data."
                 ], 200);
             }
         } 
@@ -343,13 +344,10 @@ class studentController extends Controller
 
         $students = Student::find($id);
         
-        $students->update(
-                    [ 
-                        'updated_by' => auth('api')->user()->id,
-                        'status' => $status,
-                        // 'updated_at' => now()
-                    ]
-                    );
+        $students->update([ 
+            'updated_by' => auth('api')->user()->id,
+            'status' => $status,
+        ]);
 
         return response(["message" => "successfully updated this student"], 200);
 
@@ -363,13 +361,11 @@ class studentController extends Controller
             'id' => 'numeric|min:1|exists:students,id',
         ]);
         
-        // $student = Student::where('id', $id)->first();
-        // $student = COLLECT(\DB::SELECT("SELECT s.*, u.email update_by FROM students s LEFT JOIN users u ON s.updated_by = u.id WHERE s.id = $id"))->first();
         $student = DB::TABLE("students as s")
-                    ->leftJoin('users as u','s.updated_by','=','u.id')
-                    ->where('s.id', '=', $id)
-                    ->selectRaw("s.*, u.email update_by")
-                    ->first();
+            ->leftJoin('users as u','s.updated_by','=','u.id')
+            ->where('s.id', '=', $id)
+            ->selectRaw("s.*, u.email update_by")
+            ->first();
 
         $student->links = Links::where('studentId', $student->id)->get();
 
@@ -380,17 +376,14 @@ class studentController extends Controller
     public function changePassword(Request $request, $id){
 
         $textPassword = Str::random(8);
-        $hashPasword = Hash::make($textPassword);
+        $hashedPassword = Hash::make($textPassword);
 
         $students = Student::find($id);
         
-        $students->update(
-                        [ 
-                            'password' => $hashPasword,
-                            'updated_by' => auth('api')->user()->id,
-                            // 'updated_at' => now()
-                        ]
-                    );
+        $students->update([ 
+            'password' => $hashedPassword,
+            'updated_by' => auth('api')->user()->id,
+        ]);
 
         return response(["newPassword" => $textPassword, "message" => "successfully updated this student"], 200);
         
