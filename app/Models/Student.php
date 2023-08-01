@@ -86,7 +86,9 @@ class Student extends Model
         $sortType = $filters['sort_type'] ?? 'desc';
         $perPage = $filters['per_page'] ?? 20;
 
-        $students = Student::with(['courses' => function ($q) {
+        $query = Student::query();
+
+        $students = $query->with(['courses' => function ($q) {
             $q->select('studentId', 'courseId', 'course_type', 'name as courseName', 'description as courseDescription', 'studentcourses.status as studentCourseStatus')
                 ->join('courses', 'studentcourses.courseId', '=', 'courses.id')
                 ->where('courses.status', 1)
