@@ -8,6 +8,7 @@ use Validator;
 use App\Models\Links;
 use App\Models\Course;
 use App\Models\Module;
+use League\Csv\Writer;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Affiliate;
@@ -26,54 +27,149 @@ use Illuminate\Support\Facades\Hash;
 
 class studentController extends Controller
 {
-    public function index(Request $request){
 
-        $login = $request->validate([
-            'page' => 'required|numeric|min:1',
+    public function index(Request $request) {
+        
+        $request->validate([
+            'course_id' => 'array',
+            'without_course_id' => 'array',
             'sort_column' => 'required|string',
             'sort_type' => 'required|string',
-            'course' => 'string',
             'location' => 'string',
             'phone' => 'string',
             'company' => 'string',
             'position' => 'string',
-            'interest' => 'string',
-            'status' => [
-                            Rule::in(['all', 'active', 'deactivated']),
-                        ],
+            'status' => 'string|in:all,active,deactivated',
+            'per_page' => 'numeric:min1'
         ]);
 
-        $query_filter = [];
+        // filters
+        $queryFilter = [
+            'course_id' => $request->course_id,
+            'without_course_id' => $request->without_course_id,
+            'location' => $request->location,
+            'phone' => $request->phone,
+            'company' => $request->company,
+            'position' => $request->position,
+            'status' => $request->status,
+            'search' => $request->search,
+            'sort_column' => $request->sort_column,
+            'sort_type' => $request->sort_type,
+            'per_page' => $request->per_page
+        ];
 
-        !empty($request->course)? $query_filter += ['course' => $request->course] : '';
-        !empty($request->location)? $query_filter += ['location' => $request->location] : '';
-        !empty($request->phone)? $query_filter += ['phone' => $request->phone] : '';
-        !empty($request->company)? $query_filter += ['company' => $request->company] : '';
-        !empty($request->position)? $query_filter += ['position' => $request->position] : '';
-        !empty($request->interest)? $query_filter += ['interest' => $request->interest] : '';
-        !empty($request->status)? $query_filter += ['status' => $request->status] : '';
-        !empty($request->search)? $query_filter += ['search' => $request->search] : '';
+        // get filtered students
+        $students = Student::getStudents($queryFilter, true);
 
-        !empty($request->page)? $query_filter += ['page' => $request->page] : '';
-        (!empty($request->sort_column) && !empty($request->sort_column) )? $query_filter += ['sort_column' => $request->sort_column, 'sort_type' => $request->sort_type] : '';
+        // count all active students
+        $totalStudents = Student::where('status', '<>', 0)->count();
 
-        // dd('asc' === 'ASC');
-    
-        $students = Student::getStudent($query_filter);
+        return response()->json([
+            'students' => $students,
+            'total_students' => $totalStudents,
+        ], 200);
+    }
 
-        // dd($students);
-        
-        foreach ($students as $key => $value) {
+    public function generateCSV(Request $request) {
 
-            $studentLinks = Student::getStudentLinks($value->id);
-            $value->links = $studentLinks;
+        // get filtered students, pagination set to false
+        $students = Student::getStudents($request->all(), false);
+
+        // return response if students is empty
+        if ($students->isEmpty()) {
+            return response()->json(['message' => 'No students data found.'], 404);
         }
 
-        $total_students = Student::where('status', '<>', 0)->count();
-        // dd($total_students);
+        // set CSV headers
+        $csvHeaders = [
+            'ID', 'Name', 'Email', 'Phone', 'Location', 'Company', 
+            'Position', 'Account Type', 'Status', 'All Courses Types', 
+            'Course IDs'
+        ];
 
-        return response(["students" => $students, "total_students" => $total_students], 200);
+        $csv = Writer::createFromString('');
+        $csv->setOutputBOM(Writer::BOM_UTF8);
+        $csv->insertOne($csvHeaders);
+
+        // insert each student's data into the CSV
+        foreach ($students as $student) {
+            // concatenate course IDs into a comma-separated string
+            $courseIds = implode(', ', $student->courses->pluck('courseId')->toArray());
+
+            $csv->insertOne([
+                $student->id,
+                $student->name,
+                $student->email,
+                $student->phone,
+                $student->location,
+                $student->company,
+                $student->position,
+                $student->account_type,
+                $student->status,
+                $student->all_courses_types,
+                $courseIds,
+            ]);
+        }
+
+        // set the response headers for CSV download
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="students.csv"',
+        ];
+ 
+        // output the CSV content to the browser as a downloadable file
+        return response($csv->toString(), 200, $headers);
     }
+
+    // old get students
+    // public function index(Request $request){
+
+    //     $login = $request->validate([
+    //         'page' => 'required|numeric|min:1',
+    //         'sort_column' => 'required|string',
+    //         'sort_type' => 'required|string',
+    //         'course' => 'string',
+    //         'location' => 'string',
+    //         'phone' => 'string',
+    //         'company' => 'string',
+    //         'position' => 'string',
+    //         'interest' => 'string',
+    //         'status' => [
+    //                         Rule::in(['all', 'active', 'deactivated']),
+    //                     ],
+    //     ]);
+
+    //     $query_filter = [];
+
+    //     !empty($request->course)? $query_filter += ['course' => $request->course] : '';
+    //     !empty($request->location)? $query_filter += ['location' => $request->location] : '';
+    //     !empty($request->phone)? $query_filter += ['phone' => $request->phone] : '';
+    //     !empty($request->company)? $query_filter += ['company' => $request->company] : '';
+    //     !empty($request->position)? $query_filter += ['position' => $request->position] : '';
+    //     !empty($request->interest)? $query_filter += ['interest' => $request->interest] : '';
+    //     !empty($request->status)? $query_filter += ['status' => $request->status] : '';
+    //     !empty($request->search)? $query_filter += ['search' => $request->search] : '';
+
+    //     !empty($request->page)? $query_filter += ['page' => $request->page] : '';
+    //     (!empty($request->sort_column) && !empty($request->sort_column) )? $query_filter += ['sort_column' => $request->sort_column, 'sort_type' => $request->sort_type] : '';
+
+    //     // dd('asc' === 'ASC');
+    
+    //     $students = Student::getStudent($query_filter);
+
+    //     // dd($students);
+        
+    //     foreach ($students as $key => $value) {
+
+    //         $studentLinks = Student::getStudentLinks($value->id);
+    //         $value->links = $studentLinks;
+    //     }
+
+    //     $total_students = Student::where('status', '<>', 0)->count();
+    //     // dd($total_students);
+
+    //     return response(["students" => $students, "total_students" => $total_students], 200);
+    // }
 
     public function coursesByStudent(Request $request, $id){
         $module_per_course = env('MODULE_PER_COURSE');
