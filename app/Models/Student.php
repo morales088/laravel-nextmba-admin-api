@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use DB;
+use App\Models\Links;
 use App\Models\Affiliate;
 use App\Models\Studentcourse;
 use App\Models\AffiliateWithdraws;
@@ -26,6 +27,10 @@ class Student extends Model
 
     public function courses() {
         return $this->hasMany(Studentcourse::class, 'studentId');
+    }
+
+    public function links() {
+        return $this->hasMany(Links::class, 'studentId');
     }
 
     public function scopeWithFilters($query, $filters) {
@@ -75,7 +80,7 @@ class Student extends Model
         return $query;
     }
 
-    public static function getStudents($filters = []) {
+    public static function getStudents($filters = [], $paginate = false) {
 
         $sortColumn = $filters['sort_column'] ?? 'id';
         $sortType = $filters['sort_type'] ?? 'desc';
@@ -87,11 +92,20 @@ class Student extends Model
                 ->where('courses.status', 1)
                 ->where('studentcourses.status', '<>', 0);
         }])
-            ->select('students.id', 'name', 'email', 'phone', 'location', 'company', 'position', 'account_type', 'status')
-            ->withFilters($filters)
-            ->orderBy($sortColumn, $sortType)
-            ->paginate($perPage);
+        ->with(['links' => function ($q) {
+            $q->select('studentId', 'name', 'link', 'icon')
+                ->selectRaw("IF (status = 1, 'active', 'deleted') as status");
+        }])
+        ->select('students.id', 'name', 'email', 'phone', 'location', 'company', 'position', 'account_type', 'status')
+        ->withFilters($filters)
+        ->orderBy($sortColumn, $sortType);
 
+        // check if return a paginated result     
+        if ($paginate) {
+            $students = $students->paginate($perPage);
+        } else {
+            $students = $students->get();
+        }
 
         // map course_type and account_type
         $courseTypeMapping = [ 1 => 'Paid', 2 => 'Manual', 3 => 'Gifted' ];
@@ -207,16 +221,16 @@ class Student extends Model
     //     return $students;
     // }
 
-    public static function getStudentLinks($studentId) {
+    // public static function getStudentLinks($studentId) {
 
-        $studentLinks = DB::table('links')
-            ->select('name', 'link', 'icon')
-            ->selectRaw("IF (status = 1, 'active', 'deleted') as status")
-            ->where('studentId', $studentId)
-            ->get();
+    //     $studentLinks = DB::table('links')
+    //         ->select('name', 'link', 'icon')
+    //         ->selectRaw("IF (status = 1, 'active', 'deleted') as status")
+    //         ->where('studentId', $studentId)
+    //         ->get();
 
-        return $studentLinks;
-    }
+    //     return $studentLinks;
+    // }
 
     public static function createLinks($stuendtId, $links = []){
         

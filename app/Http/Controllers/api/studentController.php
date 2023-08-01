@@ -8,6 +8,7 @@ use Validator;
 use App\Models\Links;
 use App\Models\Course;
 use App\Models\Module;
+use League\Csv\Writer;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Affiliate;
@@ -58,21 +59,66 @@ class studentController extends Controller
         ];
 
         // get filtered students
-        $students = Student::getStudents($queryFilter);
-
-        // get student links
-        foreach ($students as $student) {
-            $studentLinks = Student::getStudentLinks($student->id);
-            $student->links = $studentLinks;
-        }
+        $students = Student::getStudents($queryFilter, true);
 
         // count all active students
         $totalStudents = Student::where('status', '<>', 0)->count();
 
-        return response([
+        return response()->json([
             'students' => $students,
             'total_students' => $totalStudents,
         ], 200);
+    }
+
+    public function generateCSV(Request $request) {
+
+        // get filtered students, pagination set to false
+        $students = Student::getStudents($request->all(), false);
+
+        // return response if students is empty
+        if ($students->isEmpty()) {
+            return response()->json(['message' => 'No students data found.'], 404);
+        }
+
+        // set CSV headers
+        $csvHeaders = [
+            'ID', 'Name', 'Email', 'Phone', 'Location', 'Company', 
+            'Position', 'Account Type', 'Status', 'All Courses Types', 
+            'Course IDs'
+        ];
+
+        $csv = Writer::createFromString('');
+        $csv->setOutputBOM(Writer::BOM_UTF8);
+        $csv->insertOne($csvHeaders);
+
+        // insert each student's data into the CSV
+        foreach ($students as $student) {
+            // concatenate course IDs into a comma-separated string
+            $courseIds = implode(', ', $student->courses->pluck('courseId')->toArray());
+
+            $csv->insertOne([
+                $student->id,
+                $student->name,
+                $student->email,
+                $student->phone,
+                $student->location,
+                $student->company,
+                $student->position,
+                $student->account_type,
+                $student->status,
+                $student->all_courses_types,
+                $courseIds,
+            ]);
+        }
+
+        // set the response headers for CSV download
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="students.csv"',
+        ];
+ 
+        // output the CSV content to the browser as a downloadable file
+        return response($csv->toString(), 200, $headers);
     }
 
     // old get students
