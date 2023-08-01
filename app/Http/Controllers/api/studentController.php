@@ -83,9 +83,7 @@ class studentController extends Controller
 
         // set CSV headers
         $csvHeaders = [
-            'ID', 'Name', 'Email', 'Phone', 'Location', 'Company', 
-            'Position', 'Account Type', 'Account Status', 'All Courses Types', 
-            'Course IDs'
+            'ID', 'Name', 'Email'
         ];
 
         $csv = Writer::createFromString('');
@@ -101,21 +99,11 @@ class studentController extends Controller
     
             // insert each student's data into the CSV
             foreach ($students as $student) {
-                // concatenate course IDs into a comma-separated string
-                $courseIds = implode(', ', $student->courses->pluck('courseId')->toArray());
-    
+
                 $csv->insertOne([
                     $student->id,
                     $student->name,
-                    $student->email,
-                    $student->phone,
-                    $student->location,
-                    $student->company,
-                    $student->position,
-                    $student->account_type,
-                    $student->status,
-                    $student->all_courses_types,
-                    $courseIds,
+                    $student->email
                 ]);
             }
         }
