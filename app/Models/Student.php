@@ -112,9 +112,11 @@ class Student extends Model
         // map course_type and account_type
         $courseTypeMapping = [ 1 => 'Paid', 2 => 'Manual', 3 => 'Gifted' ];
         $accountTypeMapping = [ 1 => 'Trial', 2 => 'Basic', 3 => 'Pro' ];
+        $studentStatusMapping = [ 0 => 'Deactivated', 1 => 'Active'];
 
         foreach ($students as $student) {
             $student->account_type = $accountTypeMapping[$student->account_type] ?? 'Unknown';
+            $student->status = $studentStatusMapping[$student->status] ?? 'Unknown';
             
             $courseTypes = [];
             foreach ($student->courses as $course) {

@@ -73,9 +73,6 @@ class studentController extends Controller
 
     public function generateCSV(Request $request) {
 
-        // get filtered students, pagination set to false
-        // $studentsQuery = Student::getStudents($request->all(), false);
-
         $batchSize = 1000;
         $totalCount = Student::getStudents($request->all())->count();
         $numBatches = ceil($totalCount / $batchSize);
@@ -87,7 +84,7 @@ class studentController extends Controller
         // set CSV headers
         $csvHeaders = [
             'ID', 'Name', 'Email', 'Phone', 'Location', 'Company', 
-            'Position', 'Account Type', 'Status', 'All Courses Types', 
+            'Position', 'Account Type', 'Account Status', 'All Courses Types', 
             'Course IDs'
         ];
 
@@ -97,7 +94,7 @@ class studentController extends Controller
     
         // loop through each batch and insert students' data into the CSV
         for ($batchNumber = 0; $batchNumber < $numBatches; $batchNumber++) {
-            
+
             $offset = $batchNumber * $batchSize;
             // get filtered students for the current batch
             $students = Student::getStudents($request->all())->skip($offset)->take($batchSize);
