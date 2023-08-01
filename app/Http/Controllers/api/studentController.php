@@ -24,6 +24,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class studentController extends Controller
 {
@@ -72,51 +73,47 @@ class studentController extends Controller
 
     public function generateCSV(Request $request) {
 
-        // get filtered students, pagination set to false
-        $students = Student::getStudents($request->all(), false);
+        $batchSize = 1000;
+        $totalCount = Student::getStudents($request->all())->count();
+        $numBatches = ceil($totalCount / $batchSize);
 
-        // return response if students is empty
-        if ($students->isEmpty()) {
+        if ($totalCount == 0) {
             return response()->json(['message' => 'No students data found.'], 404);
         }
 
         // set CSV headers
         $csvHeaders = [
-            'ID', 'Name', 'Email', 'Phone', 'Location', 'Company', 
-            'Position', 'Account Type', 'Status', 'All Courses Types', 
-            'Course IDs'
+            'ID', 'Name', 'Email'
         ];
 
         $csv = Writer::createFromString('');
         $csv->setOutputBOM(Writer::BOM_UTF8);
         $csv->insertOne($csvHeaders);
+    
+        // loop through each batch and insert students' data into the CSV
+        for ($batchNumber = 0; $batchNumber < $numBatches; $batchNumber++) {
 
-        // insert each student's data into the CSV
-        foreach ($students as $student) {
-            // concatenate course IDs into a comma-separated string
-            $courseIds = implode(', ', $student->courses->pluck('courseId')->toArray());
+            $offset = $batchNumber * $batchSize;
+            // get filtered students for the current batch
+            $students = Student::getStudents($request->all())->skip($offset)->take($batchSize);
+    
+            // insert each student's data into the CSV
+            foreach ($students as $student) {
 
-            $csv->insertOne([
-                $student->id,
-                $student->name,
-                $student->email,
-                $student->phone,
-                $student->location,
-                $student->company,
-                $student->position,
-                $student->account_type,
-                $student->status,
-                $student->all_courses_types,
-                $courseIds,
-            ]);
+                $csv->insertOne([
+                    $student->id,
+                    $student->name,
+                    $student->email
+                ]);
+            }
         }
-
+    
         // set the response headers for CSV download
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="students.csv"',
         ];
- 
+     
         // output the CSV content to the browser as a downloadable file
         return response($csv->toString(), 200, $headers);
     }
