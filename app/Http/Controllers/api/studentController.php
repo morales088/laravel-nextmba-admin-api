@@ -23,8 +23,6 @@ use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class studentController extends Controller
 {
