@@ -8,7 +8,6 @@ use Validator;
 use App\Models\Links;
 use App\Models\Course;
 use App\Models\Module;
-use League\Csv\Writer;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Affiliate;
@@ -24,6 +23,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class studentController extends Controller
@@ -76,35 +76,21 @@ class studentController extends Controller
         $batchSize = 1000;
         $totalCount = Student::getStudents($request->all())->count();
         $numBatches = ceil($totalCount / $batchSize);
-
+    
         if ($totalCount == 0) {
             return response()->json(['message' => 'No students data found.'], 404);
         }
-
-        // set CSV headers
-        $csvHeaders = [
-            'ID', 'Name', 'Email'
-        ];
-
-        $csv = Writer::createFromString('');
-        $csv->setOutputBOM(Writer::BOM_UTF8);
-        $csv->insertOne($csvHeaders);
     
-        // loop through each batch and insert students' data into the CSV
+        $csvContent = "ID,Name,Email\n"; // csv headers
+    
+        // loop through each batch and add students' data to the CSV content
         for ($batchNumber = 0; $batchNumber < $numBatches; $batchNumber++) {
-
             $offset = $batchNumber * $batchSize;
-            // get filtered students for the current batch
+    
             $students = Student::getStudents($request->all())->skip($offset)->take($batchSize);
     
-            // insert each student's data into the CSV
             foreach ($students as $student) {
-
-                $csv->insertOne([
-                    $student->id,
-                    $student->name,
-                    $student->email
-                ]);
+                $csvContent .= "{$student->id},{$student->name},{$student->email}\n";
             }
         }
     
@@ -113,11 +99,10 @@ class studentController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="students.csv"',
         ];
-     
-        // output the CSV content to the browser as a downloadable file
-        return response($csv->toString(), 200, $headers);
+    
+        // Return the CSV content as a downloadable file
+        return response($csvContent, 200, $headers);
     }
-
     // old get students
     // public function index(Request $request){
 
