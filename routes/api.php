@@ -36,6 +36,7 @@ Route::prefix("/user")->group( function (){
 Route::prefix("/student")->group( function (){
 
     Route::middleware("auth:api")->get("/all", "api\studentController@index");
+    Route::middleware("auth:api")->get("/generate-csv", "api\studentController@generateCSV");
     Route::middleware("auth:api")->put("/{id}", "api\studentController@updateStudent");
     Route::middleware("auth:api")->get("/{id}", "api\studentController@studentById");    
     Route::middleware("auth:api")->get("/courses/{id}", "api\studentController@coursesByStudent"); //get all courses enrolled to student id
@@ -61,7 +62,7 @@ Route::prefix("/student")->group( function (){
     Route::middleware("auth:api")->put("/payment/course/{item_id}", "api\giftController@updatePaymentItem");
 
 
-    
+
 
 });
 
