@@ -95,92 +95,67 @@ class loginController extends Controller
 
 
 
-    public function register(Request $request){
-
-        // creating client 
-
-        // $oauth_client=new \App\oAuthClient();
-        // $oauth_client->user_id=$user->id;
-        // $oauth_client->id=$email;
-        // $oauth_client->name=$user->name;
-        // $oauth_client->secret=base64_encode(hash_hmac('sha256',$password, 'secret', true));
-        // $oauth_client->password_client=1;
-        // $oauth_client->personal_access_client=0;
-        // $oauth_client->redirect='';
-        // $oauth_client->revoked=0;
-        // $oauth_client->save();
-
-        
+    public function register(Request $request) {
+ 
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|unique:users',
             'password' => 'required|confirmed|min:8',
+            'role' => 'integer|in:1,2',
         ]);
 
         $password = Hash::make($request->password);
+        $admin_type = $request->role == 1 ? 1 : 2; // set admin type based on role
 
-        $user = User::create(
-                [
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'password' => $password,
-                ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $password,
+            'role'=> $request->role,
+            'type' => $admin_type
+        ]);
         
         return response(["admin" => $user], 200);
 
     }
 
-    public function admin(Request $request, $id = 0){
+    public function admin(Request $request, $id = 0) {
                 
         $request->query->add(['id' => $id]);
-
-        // $array = [
-        //         'name' => 'string',
-        //         'email' => 'exists:users,email',
-        //         'password' => 'string',
-        //         ];
         
-        if($id > 0){
-
-            $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
-                            from users where id = $id");
-
-        }else{
-
-            $admin = DB::SELECT("select id, name, email, status, 'admin' as role, (CASE WHEN status = 0 THEN 'deleted' WHEN status = 1 THEN 'active' END) as status_code, created_at, updated_at
-            from users");
-
+        if ($id > 0) {
+            $admin = User::where('id', $id)->get();
+        } else {
+            $admin = User::all();
         }
 
-
+        foreach ($admin as $user) {
+            $user->status = ($user->status == 1) ? 'active' : 'deleted';
+        }
+    
         return response()->json(["admin" => $admin], 200);
     }
 
-    public function updateAdmin(Request $request, $id){
+    public function updateAdmin(Request $request, $id) {
 
         $request->query->add(['id' => $id]);
 
         $request->validate([
             'id' => 'required|exists:users,id',
-            // 'name' => 'string',
             'email' => 'unique:users',
-            // 'password' => 'string',
-            ]);
-        
-        if(!empty($request->password)){
-            $password = Hash::make($request->password);
-            // $request->query->add(['password' => $password]);
-            $request->merge([
-                'password' => $password,
-            ]);
+            'role' => 'in:1,2',
+            'type' => 'in:1,2',
+        ]);
 
+        $user = User::findOrFail($id);
+        
+        $data = $request->only('name', 'email', 'role', 'type');
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
-        
-        $user = User::find($id);
 
-        $user->update($request->only('name', 'email', 'password') +
-                        [ 'updated_at' => now()]
-                        );
+        $user->update($data + ['updated_at' => now()]);
 
         return response()->json(["admin" => $user], 200);               
 
