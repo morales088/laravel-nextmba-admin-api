@@ -376,7 +376,6 @@ class paymentController extends Controller
         $payment = DB::transaction(function() use ($request) {
             $user = auth('api')->user();
             $createdBy = $user ? $user->id : 0;
-            dd($user, $createdBy);
 
             $courses = strtolower($request->product);
             $request->query->add(['price' => $request->amount]);
