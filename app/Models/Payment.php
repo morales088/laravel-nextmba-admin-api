@@ -60,6 +60,7 @@ class Payment extends Model
     }
 
     public static function getPayment($filter=[]){
+      $user = auth('api')->user();
 
       $rowPerPage = 20;
       $pagination = " LIMIT ".$rowPerPage;
@@ -130,8 +131,11 @@ class Payment extends Model
         $sort =" order by p.".$filter["sort_column"]." ".$filter["sort_type"];
       }
 
+      $adminFilter = "";
+      if($user->role === 2) $adminFilter = "where p.created_by = $user->id";
+
       $payments = DB::SELECT("select * from (select *, concat(p.first_name, ' ', p.last_name) as full_name
-                  from payments p) as p $searchQuery$queryText $sort $pagination");
+                  from payments p $adminFilter) as p $searchQuery$queryText $sort $pagination");
 
       return $payments;
     }

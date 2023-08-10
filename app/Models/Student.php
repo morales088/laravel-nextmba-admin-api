@@ -81,6 +81,8 @@ class Student extends Model
     }
 
     public static function getStudents($filters = [], $paginate = false) {
+        $user = auth('api')->user();
+        // dd($user, $user->role);
 
         $sortColumn = $filters['sort_column'] ?? 'id';
         $sortType = $filters['sort_type'] ?? 'desc';
@@ -93,8 +95,11 @@ class Student extends Model
                 ->join('courses', 'studentcourses.courseId', '=', 'courses.id')
                 ->where('courses.status', 1)
                 ->where('studentcourses.status', '<>', 0);
-        }])
-        ->with(['links' => function ($q) {
+        }]);
+
+        if($user->role === 2) $students = $students->where('created_by', $user->id);
+        
+        $students = $students->with(['links' => function ($q) {
             $q->select('studentId', 'name', 'link', 'icon')
                 ->selectRaw("IF (status = 1, 'active', 'deleted') as status");
         }])

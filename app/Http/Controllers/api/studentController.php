@@ -571,6 +571,7 @@ class studentController extends Controller
 
         // $link = Links::where('studentId', $id)->where('name', $key)->first();
         $student = DB::transaction(function() use ($request) {
+            $user = auth('api')->user();
             $module_count = env('MODULE_PER_COURSE');
 
             // generate random password
@@ -586,6 +587,7 @@ class studentController extends Controller
             $student = Student::create($request->only('phone', 'location', 'company', 'position', 'field', 'account_type') + 
                                         [
                                             'module_count' => $module_count,
+                                            'created_by' => $user->id,
                                             'name' => $request->name,
                                             'email' => $request->email,
                                             'password' => Hash::make($textPassword),
