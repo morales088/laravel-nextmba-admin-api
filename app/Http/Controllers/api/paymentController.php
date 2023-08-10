@@ -374,6 +374,9 @@ class paymentController extends Controller
         $payment = $request->validate($validation);
 
         $payment = DB::transaction(function() use ($request) {
+            $user = auth('api')->user();
+            $createdBy = $user ? $user->id : 0;
+            dd($user, $createdBy);
 
             $courses = strtolower($request->product);
             $request->query->add(['price' => $request->amount]);
@@ -425,6 +428,7 @@ class paymentController extends Controller
             [
                 // 'name' => $request->full_name,
                 'product_code' => $request->product_code,
+                'created_by' => $createdBy,
                 'module_count' => $module_count,
                 'email' => $request->email,
                 'price' => $request->price,
@@ -449,10 +453,11 @@ class paymentController extends Controller
                         [
                             // 'name' => $request->full_name,
                             'module_count' => 24,
+                            'created_by' => $createdBy,
                             'email' => $request->email,
                             'password' => Hash::make($password),
                             'account_type' => 2,
-                            'updated_at' => now()
+                            'updated_at' => now(),
                         ]);
 
                     $user = [
