@@ -603,6 +603,7 @@ class studentController extends Controller
             if($request->account_type == 3){
                 VideoLibrary::studentLibraryAccess($student->id);
                 VideoLibrary::studentProAccess($student->id);
+                Studentcourse::addAllCourse($student->id);
             }
             
             
