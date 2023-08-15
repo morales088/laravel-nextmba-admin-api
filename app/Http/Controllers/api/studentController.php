@@ -261,9 +261,10 @@ class studentController extends Controller
         if (isset($request->account_type)) {
             if ($request->account_type == 3) {
                 $module_count = $module_count;
-    
+                
                 VideoLibrary::studentLibraryAccess($id);
                 VideoLibrary::studentProAccess($id);
+                Studentcourse::addAllCourse($id);
 
             } elseif ($request->account_type == 2) {
                 $module_count = $module_count;
@@ -286,19 +287,22 @@ class studentController extends Controller
         ($request->has('TG'))? $links += ['tg' => addslashes($request->TG)] : '';
         ($request->has('WS'))? $links += ['ws' => addslashes($request->WS)] : '';
 
-        $affiliateAccess = $request->affiliate_access ?? $students->affiliate_access;
+        if ($request->filled('affiliate_access')) {
+            $affiliateAccess = $request->affiliate_access ?? $students->affiliate_access;
         
-        $existingAffiliate = Affiliate::where('student_id', $id)
-            ->where('status','<>', 0)
-            ->first();
+            $existingAffiliate = Affiliate::where('student_id', $id)
+                ->where('status','<>', 0)
+                ->first();
 
-        if ($affiliateAccess == 1) {
-            $this->approveStudentAsAffiliate($id);
-        } elseif ($affiliateAccess == 0 && $existingAffiliate) {
-            $this->disapproveStudentAsAffiliate($id);
-        } else {
-            return response()->json(['message' => "Invalid Request."]);
+            if ($affiliateAccess == 1) {
+                $this->approveStudentAsAffiliate($id);
+            } elseif ($affiliateAccess == 0 && $existingAffiliate) {
+                $this->disapproveStudentAsAffiliate($id);
+            } else {
+                return response()->json(['message' => "Invalid Request."]);
+            }
         }
+        
                         
         foreach ($links as $key => $value) {
 
@@ -599,6 +603,7 @@ class studentController extends Controller
             if($request->account_type == 3){
                 VideoLibrary::studentLibraryAccess($student->id);
                 VideoLibrary::studentProAccess($student->id);
+                Studentcourse::addAllCourse($student->id);
             }
             
             
