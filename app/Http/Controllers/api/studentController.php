@@ -200,17 +200,23 @@ class studentController extends Controller
             'courseId' => 'numeric|min:1|exists:courses,id',
         ]);
 
-        $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate, c.price course_price,
-                                SUM(CASE WHEN sm.status = 1 THEN 1 ELSE 0 END) AS `incomple_modules`,
-                                -- SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
-                                count(sm.id) total_st_modules,
-                                IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= count(sm.id), 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / count(sm.id)) * 100 ), 0 )) score_percentage
+        // $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate, c.price course_price,
+        //                         SUM(CASE WHEN sm.status = 1 THEN 1 ELSE 0 END) AS `incomple_modules`,
+        //                         -- SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) AS `complete_modules`,
+        //                         count(sm.id) total_st_modules,
+        //                         IF( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules)  >= count(sm.id), 100.00, ROUND( ( ( (SUM(CASE WHEN sm.status = 3 THEN 1 ELSE 0 END) + sc.completed_modules) / count(sm.id)) * 100 ), 0 )) score_percentage
+        //                         from courses c
+        //                         left join modules m ON m.courseId = c.id
+        //                         left join student_modules sm ON m.id = sm.moduleId
+        //                         left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
+        //                         where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and m.pro_access = 0
+        //                         and sm.studentId = $id and c.id = $courseId and sc.starting <= m.start_date");
+
+        $course = DB::SELECT("select c.*, sc.starting, sc.expirationDate, c.price course_price
                                 from courses c
-                                left join modules m ON m.courseId = c.id
-                                left join student_modules sm ON m.id = sm.moduleId
-                                left join studentcourses sc ON c.id = sc.courseId and sc.studentId = sm.studentId
-                                where c.status <> 0 and m.status = 2 and sm.status <> 0 and sc.status <> 0 and m.pro_access = 0
-                                and sm.studentId = $id and c.id = $courseId and sc.starting <= m.start_date");
+                                left join studentcourses sc ON c.id = sc.courseId
+                                where c.status <> 0 and sc.status <> 0
+                                and sc.studentId = $id and c.id = $courseId");
 
         $course[0]->complete_modules = DB::TABLE("studentcourses as sc")
                             ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
