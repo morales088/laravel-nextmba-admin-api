@@ -995,6 +995,19 @@ class courseController extends Controller
                         
         return response(["replay" => $replay], 200);
     }
+
+    public function deleteReplayVideo(Request $request, $id) {
+    
+        $replay = ReplayVideo::find($id);
+        
+        if (!$replay) {
+            return response(["error" => "Replay video not found."], 404);
+        }
+    
+        $replay->delete();
+    
+        return response(["message" => "Replay video deleted successfully"], 200);
+    }
     
 
     public function getModuleLanguage(Request $request, $id){
