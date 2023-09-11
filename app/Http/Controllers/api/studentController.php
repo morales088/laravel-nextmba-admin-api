@@ -161,7 +161,7 @@ class studentController extends Controller
         ]);
         
         $totalModules = 0;
-        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, c.price course_price, sc.starting date_started, sc.expirationDate, sc.completed_modules, sc.completed_modules
+        $courses = DB::SELECT("select sc.studentId, c.id courseId, c.name, c.price course_price, sc.starting date_started, sc.expirationDate
                                 from studentcourses sc
                                 left join student_modules sm ON sm.id = sc.studentId
                                 left join courses c ON c.id = sc.courseId
@@ -170,7 +170,16 @@ class studentController extends Controller
         foreach ($courses as $key => $value) {
             $value->totalModules = ++$totalModules;
 
-            $completedModules = $value->completed_modules;
+            $completedModules = DB::TABLE("studentcourses as sc")
+                                ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
+                                ->where("m.status", 2)
+                                ->where("sc.status", 1)
+                                ->whereIn("m.broadcast_status", [3,4])
+                                ->where("sc.courseId", $value->courseId)
+                                ->where("sc.studentId", $id)
+                                ->whereRaw("date(m.start_date) >= date(sc.starting)")
+                                ->count();
+            // dd($id, $value->courseId, $co)
 
             $modules = DB::SELECT("select sm.id, m.name module_name, sm.remarks, sm.status, 
                                     (CASE WHEN sm.status = 0 THEN 'deleted' WHEN sm.status = 1 THEN 'active' WHEN sm.status = 2 THEN 'pending' WHEN sm.status = 3 THEN 'completed' END) as status_code, sm.updated_at
@@ -178,9 +187,9 @@ class studentController extends Controller
                                     left join modules m ON m.id = sm.moduleId
                                     where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id and m.start_date >= '$value->date_started'");
                                     
-            foreach ($modules as $key2 => $value2) {
-                if($value2->status == 3){ $completedModules++; }
-            }
+            // foreach ($modules as $key2 => $value2) {
+            //     if($value2->status == 3){ $completedModules++; }
+            // }
             
             $value->completedModules = $completedModules;
             $value->score_percentage = ($completedModules >= $module_per_course) ? 100 : round(($completedModules / $module_per_course) * 100, 2);
