@@ -365,7 +365,7 @@ class paymentController extends Controller
             $validation['phone'] = 'string';
             $validation['full_name'] = 'string';
             $validation['country'] = 'string';
-            $validation['country'] = 'string';
+            // $validation['country'] = 'string';
             $validation['product_code'] = 'required|string';
 
             $request->query->add(['name' => $request->full_name]);

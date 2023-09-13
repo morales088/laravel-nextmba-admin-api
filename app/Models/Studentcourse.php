@@ -82,14 +82,20 @@ class Studentcourse extends Model
         $expiration_date = now()->addMonths(12);
 
         foreach ($other_courses as $key => $value) {
-            $Studentcourse = Studentcourse::create(
-                [
-                    'studentId' => $student_id,
-                    'courseId' => $value['id'],
-                    'starting' => $starting_date,
-                    'expirationDate' => $expiration_date,
-                    'quantity' => 0,
-                ]);
+            $checkCourse =  Studentcourse::where('studentId', $student_id)
+                                        ->where('courseId', $value['id'])
+                                        ->where('status', true)
+                                        ->first();
+            if(empty($checkCourse)){
+                $Studentcourse = Studentcourse::create(
+                    [
+                        'studentId' => $student_id,
+                        'courseId' => $value['id'],
+                        'starting' => $starting_date,
+                        'expirationDate' => $expiration_date,
+                        'quantity' => 0,
+                    ]);
+            }
         }
         return $other_courses;
         
