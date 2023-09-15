@@ -48,7 +48,10 @@ class Product extends Model
             
             if($checkCourse){
                 if($checkCourse->expirationDate < $expiration_date){
-                    $checkCourse->expirationDate = $expiration_date;
+
+                    $new_expiration_date = date('Y-m-d h:i:s', strtotime($checkCourse->expirationDate. ' + 1 years'));
+                    
+                    $checkCourse->expirationDate = $new_expiration_date;
                     $checkCourse->save();
 
                     $item = ['studentId' => $student_id, 'courseId' => $value['course_id'], 'qty' => ($value['quantity'] - 1)];
