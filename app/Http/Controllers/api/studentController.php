@@ -176,7 +176,7 @@ class studentController extends Controller
                                 ->where("status", 1)
                                 ->select("sc.*", DB::RAW("TIMESTAMPDIFF(YEAR, sc.starting, sc.expirationDate) * $module_per_course AS module_per_course"))
                                 ->first();
-
+            
             $completedModules = DB::TABLE("studentcourses as sc")
                                 ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
                                 ->where("m.status", 2)
@@ -194,13 +194,11 @@ class studentController extends Controller
                                     left join modules m ON m.id = sm.moduleId
                                     where sm.status <> 0 and m.courseId = $value->courseId and sm.studentId = $id and m.start_date >= '$value->date_started'");
                                     
-            // foreach ($modules as $key2 => $value2) {
-            //     if($value2->status == 3){ $completedModules++; }
-            // }
+            $module_count = empty($student_course->module_per_course) || $student_course->module_per_course <= 0 ? (int)$module_per_course : $student_course->module_per_course;             
             
-            $value->completedModules = $completedModules;
+            $value->completedModules = $completedModules > $module_count ? $module_count : $completedModules;
             $value->score_percentage = ($completedModules >= $module_per_course) ? 100 : round(($completedModules / $module_per_course) * 100, 2);
-            $value->module_per_course = empty($student_course->module_per_course) || $student_course->module_per_course <= 0 ? (int)$module_per_course : $student_course->module_per_course;
+            $value->module_per_course = $module_count;
             $value->modules = $modules;
         }
 
