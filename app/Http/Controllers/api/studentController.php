@@ -169,6 +169,13 @@ class studentController extends Controller
 
         foreach ($courses as $key => $value) {
             $value->totalModules = ++$totalModules;
+            
+            $student_course = DB::TABLE("studentcourses as sc")
+                                ->where("studentId", $id)
+                                ->where("courseId", $value->courseId)
+                                ->where("status", 1)
+                                ->select("sc.*", DB::RAW("TIMESTAMPDIFF(YEAR, sc.starting, sc.expirationDate) * $module_per_course AS module_per_course"))
+                                ->first();
 
             $completedModules = DB::TABLE("studentcourses as sc")
                                 ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
@@ -193,6 +200,7 @@ class studentController extends Controller
             
             $value->completedModules = $completedModules;
             $value->score_percentage = ($completedModules >= $module_per_course) ? 100 : round(($completedModules / $module_per_course) * 100, 2);
+            $value->module_per_course = empty($student_course->module_per_course) || $student_course->module_per_course <= 0 ? (int)$module_per_course : $student_course->module_per_course;
             $value->modules = $modules;
         }
 

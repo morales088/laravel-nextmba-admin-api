@@ -38,18 +38,34 @@ class Product extends Model
         $expiration_date = now()->addMonths(12);
 
         $paymentItems = [];
-        foreach ($product['product_items'] as $key => $value) {            
-
-            $Studentcourse = Studentcourse::create(
-                [
-                    'studentId' => $student_id,
-                    'courseId' => $value['course_id'],
-                    'starting' => $starting_date,
-                    'expirationDate' => $expiration_date,
-                    'quantity' => $value['quantity'],
-                ]);
-
+        foreach ($product['product_items'] as $key => $value) {
+            $checkCourse =  Studentcourse::where('studentId', $student_id)
+                                        ->where('courseId', $value['course_id'])
+                                        ->where('status', true)
+                                        ->first();
+                                        
             $item = ['studentId' => $student_id, 'courseId' => $value['course_id'], 'qty' => $value['quantity']];
+            
+            if($checkCourse){
+                if($checkCourse->expirationDate < $expiration_date){
+                    $checkCourse->expirationDate = $expiration_date;
+                    $checkCourse->save();
+
+                    $item = ['studentId' => $student_id, 'courseId' => $value['course_id'], 'qty' => ($value['quantity'] - 1)];
+                }
+            }else{
+                
+                $Studentcourse = Studentcourse::create(
+                    [
+                        'studentId' => $student_id,
+                        'courseId' => $value['course_id'],
+                        'starting' => $starting_date,
+                        'expirationDate' => $expiration_date,
+                        'quantity' => $value['quantity'],
+                    ]);
+
+            }
+
             array_push($paymentItems, $item);
 
         }
