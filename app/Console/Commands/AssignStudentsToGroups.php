@@ -44,7 +44,7 @@ class AssignStudentsToGroups extends Command
         $allowedRequests = $rateLimit / $perMinute;
         $chunkSize = 30; // Number of students to process in each chunk
 
-        Student::where('id', '=', '7824')->chunk($chunkSize, function ($students) use ($allowedRequests) {
+        Student::chunk($chunkSize, function ($students) use ($allowedRequests) {
             $requestsMade = 0;
 
             foreach ($students as $student) {
@@ -52,6 +52,12 @@ class AssignStudentsToGroups extends Command
                 if ($requestsMade >= $allowedRequests) {
                     sleep(3); 
                     $requestsMade = 0; // Reset requests counter
+                }
+
+                // Skip students with no email
+                if (empty($student->email)) {
+                    $this->info("Skipping student with no email.");
+                    continue;
                 }
 
                 // Retrieve unique course IDs associated with the student
