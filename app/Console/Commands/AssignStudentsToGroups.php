@@ -44,13 +44,13 @@ class AssignStudentsToGroups extends Command
         $allowedRequests = $rateLimit / $perMinute;
         $chunkSize = 30; // Number of students to process in each chunk
 
-        Student::chunk($chunkSize, function ($students) use ($allowedRequests) {
+        Student::orderBy('created_at', 'desc')->chunk($chunkSize, function ($students) use ($allowedRequests) {
             $requestsMade = 0;
 
             foreach ($students as $student) {
                 // Check if you've reached the allowed rate limit
                 if ($requestsMade >= $allowedRequests) {
-                    sleep(3); 
+                    sleep(3); // delay
                     $requestsMade = 0; // Reset requests counter
                 }
 
