@@ -39,12 +39,12 @@ class AssignStudentsToGroups extends Command
      */
     public function handle()
     {
-        $rateLimit = 60; // Adjust this based on your account type and MailerLite's rate limits
-        $perMinute = 60; // 60 seconds in a minute
+        $rateLimit = 60;
+        $perMinute = 60;
         $allowedRequests = $rateLimit / $perMinute;
         $chunkSize = 30; // Number of students to process in each chunk
 
-        Student::where('status', '<>', 0)->chunk($chunkSize, function ($students) use ($allowedRequests) {
+        Student::where('id', '=', '7824')->chunk($chunkSize, function ($students) use ($allowedRequests) {
             $requestsMade = 0;
 
             foreach ($students as $student) {
@@ -69,28 +69,30 @@ class AssignStudentsToGroups extends Command
                     $this->mailerLite->groups->assignSubscriber(
                         env('PRO_ACCOUNTS_GROUP_ID'), $subscriberId
                     );
-
-                    $this->info("Student {$student->email} assigned to group PRO ACCOUNTS.");
                 }
 
+                // Check if student is deactivated
+                if ($student->status !== 0) {
+                    // Retrieve all subscriber group records based on course IDs
+                    $allGroupCourses = SubscriberGroup::whereIn('course_id', $uniqueCourseIds)->get();
 
-                // Retrieve all subscriber group records based on course IDs
-                $allGroupCourses = SubscriberGroup::whereIn('course_id', $uniqueCourseIds)->get();
+                    foreach ($allGroupCourses as $group) {
+                        // Assign the subscriber email to the group
+                        $this->mailerLite->groups->assignSubscriber($group->mailerlite_group_id, $subscriberId);
+                    }
 
-                foreach ($allGroupCourses as $group) {
-                    // Assign the subscriber email to the group
-                    $this->mailerLite->groups->assignSubscriber($group->mailerlite_group_id, $subscriberId);
+                } else {
 
-                    $this->info("Student {$student->email} assigned to group {$group->mailerlite_group_name}.");
+                    $this->mailerLite->subscribers->delete($subscriberId);
                 }
-
                 // Update the requests counter
                 $requestsMade++;
+
+                $this->info("Student: {$student->email} processed successfully.");
             }
         });
 
         $this->info('All students have been assigned to subscriber groups.');
     }
 
-    
 }

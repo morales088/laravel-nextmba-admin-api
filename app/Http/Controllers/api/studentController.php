@@ -20,7 +20,6 @@ use App\Models\Studentsetting;
 use App\Models\SubscriberGroup;
 use Illuminate\Validation\Rule;
 use App\Mail\UpdateAccountEmail;
-use App\Services\MailerLiteService;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
@@ -28,12 +27,6 @@ use Illuminate\Support\Facades\Hash;
 
 class studentController extends Controller
 {
-
-    protected $mailerLiteService;
-
-    public function __construct(MailerLiteService $mailerLiteService) {
-        $this->mailerLiteService = $mailerLiteService;
-    }
 
     public function index(Request $request) {
         
@@ -478,8 +471,6 @@ class studentController extends Controller
 
         $student->links = Links::where('studentId', $student->id)->get();
 
-        $this->mailerLiteService->addSubscriber($student->email);
-
         return response()->json(["student" => $student], 200);
     }
 
@@ -636,8 +627,6 @@ class studentController extends Controller
                 VideoLibrary::studentProAccess($student->id);
                 Studentcourse::addAllCourse($student->id);
                 
-                // Mailerlite
-                SubscriberGroup::subscribeToAllCourseGroup($student->email);
             }
             
             
@@ -659,8 +648,6 @@ class studentController extends Controller
             return $student;
 
         });
-
-        // $this->mailerLiteService->addSubscriberToGroup($request->email);
 
         return response(["Student" => $student], 200);
 

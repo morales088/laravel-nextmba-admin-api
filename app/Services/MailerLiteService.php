@@ -18,25 +18,33 @@ class MailerLiteService
   public function createGroup($course)
   {
     $data = [
-      "name" => strtoupper($course->name .= 'Students'),
+      'name' => $course->name .= ' Students',
     ];
+    
+    $createdGroup = $this->mailerLite->groups->create($data);
+
+    $groupId = $createdGroup['body']['data']['id'];
+    $groupName = $createdGroup['body']['data']['name'];
 
     $subscriber_group = SubscriberGroup::create([
-      'name' => strtoupper($course->name .= 'Students'),
-      'course_id' => $course->id
+      'course_id' => $course->id,
+      'mailerlite_group_name' => $groupName,
+      'mailerlite_group_id' => $groupId
     ]);
 
-    $this->mailerLite->groups->create($data);
+
+    return true;
+
   }
 
-  public function addSubscriber($email) {
-    $subscriber = $this->mailerLite->subscribers->create(['email' => $email]);
-    // dd($subscriber);
+  // public function addSubscriber($email) {
+  //   $subscriber = $this->mailerLite->subscribers->create(['email' => $email]);
+  //   // dd($subscriber);
     
-    if ($subscriber) {
-      $this->addSubscriberToGroup($email);
-    }
-  }
+  //   if ($subscriber) {
+  //     $this->addSubscriberToGroup($email);
+  //   }
+  // }
 
   // public function addSubscriberToGroup($email)
   // {
@@ -94,26 +102,6 @@ class MailerLiteService
     } else {
       Log::error("Student with email $email not found.");
     }
+  }
 
-  //   // Check if student is deactivated
-  //   if ($student->status !== 0) {
-
-  //     // Retrieve all subscriber group records based on course IDs
-  //     $allGroupCourses = SubscriberGroup::whereIn('course_id', $uniqueCourseIds)->get();
-
-  //     foreach ($allGroupCourses as $group) {
-  //         // Assign the subscriber email to the group
-  //         $this->mailerLite->groups->assignSubscriber($group->mailerlite_group_id, $subscriberId);
-
-  //         $this->info("Student {$student->email} assigned to group {$group->mailerlite_group_name}.");
-  //     }
-
-  // } else {
-
-  //     $this->mailerLite->subscribers->delete($subscriberId);
-
-  //     $this->info("Student {$student->email} removed from subscribers & groups due to deactivated status.");
-  // }
-
-  }    
 }
