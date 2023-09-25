@@ -29,7 +29,13 @@ class AssignStudentsToGroups extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->mailerLite = new MailerLite(['api_key' => env('MAILERLITE_API_KEY')]);
+        $apiKey = env('MAILERLITE_API_KEY');
+
+        if (!$apiKey) {
+            throw new \Exception('MAILERLITE_API_KEY not found in environment variables.');
+        }
+
+        $this->mailerLite = new MailerLite(['api_key' => $apiKey]);
     }
 
     /**
