@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Models\Studentcourse;
 use App\Models\Studentmodule;
 use App\Models\Studentsetting;
+use App\Models\SubscriberGroup;
 use Illuminate\Validation\Rule;
 use App\Mail\UpdateAccountEmail;
 use App\Http\Controllers\Controller;
@@ -625,6 +626,7 @@ class studentController extends Controller
                 VideoLibrary::studentLibraryAccess($student->id);
                 VideoLibrary::studentProAccess($student->id);
                 Studentcourse::addAllCourse($student->id);
+                
             }
             
             

@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // 'mailerlite' => [
+    //     'api_key' => env('MAILERLITE_API_KEY'),
+    // ],
+
 ];
