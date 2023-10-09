@@ -39,16 +39,13 @@ class ExportStudentDataToCSV extends Command
      */
     public function handle()
     {
-        $chunkSize = 100;
+        $chunkSize = 10;
         // $lastSevenDays = now()->subDay(30);
         
         $csvData = []; // Initialize an array to store CSV data
+        // $students = Student::limit(10)->get();
         
-        // Process students created or updated in the last 24 hours
-        // Student::where(function ($query) use ($lastSevenDays) {
-        //     $query->where('created_at', '>=', $lastSevenDays)
-        //     ->orWhere('updated_at', '>=', $lastSevenDays);
-        Student::chunk($chunkSize, function ($students) use (&$csvData) { // Pass $csvData by reference
+        Student::limit(20)->chunk($chunkSize, function ($students) use (&$csvData) { // Pass $csvData by reference
 
             foreach ($students as $student) {
 
@@ -72,16 +69,16 @@ class ExportStudentDataToCSV extends Command
                     $rowData = [
                         'student_email' => $normalizedEmail,
                         'student_account_type' => $student->account_type,
-                        'student_status' => $student->account_type,
+                        'student_status' => $student->status,
                         'student_course_id' => $course->courseId,
                         'student_course_status' => $course->status,
                     ];
 
                     // Check if the course has an expiration date and if it's expired
                     if ($course->expirationDate && now()->isAfter($course->expirationDate)) {
-                        $rowData['student_course_status'] = 'expired';
+                        $rowData['student_course_expiration'] = 1;
                     } else {
-                        $rowData['student_course_status'] = 'active';
+                        $rowData['student_course_expiration'] = 0;
                     }
 
                     $csvData[] = $rowData;
@@ -103,9 +100,6 @@ class ExportStudentDataToCSV extends Command
 
         $csvFile = fopen($csvFilePath, 'a');
 
-        // Write the header row
-        // fputcsv($csvFile, ['student email', 'student account_type', 'student status', 'student courseId', 'student courseId status']);
-        
         // Write data rows
         foreach ($csvData as $row) {
             fputcsv($csvFile, $row);

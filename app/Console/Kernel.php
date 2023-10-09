@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         // $schedule->command('students:assign-groups')->daily()->withoutOverlapping();
         // $schedule->command('export:student-data')->everyFifteenMinutes()->withoutOverlapping();
-        // $schedule->command('students:assign-groups')->hourly()->withoutOverlapping();
+        $schedule->command('students:assign-groups')->everyTwoMinutes()->withoutOverlapping();
         // $schedule->command('students:unassign-groups')->hourly()->withoutOverlapping();
     }
 
