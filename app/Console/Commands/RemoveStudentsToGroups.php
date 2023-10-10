@@ -99,6 +99,7 @@ class RemoveStudentsToGroups extends Command
         }
 
         // Close the CSV file
+        ftruncate($csvFile, 0);
         fclose($csvFile);
 
         Log::info("Processed all students in the list.");
