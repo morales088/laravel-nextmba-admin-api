@@ -35,7 +35,6 @@ class ExportExpiredStudentCourse extends Command
         $csvData = [];
 
         $expiredStudentCourses = Studentcourse::where('expirationDate', '<', now())
-            ->where('expirationDate', '>=', now()->subDay()) // Check for records within the last 24 hours
             ->where('status', 0)
             ->get();
 

@@ -37,19 +37,14 @@ class AddStudentToGroups extends Command
      *
      * @return int
      */
-    public function handle() {
-
+    public function handle()
+    {
         // Load and process the CSV file
         $csvFilePath = public_path('csv/students_to_add.csv');
-        $processedCount = 0; // Track the number of processed rows
-
-        // Define a new file to store the temp data
-        $remainingDataFile = public_path('csv/students_to_add_temp.csv');
-        $remainingCsvFile = fopen($remainingDataFile, 'w');
 
         $csvFile = fopen($csvFilePath, 'r+');
 
-        while (($line = fgets($csvFile)) !== false && $processedCount < 10) {
+        while (($line = fgets($csvFile)) !== false) {
             $data = str_getcsv(trim($line));
 
             if ($data === false) {
@@ -69,63 +64,59 @@ class AddStudentToGroups extends Command
             }
 
             $normalizedEmail = mb_strtolower($studentEmail);
-            
-            // Upsert a new subscriber
-            $studentSubscriber = ['email' => $normalizedEmail];
-            $this->mailerLite->subscribers->create($studentSubscriber);
-            
-            // Find the subscriber from mailer lite
-            $subscriber = $this->mailerLite->subscribers->find($studentSubscriber['email']);
-            $subscriberId = $subscriber['body']['data']['id'];
-            
-            // Retrieve unique active course IDs associated with the student
-            $uniqueActiveCourses = $student->courses->where('status', 1)->unique('courseId');
 
-            if ($student->status != 0) {
-                foreach ($uniqueActiveCourses as $course) {
-                    $studentCourseGroup = SubscriberGroup::where('course_id', $course->courseId)->first();
+            try {
+                // Upsert a new subscriber
+                $studentSubscriber = ['email' => $normalizedEmail];
+                $this->mailerLite->subscribers->create($studentSubscriber);
 
-                    // Add to mailerlite group
-                    $this->mailerLite->groups->assignSubscriber(
-                        $studentCourseGroup->mailerlite_group_id, 
-                        $subscriberId
-                    );
+                // Find the subscriber from mailer lite
+                $subscriber = $this->mailerLite->subscribers->find($studentSubscriber['email']);
+                $subscriberId = $subscriber['body']['data']['id'];
 
-                    // Check if student account type is pro account
-                    if ($student->account_type == 3) {
+                // Retrieve unique active course IDs associated with the student
+                $uniqueActiveCourses = $student->courses->where('status', 1)->unique('courseId');
+
+                if ($student->status != 0) {
+                    foreach ($uniqueActiveCourses as $course) {
+                        $studentCourseGroup = SubscriberGroup::where('course_id', $course->courseId)->first();
+
+                        // Add to mailerlite group
                         $this->mailerLite->groups->assignSubscriber(
-                            env('PRO_ACCOUNTS_GROUP_ID'), $subscriberId
+                            $studentCourseGroup->mailerlite_group_id,
+                            $subscriberId
                         );
+
+                        // Check if student account type is pro account
+                        if ($student->account_type == 3) {
+                            $this->mailerLite->groups->assignSubscriber(
+                                env('PRO_ACCOUNTS_GROUP_ID'), $subscriberId
+                            );
+                        }
                     }
-        
+                } else {
+                    // Remove student from subscriber list
+                    $this->mailerLite->subscribers->delete($subscriberId);
+                    Log::info("Removed from subscribers: $studentEmail");
                 }
 
-            } else {
-                // Remove student from subcriber list
-                $this->mailerLite->subscribers->delete($subscriberId);
-                Log::info("Removed from subscribers: $studentEmail");
+                // Log messages for each processed student
+                Log::info("Processed student: $studentEmail");
+                
+            } catch (\Exception $e) {
+                // Handle any exceptions that occur during processing
+                Log::error("Error processing student: $studentEmail - " . $e->getMessage());
             }
 
-            // Log messages for each processed student
-            Log::info("Processed student: $studentEmail");
-
-            $processedCount++;
+            // Add a delay of approximately 1 minute (60 seconds)
+            sleep(60);
         }
 
-        // Now, copy the remaining data from the original file to the new file
-        while (($line = fgets($csvFile)) !== false) {
-            fwrite($remainingCsvFile, $line);
-        }
-
-        // Close both CSV files
+        // Close the CSV file
         fclose($csvFile);
-        fclose($remainingCsvFile);
 
-        // Replace the original CSV file with the contents of the remaining data file
-        if (file_exists($remainingDataFile)) {
-            rename($remainingDataFile, $csvFilePath);
-        }
-
-        $this->info("Processed $processedCount students.");
+        Log::info("Processed all students in the list.");
     }
+
+
 }

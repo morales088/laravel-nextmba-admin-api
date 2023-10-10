@@ -42,15 +42,10 @@ class RemoveStudentsToGroups extends Command
     {
         // Load and process the CSV file
         $csvFilePath = public_path('csv/students_to_unassign.csv');
-        $processedCount = 0; // Track the number of processed rows
-
-        // Define a new file to store the temp data
-        $remainingDataFile = public_path('csv/students_to_unassign_temp.csv');
-        $remainingCsvFile = fopen($remainingDataFile, 'w');
 
         $csvFile = fopen($csvFilePath, 'r+');
 
-        while (($line = fgets($csvFile)) !== false && $processedCount < 10) {
+        while (($line = fgets($csvFile)) !== false) {
             $data = str_getcsv(trim($line));
 
             if ($data === false) {
@@ -70,46 +65,43 @@ class RemoveStudentsToGroups extends Command
 
             $normalizedEmail = mb_strtolower($studentEmail);
             $studentSubscriber = ['email' => $normalizedEmail];
-            $this->mailerLite->subscribers->create($studentSubscriber);
             
-            // Find the subscriber from mailer lite
-            $subscriber = $this->mailerLite->subscribers->find($studentSubscriber['email']);
-            $subscriberId = $subscriber['body']['data']['id'];
+            try {
+                $this->mailerLite->subscribers->create($studentSubscriber);
 
-            $studentCourseGroup = SubscriberGroup::where('course_id', $studentCourseIdToRemove)->first();
-            
-            if ($studentStatus == 'deactivated') {
-                // Remove student from subcriber list
-                $this->mailerLite->subscribers->delete($subscriberId);
-                Log::info("Removed from subscribers: $studentEmail");
-            } else {
-                $this->mailerLite->groups->unAssignSubscriber(
-                    $studentCourseGroup->mailerlite_group_id,
-                    $subscriberId
-                );
-                Log::info("Unassign from the group: $studentEmail");
+                // Find the subscriber from mailer lite
+                $subscriber = $this->mailerLite->subscribers->find($studentSubscriber['email']);
+                $subscriberId = $subscriber['body']['data']['id'];
+
+                $studentCourseGroup = SubscriberGroup::where('course_id', $studentCourseIdToRemove)->first();
+                
+                if ($studentStatus == 'deactivated') {
+                    // Remove student from subscriber list
+                    $this->mailerLite->subscribers->delete($subscriberId);
+                    Log::info("Removed from subscribers: $studentEmail");
+                } else {
+                    $this->mailerLite->groups->unAssignSubscriber(
+                        $studentCourseGroup->mailerlite_group_id,
+                        $subscriberId
+                    );
+                    Log::info("Unassign from the group: $studentEmail");
+                }
+
+                // Log messages for each processed student
+                Log::info("Processed student: $studentEmail");
+            } catch (\Exception $e) {
+                // Handle any exceptions that occur during processing
+                Log::error("Error processing student: $studentEmail - " . $e->getMessage());
             }
 
-            // Log messages for each processed student
-            Log::info("Processed student: $studentEmail");
-
-            $processedCount++;
+            // Add a delay of approximately 1 minute (60 seconds)
+            sleep(60);
         }
 
-        // Now, copy the remaining data from the original file to the new file
-        while (($line = fgets($csvFile)) !== false) {
-            fwrite($remainingCsvFile, $line);
-        }
-
-        // Close both CSV files
+        // Close the CSV file
         fclose($csvFile);
-        fclose($remainingCsvFile);
 
-        // Replace the original CSV file with the contents of the remaining data file
-        if (file_exists($remainingDataFile)) {
-            rename($remainingDataFile, $csvFilePath);
-        }
-
-        $this->info("Processed $processedCount students.");
+        Log::info("Processed all students in the list.");
     }
+
 }
