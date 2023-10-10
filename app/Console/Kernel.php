@@ -18,8 +18,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('export:student-data')->hourly()->withoutOverlapping();
         $schedule->command('students:check-course')->hourly()->withoutOverlapping();
 
-        $schedule->command('students:add-to-groups')->everyTwoMinutes()->withoutOverlapping();
-        $schedule->command('students:remove-to-groups')->everyTwoMinutes()->withoutOverlapping();
+        $schedule->command('students:add-to-groups')->hourly()->withoutOverlapping();
+        $schedule->command('students:remove-to-groups')->hourly()->withoutOverlapping();
     }
 
     /**
