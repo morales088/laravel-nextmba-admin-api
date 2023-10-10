@@ -34,7 +34,8 @@ class ExportExpiredStudentCourse extends Command
         $csvFilePath = public_path('csv/students_to_unassign.csv');
         $csvData = [];
 
-        $expiredStudentCourses = Studentcourse::where('expirationDate', '<', now())
+        $expiredStudentCoursesLast24Hours = Studentcourse::where('expirationDate', '<', now())
+            ->where('expirationDate', '>=', now()->subDay()) // Check for records within the last 24 hours
             ->where('status', 0)
             ->get();
 
