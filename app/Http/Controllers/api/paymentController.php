@@ -15,6 +15,7 @@ use App\Models\VideoLibrary;
 use Illuminate\Http\Request;
 use App\Models\Studentcourse;
 use Illuminate\Validation\Rule;
+use App\Services\StudentService;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
@@ -621,6 +622,8 @@ class paymentController extends Controller
             return $payment;
 
         });
+
+        StudentService::addToCsv($payment->student_id);
         
         return response(["message" => "success", "payment" => $payment], 200);
     }

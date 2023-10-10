@@ -20,6 +20,7 @@ use App\Models\Studentsetting;
 use App\Models\SubscriberGroup;
 use Illuminate\Validation\Rule;
 use App\Mail\UpdateAccountEmail;
+use App\Services\StudentService;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountCredentialEmail;
 use Illuminate\Support\Facades\Auth;
@@ -451,6 +452,9 @@ class studentController extends Controller
             'status' => $status,
         ]);
 
+        // Add the student to the CSV file
+        StudentService::addToCsv($students->id);
+
         return response(["message" => "successfully updated this student"], 200);
 
     }
@@ -644,6 +648,9 @@ class studentController extends Controller
             Mail::to($recipients)->send(new AccountCredentialEmail($user));
 
             $student->links = Links::where('studentId', $student->id)->get();
+
+            // Add the student to the CSV file
+            StudentService::addToCsv($student->id);
             
             return $student;
 
@@ -663,12 +670,13 @@ class studentController extends Controller
         ]);
         
         $studentCourse = Studentcourse::insertStudentCourse($request->all());
-
-        // dd($request->all(), $studentCourse);
        
         if(!$studentCourse){
             return response(["message" => "record already exist"], 409);
         }
+
+        // Add the student to the CSV file
+        StudentService::addToCsv($request->studentId);
                
         return response(["message" => "successfully added student's course"], 200);
 
