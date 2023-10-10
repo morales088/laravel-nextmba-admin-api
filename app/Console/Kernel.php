@@ -15,9 +15,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('export:student-data')->everyMinute()->withoutOverlapping();
+        $schedule->command('export:student-data')->everyThirtyMinutes()->withoutOverlapping();
+        $schedule->command('students:check-course')->everyThirtyMinutes()->withoutOverlapping();
+
         $schedule->command('students:add-to-groups')->everyTwoMinutes()->withoutOverlapping();
-        $schedule->command('students:check-course')->everyTwoMinutes()->withoutOverlapping();
         $schedule->command('students:remove-to-groups')->everyTwoMinutes()->withoutOverlapping();
     }
 
