@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use SplFileObject;
 use App\Models\Student;
 use MailerLite\MailerLite;
 use App\Models\SubscriberGroup;
@@ -39,76 +40,107 @@ class AssignStudentsToGroups extends Command
      */
     public function handle()
     {
-        try {
-            $rateLimit = 60;
-            $perMinute = 60;
-            $allowedRequests = $rateLimit / $perMinute;
-            $chunkSize = 50; // Number of students to process in each chunk
+        // // Load and process the CSV file
+        // $csvFilePath = public_path('csv/students_data.csv');
+        // $processedCount = 0; // Track the number of processed rows
 
-            Student::orderBy('created_at', 'desc')->take(900)->chunk($chunkSize, function ($students) use ($allowedRequests) {
-                $requestsMade = 0;
+        // // Define a new file to store the remaining data
+        // $remainingDataFile = public_path('csv/students_data_remaining.csv');
+        // $remainingCsvFile = fopen($remainingDataFile, 'w');
 
-                foreach ($students as $student) {
-                    // Check if you've reached the allowed rate limit
-                    if ($requestsMade >= $allowedRequests) {
-                        sleep(5); // delay
-                        $requestsMade = 0; // Reset requests counter
-                    }
+        // $csvFile = fopen($csvFilePath, 'r+');
 
-                    if (!filter_var(mb_strtolower($student->email), FILTER_VALIDATE_EMAIL)) {
-                        Log::notice("Skipping student with invalid email: {$student->email}");
-                        continue;
-                    }
+        // while (($line = fgets($csvFile)) !== false && $processedCount < 10) {
+        //     $data = str_getcsv(trim($line));
 
-                    if (empty($student->email)) {
-                        Log::notice("Skipping student with no email.");
-                        continue;
-                    }
+        //     if ($data === false) {
+        //         break; // End of file
+        //     }
 
-                    $normalizedEmail = mb_strtolower($student->email);
+        //     // Extract data from each row of the CSV
+        //     $studentId = $data[0];
+        //     $studentEmail = $data[2];
 
-                    // Retrieve unique course IDs associated with the student
-                    $uniqueCourseIds = $student->courses->pluck('courseId')->unique()->values()->toArray();
+        //     if (!filter_var(mb_strtolower($studentEmail), FILTER_VALIDATE_EMAIL)) {
+        //         Log::notice("Skipping invalid email: {$studentEmail}");
+        //         continue;
+        //     }
 
-                    // Upsert a new subscriber
-                    $subscriber = ['email' => $normalizedEmail];
-                    $this->mailerLite->subscribers->create($subscriber);
+        //     $normalizedEmail = mb_strtolower($studentEmail);
 
-                    $subscriber = $this->mailerLite->subscribers->find($subscriber['email']);
-                    $subscriberId = $subscriber['body']['data']['id'];
+        //     // Retrieve student and unique course associated
+        //     $student = Student::where('id', $studentId)->first();
+            
+        //     // Upsert a new subscriber
+        //     $studentSubscriber = ['email' => $normalizedEmail];
+        //     $this->mailerLite->subscribers->create($studentSubscriber);
+            
+        //     // Find the subscriber from mailerlite
+        //     $subscriber = $this->mailerLite->subscribers->find($studentSubscriber['email']);
+        //     $subscriberId = $subscriber['body']['data']['id'];
+            
+        //     // Retrieve course associated with student
+        //     $uniqueCourses = $student->courses->unique('courseId');
 
-                    // Check if student has a pro account
-                    if ($student->account_type === 3) {
-                        $this->mailerLite->groups->assignSubscriber(
-                            env('PRO_ACCOUNTS_GROUP_ID'), $subscriberId
-                        );
-                    }
+        //     // Check if student is deactivated
+        //     if ($student->status == 0) {
+        //         foreach ($uniqueCourses as $course) {
+        //             $courseId = $course->courseId;
+        //             $courseStatus = $course->status;
+        //             $courseExpirationDate = $course->expirationDate;
+                
+        //             $studentCourseGroup = SubscriberGroup::where('course_id', $courseId)->first();
 
-                    // Check if student is deactivated
-                    if ($student->status !== 0) {
-                        // Retrieve all subscriber group records based on course IDs
-                        $allGroupCourses = SubscriberGroup::whereIn('course_id', $uniqueCourseIds)->get();
+        //             // Check if the course is active and not expired
+        //             if ($courseStatus == 1 && $courseExpirationDate && now()->isBefore($courseExpirationDate)) {
+        //                 $this->mailerLite->groups->assignSubscriber(
+        //                     $studentCourseGroup->mailerlite_group_id, 
+        //                     $subscriberId
+        //                 );
+        //             } else {
+        //                 $this->mailerLite->groups->unAssignSubscriber(
+        //                     $studentCourseGroup->mailerlite_group_id,
+        //                     $subscriberId
+        //                 );
+        //             }
 
-                        foreach ($allGroupCourses as $group) {
-                            // Assign the subscriber email to the group
-                            $this->mailerLite->groups->assignSubscriber($group->mailerlite_group_id, $subscriberId);
-                        }
-                    } else {
-                        $this->mailerLite->subscribers->delete($subscriberId);
-                    }
-                    // Update the requests counter
-                    $requestsMade++;
-
-                    Log::info("Student: {$student->email} processed successfully.");
-                }
-            });
-
-            Log::info('Students have been assigned to subscriber groups.');
+        //             // Check if student account type is pro account
+        //             if ($student->account_type == 3) {
+        //                 $this->mailerLite->groups->assignSubscriber(
+        //                     env('PRO_ACCOUNTS_GROUP_ID'), $subscriberId
+        //                 );
+        //             }
         
-        } catch (\Exception $e) {
+        //         }
 
-            Log::error('An error occurred: ' . $e->getMessage());
-        }
+        //     } else {
+        //         // Remove student as a subcriber
+        //         $this->mailerLite->subscribers->delete($subscriberId);
+        //         Log::info("Removed from subscribers: $studentEmail");
+        //     }
+
+        //     // Log messages for each processed student
+        //     Log::info("Processed student: $studentEmail");
+
+        //     $processedCount++;
+        // }
+
+        // // Now, copy the remaining data from the original file to the new file
+        // while (($line = fgets($csvFile)) !== false) {
+        //     fwrite($remainingCsvFile, $line);
+        // }
+
+        // // Close both CSV files
+        // fclose($csvFile);
+        // fclose($remainingCsvFile);
+
+        // // Replace the original CSV file with the contents of the remaining data file
+        // if (file_exists($remainingDataFile)) {
+        //     rename($remainingDataFile, $csvFilePath);
+        // }
+
+        // // Optionally, you can add cleanup or final actions here
+        // $this->info("Processed $processedCount students.");
     }
 
 }
