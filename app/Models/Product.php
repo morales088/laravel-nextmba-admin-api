@@ -47,7 +47,11 @@ class Product extends Model
             $item = ['studentId' => $student_id, 'courseId' => $value['course_id'], 'qty' => $value['quantity']];
             
             if($checkCourse){
-                if($checkCourse->expirationDate < $expiration_date){
+                $moduleAccess = Studentcourse::getPastModule($student_id, $value['course_id']);
+                // dd($moduleAccess, !empty($moduleAccess->module_per_course), 
+                // $moduleAccess->module_per_course < $moduleAccess->past_module_count);
+                // // if($checkCourse->expirationDate < $expiration_date){
+                if($moduleAccess->module_per_course < $moduleAccess->past_module_count){
 
                     $new_expiration_date = date('Y-m-d h:i:s', strtotime($checkCourse->expirationDate. ' + 1 years'));
                     

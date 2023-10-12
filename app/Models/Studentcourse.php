@@ -100,4 +100,21 @@ class Studentcourse extends Model
         return $other_courses;
         
     }
+
+    public static function getPastModule($student_id, $course_id){
+        $module_per_course = env('MODULE_PER_COURSE');
+
+        $past_module = DB::TABLE("studentcourses as sc")
+                                ->leftJoin("modules as m", "sc.courseId", "=", "m.courseId")
+                                ->where("m.status", 2)
+                                ->where("sc.status", 1)
+                                ->whereIn("m.broadcast_status", [3,4])
+                                ->where("sc.courseId", $course_id)
+                                ->where("sc.studentId", $student_id)
+                                ->whereRaw("date(m.start_date) >= date(sc.starting)")
+                                ->select('sc.*',DB::RAW("TIMESTAMPDIFF(YEAR, sc.starting, sc.expirationDate) * $module_per_course AS module_per_course"), DB::RAW("Count(m.id) as past_module_count"))
+                                ->first();
+                                
+        return $past_module;
+    }
 }
