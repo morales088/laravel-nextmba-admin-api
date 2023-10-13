@@ -43,6 +43,10 @@ class RemoveStudentsToGroups extends Command
         // Load and process the CSV file
         $csvFilePath = public_path('csv/students_to_unassign.csv');
 
+        // Define a new file to store the temp data
+        $remainingDataFile = public_path('csv/students_to_unassign_temp.csv');
+        $remainingCsvFile = fopen($remainingDataFile, 'w');
+
         $csvFile = fopen($csvFilePath, 'r+');
 
         while (($line = fgets($csvFile)) !== false) {
@@ -94,13 +98,17 @@ class RemoveStudentsToGroups extends Command
                 Log::error("Error processing student: $studentEmail - " . $e->getMessage());
             }
 
-            // Add a delay of approximately 1 minute (60 seconds)
-            sleep(60);
+            sleep(10);
         }
 
-        // Close the CSV file
-        ftruncate($csvFile, 0);
+        // Close both CSV files
         fclose($csvFile);
+        fclose($remainingCsvFile);
+
+        // Replace the original CSV file with the contents of the remaining data file
+        if (file_exists($remainingDataFile)) {
+            rename($remainingDataFile, $csvFilePath);
+        }
 
         Log::info("Processed all students in the list.");
     }
