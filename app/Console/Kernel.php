@@ -16,10 +16,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('export:student-data')->dailyAt('15:00')->timezone('Asia/Manila')->withoutOverlapping();
-        $schedule->command('students:check-course')->dailyAt('15:00')->timezone('Asia/Manila')->withoutOverlapping();
+        $schedule->command('students:check-course')->dailyAt('16:00')->timezone('Asia/Manila')->withoutOverlapping();
 
-        $schedule->command('students:add-to-groups')->dailyAt('15:00')->timezone('Asia/Manila')->withoutOverlapping();
-        $schedule->command('students:remove-to-groups')->dailyAt('15:00')->timezone('Asia/Manila')->withoutOverlapping();
+        $schedule->command('students:add-to-groups')->dailyAt('16:00')->timezone('Asia/Manila')->withoutOverlapping();
+        $schedule->command('students:remove-to-groups')->dailyAt('16:00')->timezone('Asia/Manila')->withoutOverlapping();
     }
 
     /**
