@@ -400,7 +400,7 @@ class courseController extends Controller
 
             // insert to topics table
 
-            $addTopic = Topic::create($request->only('video_link', 'vimeo_url', 'description', 'uid') +
+            $addTopic = Topic::create($request->only('video_link', 'vimeo_url', 'description', 'uid', 'start_time', 'end_time') +
                 [
                     'moduleId' => $request->moduleId,
                     'speakerId' => $request->speakerId,
@@ -494,7 +494,7 @@ class courseController extends Controller
             
             // dd($updateTopic);
         
-            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'vimeo_url', 'uid', 'description', 'status') +
+            $updateTopic->update($request->only('moduleId', 'speakerId', 'name', 'video_link', 'vimeo_url', 'uid', 'description', 'start_time', 'end_time', 'status') +
                             [ 'updated_at' => now()]
                             );
                             
