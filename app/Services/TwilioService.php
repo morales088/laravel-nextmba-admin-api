@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use Twilio\Rest\Client;
 
 
@@ -19,13 +20,16 @@ class TwilioService
     $account_sid = getenv('TWILIO_ACCOUNT_SID');
     $auth_token = getenv('TWILIO_AUTH_TOKEN');
     $twilio_number = getenv("TWILIO_FROM");
-    // dd($account_sid, $auth_token, $twilio_number);
 
-    $client = new Client($account_sid, $auth_token);
-    $client->messages->create($receiverNumber, [
-      'from' => $twilio_number, 
-      'body' => $message
-    ]);
+    try {
+      $client = new Client($account_sid, $auth_token);
+      $client->messages->create($receiverNumber, [
+        'from' => $twilio_number,
+        'body' => $message
+      ]);
+    } catch (Exception $e) {
+      Log::error('Twilio Error: ' . $e->getMessage());
+    }
 
   }
 
