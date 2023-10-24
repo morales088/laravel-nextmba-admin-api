@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use Exception;
 use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Log;
+use Twilio\Exceptions\TwilioException;
 
 
 class TwilioService
@@ -27,7 +28,7 @@ class TwilioService
         'from' => $twilio_number,
         'body' => $message
       ]);
-    } catch (Exception $e) {
+    } catch (TwilioException  $e) {
       Log::error('Twilio Error: ' . $e->getMessage());
     }
 
