@@ -18,6 +18,7 @@ use App\Models\Studentcourse;
 use App\Models\Studentmodule;
 use App\Models\Studentsetting;
 use App\Models\SubscriberGroup;
+use App\Services\TwilioService;
 use Illuminate\Validation\Rule;
 use App\Mail\UpdateAccountEmail;
 use App\Services\StudentService;
@@ -645,7 +646,19 @@ class studentController extends Controller
                 env('ADMIN_EMAIL_ADDRESS')
             ];
 
+            $student_info_sms = [
+                'email' => $student->email,
+                'phone' => $student->phone,
+                'password' => $textPassword
+            ];
+
             Mail::to($recipients)->send(new AccountCredentialEmail($user));
+
+            // Check if the student has a phone number and it's not empty
+            if ($student->phone) {
+                $twilioService = new TwilioService(); // Instantiate the Twilio service
+                $twilioService->sendSmsCredential($student_info_sms); // Send an SMS notification
+            }
 
             $student->links = Links::where('studentId', $student->id)->get();
 

@@ -14,6 +14,7 @@ use App\Models\ProductItem;
 use App\Models\VideoLibrary;
 use Illuminate\Http\Request;
 use App\Models\Studentcourse;
+use App\Services\TwilioService;
 use Illuminate\Validation\Rule;
 use App\Services\StudentService;
 use App\Http\Controllers\Controller;
@@ -474,9 +475,21 @@ class paymentController extends Controller
                         $partner = Partner::where('id', $request->partner_id)->first();
                         $recipients[] = $partner->email;
                     }
+
+                    $student_info_sms = [
+                        'email' => $student->email,
+                        'phone' => $student->phone,
+                        'password' => $password
+                    ];
                     
                     try {
                         Mail::to($recipients)->send(new AccountCredentialEmail($user));
+
+                        // Check if the student has a phone number and it's not empty
+                        if ($student->phone) {
+                            $twilioService = new TwilioService(); // Instantiate the Twilio service
+                            $twilioService->sendSmsCredential($student_info_sms); // Send an SMS notification
+                        }
                     } catch (\Exception $e) {
                         
                     }
