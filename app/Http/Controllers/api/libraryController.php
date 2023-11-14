@@ -168,7 +168,7 @@ class libraryController extends Controller
                 $request->query->add(['cover_image' => $cover_path]);
             }
 
-            $video_library = VideoLibrary::create($request->only('description', 'uid', 'vimeo_url' ,'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
+            $video_library = VideoLibrary::create($request->only('description', 'uid', 'vimeo_id_es', 'vimeo_id_pt', 'vimeo_url' ,'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
                         [
                             'name' => $request->name,
                             'updated_at' => now()
