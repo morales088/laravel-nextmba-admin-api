@@ -141,7 +141,7 @@ class libraryController extends Controller
 
             
             $video_library = VideoLibrary::find($id);
-            $video_library->update($request->only('name', 'description', 'uid', 'vimeo_url' ,'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
+            $video_library->update($request->only('name', 'description', 'uid', 'vimeo_id_es', 'vimeo_id_pt', 'vimeo_url' ,'video_length', 'speaker', 'cover_image', 'logo', 'category', 'date', 'type', 'broadcast_status', 'status') +
                         [ 'updated_at' => now()]
                         );
 
