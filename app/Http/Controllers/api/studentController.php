@@ -654,11 +654,11 @@ class studentController extends Controller
 
             Mail::to($recipients)->send(new AccountCredentialEmail($user));
 
-            // Check if the student has a phone number and it's not empty
-            if ($student->phone) {
-                $twilioService = new TwilioService(); // Instantiate the Twilio service
-                $twilioService->sendSmsCredential($student_info_sms); // Send an SMS notification
-            }
+            // // Check if the student has a phone number and it's not empty
+            // if ($student->phone) {
+            //     $twilioService = new TwilioService(); // Instantiate the Twilio service
+            //     $twilioService->sendSmsCredential($student_info_sms); // Send an SMS notification
+            // }
 
             $student->links = Links::where('studentId', $student->id)->get();
 
