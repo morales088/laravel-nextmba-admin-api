@@ -109,7 +109,7 @@ class libraryController extends Controller
                     ],
             'type' => [
                         'numeric',
-                        Rule::in(['1', '2', '3']),
+                        Rule::in(['1', '2', '3', '4']),
                     ],
         ]);
 
